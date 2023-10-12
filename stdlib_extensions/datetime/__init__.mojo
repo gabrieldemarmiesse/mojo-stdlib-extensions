@@ -2,7 +2,7 @@
 But when the user sees it (public api), the the year starts at 1.
 Same for day and month.
 """
-from mojo_stdlib.datetime.utils import (
+from stdlib_extensions.datetime.utils import (
     _convert_periods_to_microseconds,
     is_leap_year,
     compute_years_from_days,
@@ -14,7 +14,7 @@ from mojo_stdlib.datetime.utils import (
     DAYS_TO_MICROSECONDS,
     clock_gettime,
 )
-from mojo_stdlib.builtins.string import ljust
+from stdlib_extensions.builtins.string import ljust
 
 from time import now
 
@@ -35,9 +35,13 @@ struct timedelta:
         weeks: Int = 0,
     ) raises:
         self._microseconds = _convert_periods_to_microseconds(
-            days=days + weeks * 7, hours=hours, minutes=minutes, seconds=seconds, microseconds=microseconds
+            days=days + weeks * 7,
+            hours=hours,
+            minutes=minutes,
+            seconds=seconds,
+            microseconds=microseconds,
         ).to_int()
-    
+
     fn total_microseconds(self) -> Int:
         return self._microseconds.to_int()
 
@@ -100,7 +104,7 @@ struct datetime:
 
         alias months_to_days_vector = get_months_to_days_vector()
 
-        for i in range(month-1):
+        for i in range(month - 1):
             days += months_to_days_vector[i]
 
         if is_leap_year(year) and month >= 2:
@@ -143,16 +147,18 @@ struct datetime:
 
     fn _months_and_days(self) -> Tuple[Int, Int]:
         let year = self.year()
-        var days_left = self._total_days() - get_number_of_days_since_start_of_calendar(year) + 1
+        var days_left = self._total_days() - get_number_of_days_since_start_of_calendar(
+            year
+        ) + 1
         let months_to_days_vector = get_months_to_days_vector(is_leap_year(year))
         var days_this_month: Int = 0
         for month_to_try in range(1, 13):
-            days_this_month = months_to_days_vector[month_to_try-1]
+            days_this_month = months_to_days_vector[month_to_try - 1]
             if days_left > days_this_month:
                 days_left -= days_this_month
             else:
                 return month_to_try, days_left
-        return 0, 0 # this should never happen
+        return 0, 0  # this should never happen
 
     fn _total_days(self) -> Int:
         return (self._microseconds // DAYS_TO_MICROSECONDS).to_int()
@@ -161,7 +167,9 @@ struct datetime:
         return datetime(_microseconds=self._microseconds + other._microseconds)
 
     fn __sub__(self, other: datetime) raises -> timedelta:
-        return timedelta(microseconds=(self._microseconds - other._microseconds).to_int())
+        return timedelta(
+            microseconds=(self._microseconds - other._microseconds).to_int()
+        )
 
     fn __str__(self) raises -> String:
         var result: String = ""
@@ -171,31 +179,39 @@ struct datetime:
         result += " " + ljust(String(self.hour()), 2, "0")
         result += ":" + ljust(String(self.minute()), 2, "0")
         result += ":" + ljust(String(self.second()), 2, "0")
-        
+
         if self.microsecond() != 0:
             result += "." + ljust(String(self.microsecond()), 6, "0")
         return result
 
     fn __repr__(self) -> String:
-        var result =  "datetime.datetime(" + String(self.year()) +", " + String(self.month()) +", " +String(self.day()) + ", " + String(self.hour()) + ", " + String(self.minute()) 
+        var result = "datetime.datetime(" + String(self.year()) + ", " + String(
+            self.month()
+        ) + ", " + String(self.day()) + ", " + String(self.hour()) + ", " + String(
+            self.minute()
+        )
         let second = self.second()
         let microsecond = self.microsecond()
 
         if second or microsecond:
             result += ", " + String(second)
-        
+
         if microsecond:
             result += ", " + String(microsecond)
-        
+
         return result + ")"
 
 
 fn datetime_now() raises -> datetime:
     let ctime_spec = clock_gettime()
-    return datetime(1970, 1, 1) + timedelta(seconds=ctime_spec.tv_sec, microseconds=ctime_spec.tv_nsec // 1_000)
+    return datetime(1970, 1, 1) + timedelta(
+        seconds=ctime_spec.tv_sec, microseconds=ctime_spec.tv_nsec // 1_000
+    )
+
 
 fn datetime_min() -> datetime:
     return datetime(_microseconds=0)
+
 
 fn datetime_max() raises -> datetime:
     return datetime(9999, 12, 31, 23, 59, 59, 999999)
