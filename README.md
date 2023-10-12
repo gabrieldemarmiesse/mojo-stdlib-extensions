@@ -1,4 +1,4 @@
-# mojo-stdlib
+# mojo-stdlib-extensions
 A replica of python's stdlib in mojo
 
 
