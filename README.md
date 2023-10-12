@@ -10,6 +10,8 @@ from stdlib_extensions.datetime import (
     datetime_max, 
     timedelta
 )
+from stdlib_extensions.builtins.string import ljust
+
 
 def main():
     now = datetime_now()
