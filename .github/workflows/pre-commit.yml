@@ -1,0 +1,40 @@
+name: Run pre-commit
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install modular CLI
+      env:
+        MODULAR_AUTH: ${{ secrets.MODULAR_AUTH }}
+      run: curl https://get.modular.com | MODULAR_AUTH="$MODULAR_AUTH" sh -
+
+    - name: Install mojo CLI
+      run: |
+        modular install mojo
+
+    - name: Install pre-commit
+      run: |
+        pip install pre-commit
+        pre-commit install
+
+    - name: Run pre-commit checks
+      run: |
+        export MODULAR_HOME="/home/runner/.modular"
+        export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
+        pre-commit run --all-files
