@@ -1,4 +1,4 @@
-from stdlib_extensions.builtins import list
+from ..builtins._list import list
 
 
 fn __string__mul__(input_string: String, n: Int) -> String:

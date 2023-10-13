@@ -1,5 +1,5 @@
-from stdlib_extensions.builtins import list
-from stdlib_extensions.stdlib_tests.utils import assert_true, assert_false, assert_equal
+from ...builtins import list
+from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
 
 
 def test_list_of_strings():

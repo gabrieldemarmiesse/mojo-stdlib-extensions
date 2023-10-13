@@ -55,6 +55,7 @@ Refer to the python documention for the documentation of those functions.
 * `String.__mul__()`
 * f-strings
 * subclassing struct
+* absolute imports working with `mojo package`
 
 ### Contributing:
 
