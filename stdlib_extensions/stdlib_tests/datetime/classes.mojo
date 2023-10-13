@@ -1,4 +1,4 @@
-from testing import assert_equal
+from stdlib_extensions.stdlib_tests.utils import assert_true, assert_false, assert_equal
 from stdlib_extensions.datetime import (
     datetime,
     datetime_min,

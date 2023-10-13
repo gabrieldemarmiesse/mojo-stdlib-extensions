@@ -1,5 +1,5 @@
-from testing import assert_true, assert_false, assert_equal
-from stdlib_extensions.builtins.string import endswith, rjust, ljust
+from stdlib_extensions.stdlib_tests.utils import assert_true, assert_false, assert_equal
+from stdlib_extensions.builtins.string import endswith, rjust, ljust, split
 
 
 def test_ljust():
@@ -29,7 +29,25 @@ def test_endswith():
     assert_false(endswith(" worldd", "world"), "endswith 8 failed")
 
 
+def test_split():
+    assert_equal(split("hello world").__str__(), "['hello', 'world']")
+    assert_equal(split("Hello world").__str__(), "['Hello', 'world']")
+    assert_equal(split("Hello world", maxsplit=1).__str__(), "['Hello', 'world']")
+    assert_equal(
+        split("apple::banana::orange", sep="::").__str__(),
+        "['apple', 'banana', 'orange']",
+    )
+    assert_equal(
+        split("apple::banana::orange", sep="::", maxsplit=1).__str__(),
+        "['apple', 'banana::orange']",
+    )
+    assert_equal(
+        split("a--b--c--d", sep="--", maxsplit=2).__str__(), "['a', 'b', 'c--d']"
+    )
+
+
 def run_tests():
     test_ljust()
     test_rjust()
     test_endswith()
+    test_split()

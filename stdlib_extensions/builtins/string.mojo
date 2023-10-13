@@ -1,3 +1,6 @@
+from stdlib_extensions.builtins import list
+
+
 fn __string__mul__(input_string: String, n: Int) -> String:
     var result: String = ""
     for _ in range(n):
@@ -20,16 +23,46 @@ fn ljust(input_string: String, width: Int, fillchar: String = " ") raises -> Str
 
 
 fn endswith(
-    input_string: String, suffix: String, start: Int = 0, end: Int = -1
+    input_string: String, suffix: String, start: Int = 0, owned end: Int = -1
 ) raises -> Bool:
-    var new_end = end
     if end == -1:
-        new_end = len(input_string)
+        end = len(input_string)
 
-    if new_end < start:
+    if end < start:
         raise Error("The end index must be greater than or equal to the start index")
 
-    if new_end - start < len(suffix):
+    if end - start < len(suffix):
         return False
 
-    return input_string[new_end - len(suffix) : new_end] == suffix
+    return input_string[end - len(suffix) : end] == suffix
+
+
+fn split(
+    input_string: String, sep: String = " ", owned maxsplit: Int = -1
+) raises -> list[String]:
+    """The separator can be multiple characters long."""
+    var result = list[String]()
+    if maxsplit == 0:
+        result.append(input_string)
+        return result
+    if maxsplit < 0:
+        maxsplit = len(input_string)
+
+    if not sep:
+        return list[String](input_string)[0:maxsplit]
+
+    var output = list[String]()
+    var start = 0
+    var split_count = 0
+
+    for end in range(len(input_string) - len(sep) + 1):
+        if input_string[end : end + len(sep)] == sep:
+            output.append(input_string[start:end])
+            start = end + len(sep)
+            split_count += 1
+
+            if maxsplit > 0 and split_count >= maxsplit:
+                break
+
+    output.append(input_string[start:])
+    return output
