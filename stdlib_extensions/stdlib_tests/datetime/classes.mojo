@@ -30,7 +30,8 @@ def test_datetime_now():
 
     let time_elapsed = datetime_now() - now
 
-    assert_equal(time_elapsed.total_seconds(), 0) # gotta go fast
+    assert_equal(time_elapsed.total_seconds(), 0)  # gotta go fast
+
 
 def test_datetime_min_max():
     assert_equal(datetime_min().__str__(), py_datetime().min.__str__().to_string())
