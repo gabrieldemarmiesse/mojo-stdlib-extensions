@@ -13,10 +13,8 @@ from .utils import (
     HOURS_TO_MICROSECONDS,
     DAYS_TO_MICROSECONDS,
 )
-from ..syscalls import clock_gettime
 from ..builtins.string import rjust
-
-from time import now
+from ..syscalls.clocks import clock_gettime
 
 
 @value
