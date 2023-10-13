@@ -19,10 +19,13 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Install mojo
+    - name: Install modular CLI
       env:
         MODULAR_AUTH: ${{ secrets.MODULAR_AUTH }}
       run: curl https://get.modular.com | MODULAR_AUTH="$MODULAR_AUTH" sh -
+
+    - name: Install mojo CLI
+      run: modular install mojo
 
     - name: Run tests
       run: mojo run_all_tests.mojo
