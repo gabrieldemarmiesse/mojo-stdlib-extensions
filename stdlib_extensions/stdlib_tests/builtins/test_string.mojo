@@ -1,5 +1,5 @@
-from stdlib_extensions.stdlib_tests.utils import assert_true, assert_false, assert_equal
-from stdlib_extensions.builtins.string import endswith, rjust, ljust, split
+from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
+from ...builtins.string import endswith, rjust, ljust, split
 
 
 def test_ljust():
