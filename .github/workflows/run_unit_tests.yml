@@ -27,8 +27,9 @@ jobs:
     - name: Install mojo CLI
       run: |
         modular install mojo
-        export MODULAR_HOME="/home/runner/.modular"
-        export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
 
     - name: Run tests
-      run: mojo run_all_tests.mojo
+      run: |
+        export MODULAR_HOME="/home/runner/.modular"
+        export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
+        mojo run_all_tests.mojo
