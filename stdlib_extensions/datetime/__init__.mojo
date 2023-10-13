@@ -14,7 +14,7 @@ from stdlib_extensions.datetime.utils import (
     DAYS_TO_MICROSECONDS,
     clock_gettime,
 )
-from stdlib_extensions.builtins.string import ljust
+from stdlib_extensions.builtins.string import rjust
 
 from time import now
 
@@ -173,15 +173,15 @@ struct datetime:
 
     fn __str__(self) raises -> String:
         var result: String = ""
-        result += ljust(String(self.year()), 4, "0")
-        result += "-" + ljust(String(self.month()), 2, "0")
-        result += "-" + ljust(String(self.day()), 2, "0")
-        result += " " + ljust(String(self.hour()), 2, "0")
-        result += ":" + ljust(String(self.minute()), 2, "0")
-        result += ":" + ljust(String(self.second()), 2, "0")
+        result += rjust(String(self.year()), 4, "0")
+        result += "-" + rjust(String(self.month()), 2, "0")
+        result += "-" + rjust(String(self.day()), 2, "0")
+        result += " " + rjust(String(self.hour()), 2, "0")
+        result += ":" + rjust(String(self.minute()), 2, "0")
+        result += ":" + rjust(String(self.second()), 2, "0")
 
         if self.microsecond() != 0:
-            result += "." + ljust(String(self.microsecond()), 6, "0")
+            result += "." + rjust(String(self.microsecond()), 6, "0")
         return result
 
     fn __repr__(self) -> String:
