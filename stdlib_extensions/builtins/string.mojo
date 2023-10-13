@@ -19,7 +19,9 @@ fn ljust(input_string: String, width: Int, fillchar: String = " ") raises -> Str
     return input_string + __string__mul__(fillchar, extra)
 
 
-fn endswith(input_string: String, suffix: String, start: Int = 0, end: Int = -1) raises -> Bool:
+fn endswith(
+    input_string: String, suffix: String, start: Int = 0, end: Int = -1
+) raises -> Bool:
     var new_end = end
     if end == -1:
         new_end = len(input_string)
@@ -30,5 +32,4 @@ fn endswith(input_string: String, suffix: String, start: Int = 0, end: Int = -1)
     if new_end - start < len(suffix):
         return False
 
-    return input_string[new_end - len(suffix):new_end] == suffix
-
+    return input_string[new_end - len(suffix) : new_end] == suffix
