@@ -1,0 +1,28 @@
+name: Run Python Tests
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install mojo
+      env:
+        MODULAR_AUTH: ${{ secrets.MODULAR_AUTH }}
+      run: curl https://get.modular.com | MODULAR_AUTH="$MODULAR_AUTH" sh -
+
+    - name: Run tests
+      run: mojo run_all_tests.mojo
