@@ -2,7 +2,7 @@
 But when the user sees it (public api), the the year starts at 1.
 Same for day and month.
 """
-from stdlib_extensions.datetime.utils import (
+from .utils import (
     _convert_periods_to_microseconds,
     is_leap_year,
     compute_years_from_days,
@@ -14,7 +14,7 @@ from stdlib_extensions.datetime.utils import (
     DAYS_TO_MICROSECONDS,
     clock_gettime,
 )
-from stdlib_extensions.builtins.string import rjust
+from ..builtins.string import rjust
 
 from time import now
 

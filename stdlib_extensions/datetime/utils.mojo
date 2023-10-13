@@ -1,3 +1,5 @@
+from memory.unsafe import Pointer
+
 alias SECONDS_TO_MICROSECONDS = 1000000
 alias MINUTES_TO_MICROSECONDS = 60 * SECONDS_TO_MICROSECONDS
 alias HOURS_TO_MICROSECONDS = 60 * MINUTES_TO_MICROSECONDS
@@ -78,8 +80,6 @@ fn compute_years_from_days(number_of_days: Int) -> Int:
             leap_years += 1
 
     return estimated_year
-
-    from memory.unsafe import Pointer
 
 
 alias _CLOCK_REALTIME = 0
