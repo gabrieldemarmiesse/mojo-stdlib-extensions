@@ -1,9 +1,5 @@
-from stdlib_extensions.stdlib_tests.builtins import test_string, test_list
-from stdlib_extensions.stdlib_tests.datetime import classes
-
+from stdlib_extensions import ljust
 
 def main():
-    test_string.run_tests()
-    test_list.run_tests()
-    classes.run_tests()
+    ljust()
     print("All tests passed! 🔥🎉🔥")
