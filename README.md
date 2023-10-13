@@ -52,3 +52,11 @@ Any function from the Python stdlib is welcome. Make sure to have the same signa
 (or as close as possible if mojo doesn't support something yet).
 
 Run the tests with `mojo run_all_tests.mojo`.
+Reformat with `mojo format ./`.
+
+You can also use the pre-commit hook if you don't want to run manually `mojo format ./` before each commit.
+
+```bash
+pip install pre-commit
+pre-commit install
+```
