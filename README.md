@@ -32,8 +32,8 @@ def main():
     print(datetime_min().__str__())
     print(datetime_max().__str__())
 
-    # only String is supported at the moment. If 
-    # you want Ints, use utils.vector in the mojo standard library
+    # only String is supported at the moment. And they are copied in the list.
+    # If you want Ints, use utils.vector in the mojo standard library
     my_list = list[String]()
     my_list.append("hello")
     my_list.append("world")
