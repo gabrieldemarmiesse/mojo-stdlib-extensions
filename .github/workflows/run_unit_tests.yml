@@ -25,7 +25,10 @@ jobs:
       run: curl https://get.modular.com | MODULAR_AUTH="$MODULAR_AUTH" sh -
 
     - name: Install mojo CLI
-      run: modular install mojo
+      run: |
+        modular install mojo
+        export MODULAR_HOME="/home/runner/.modular"
+        export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
 
     - name: Run tests
       run: mojo run_all_tests.mojo
