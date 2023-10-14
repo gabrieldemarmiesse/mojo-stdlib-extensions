@@ -1,6 +1,9 @@
 name: Upload Release Artifacts
 
-on: push
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
