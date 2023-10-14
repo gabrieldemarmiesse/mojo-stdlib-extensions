@@ -1,10 +1,7 @@
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
 from ...datetime import (
     datetime,
-    datetime_min,
     timedelta,
-    datetime_now,
-    datetime_max,
 )
 from python import Python, PythonObject
 
@@ -18,7 +15,7 @@ def py_timedelta() -> PythonObject:
 
 
 def test_datetime_now():
-    let now = datetime_now()
+    let now = datetime.now()
     now.__str__()
     now.__repr__()
     now.year()
@@ -28,18 +25,18 @@ def test_datetime_now():
     now.second()
     now.microsecond()
 
-    let time_elapsed = datetime_now() - now
+    let time_elapsed = datetime.now() - now
 
     assert_equal(time_elapsed.total_seconds(), 0)  # gotta go fast
 
 
 def test_datetime_min_max():
-    assert_equal(datetime_min().__str__(), py_datetime().min.__str__().to_string())
-    assert_equal(datetime_max().__str__(), py_datetime().max.__str__().to_string())
+    assert_equal(datetime.min().__str__(), py_datetime().min.__str__().to_string())
+    assert_equal(datetime.max().__str__(), py_datetime().max.__str__().to_string())
 
 
 def test_datetime_timedelta_interaction():
-    var mojo_dt = datetime_min()
+    var mojo_dt = datetime.min()
     var py_dt = py_datetime().min
 
     # we apply the same transformation to both and see if the representation
