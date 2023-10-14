@@ -1,9 +1,9 @@
 name: Upload Release Artifacts
 
 on:
-  release:
-    types:
-      - created
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -32,11 +32,9 @@ jobs:
           export MODULAR_HOME="/home/runner/.modular"
           export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
           bash ./dist/make_release.sh
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+      
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/stdlib_extensions.mojopkg
-          asset_name: stdlib_extensions.mojopkg
-          asset_content_type: application/octet-stream
+          files: ./dist/stdlib_extensions.mojopkg
