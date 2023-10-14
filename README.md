@@ -41,7 +41,6 @@ Refer to the python documention for the documentation of those functions.
 ### Features missing from mojo to have a perfect replica of the api:
 * `@property` decorator
 * struct attributes
-* struct staticmethods
 * a good list
 
 
