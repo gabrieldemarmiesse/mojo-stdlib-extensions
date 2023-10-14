@@ -1,0 +1,39 @@
+name: Upload Release Artifacts
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install modular CLI
+        env:
+          MODULAR_AUTH: ${{ secrets.MODULAR_AUTH }}
+        run: curl https://get.modular.com | MODULAR_AUTH="$MODULAR_AUTH" sh -
+    
+      - name: Install mojo CLI
+        run: |
+          modular install mojo
+    
+      - name: Generate package
+        run: mojo package ./stdlib_extensions -o ./dist/stdlib_extensions.mojopkg
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/stdlib_extensions.mojopkg
+          asset_name: stdlib_extensions.mojopkg
+          asset_content_type: application/octet-stream

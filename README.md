@@ -38,6 +38,24 @@ def main():
 
 Refer to the python documention for the documentation of those functions.
 
+
+### Complete list of what is available here:
+
+```python
+stdlib_extensions.os.getpid
+
+stdlib_extensions.builtins.string.rjust
+stdlib_extensions.builtins.string.ljust
+stdlib_extensions.builtins.string.endswith
+stdlib_extensions.builtins.string.split
+
+stdlib_extensions.builtins.list # only with String for now
+
+stdlib_extensions.datetime.datetime
+stdlib_extensions.datetime.timedelta
+```
+
+
 ### Features missing from mojo to have a perfect replica of the api:
 * `@property` decorator
 * struct attributes
@@ -63,24 +81,4 @@ You can also use the pre-commit hook if you don't want to run manually `mojo for
 ```bash
 pip install pre-commit
 pre-commit install
-```
-
-
-### Complete list of what is available here:
-
-```python
-stdlib_extensions.os.getpid
-
-stdlib_extensions.builtins.string.rjust
-stdlib_extensions.builtins.string.ljust
-stdlib_extensions.builtins.string.endswith
-stdlib_extensions.builtins.string.split
-
-stdlib_extensions.builtins.list # only with String for now
-
-stdlib_extensions.datetime.datetime
-stdlib_extensions.datetime.datetime_now
-stdlib_extensions.datetime.datetime_min
-stdlib_extensions.datetime.datetime_max
-stdlib_extensions.datetime.timedelta
 ```
