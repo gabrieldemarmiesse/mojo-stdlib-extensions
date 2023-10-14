@@ -76,6 +76,8 @@ pre-commit install
 ### Complete list of what is available here:
 
 ```python
+stdlib_extensions.os.getpid
+
 stdlib_extensions.builtins.string.rjust
 stdlib_extensions.builtins.string.ljust
 stdlib_extensions.builtins.string.endswith
