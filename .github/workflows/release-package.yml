@@ -28,7 +28,10 @@ jobs:
           modular install mojo
     
       - name: Generate package
-        run: mojo package ./stdlib_extensions -o ./dist/stdlib_extensions.mojopkg
+        run: | 
+          export MODULAR_HOME="/home/runner/.modular"
+          export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
+          bash ./dist/make_release.sh
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
