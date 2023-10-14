@@ -3,18 +3,12 @@ A replica of python's stdlib in mojo
 
 
 ```python
-from stdlib_extensions.datetime import (
-    datetime, 
-    datetime_now, 
-    datetime_min, 
-    datetime_max, 
-    timedelta
-)
+from stdlib_extensions.datetime import datetime, timedelta
 from stdlib_extensions.builtins.string import rjust, ljust, endswith
 from stdlib_extensions.builtins import list
 
 def main():
-    now = datetime_now()
+    now = datetime.now()
     print(now.__str__())
     print(now.__repr__())
     print(now.year())
@@ -24,13 +18,13 @@ def main():
     print(now.second())
     print(now.microsecond())
 
-    time_elapsed = datetime_now() - now
+    time_elapsed = datetime.now() - now
     
     print(time_elapsed.total_seconds())
 
     print(rjust("hello world", 20, "*"))
-    print(datetime_min().__str__())
-    print(datetime_max().__str__())
+    print(datetime.min().__str__())
+    print(datetime.max().__str__())
 
     # only String is supported at the moment. And they are copied in the list.
     # If you want Ints, use utils.vector in the mojo standard library

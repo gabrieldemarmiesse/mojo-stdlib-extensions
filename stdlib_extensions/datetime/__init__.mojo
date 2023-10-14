@@ -199,17 +199,19 @@ struct datetime:
 
         return result + ")"
 
+    @staticmethod
+    fn now() raises -> datetime:
+        let ctime_spec = clock_gettime()
+        return datetime(1970, 1, 1) + timedelta(
+            seconds=ctime_spec.tv_sec, microseconds=ctime_spec.tv_nsec // 1_000
+        )
 
-fn datetime_now() raises -> datetime:
-    let ctime_spec = clock_gettime()
-    return datetime(1970, 1, 1) + timedelta(
-        seconds=ctime_spec.tv_sec, microseconds=ctime_spec.tv_nsec // 1_000
-    )
+    @staticmethod
+    fn min() -> datetime:
+        """Note that this should be a class property when possible."""
+        return datetime(_microseconds=0)
 
-
-fn datetime_min() -> datetime:
-    return datetime(_microseconds=0)
-
-
-fn datetime_max() raises -> datetime:
-    return datetime(9999, 12, 31, 23, 59, 59, 999999)
+    @staticmethod
+    fn max() raises -> datetime:
+        """Note that this should be a class property when possible."""
+        return datetime(9999, 12, 31, 23, 59, 59, 999999)
