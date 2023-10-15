@@ -1,5 +1,5 @@
 from memory.unsafe import Pointer
-from .c_types import c_int
+from ..syscalls import c
 
 alias _CLOCK_REALTIME = 0
 
@@ -20,9 +20,9 @@ fn clock_gettime() -> _CTimeSpec:
     var ts = _CTimeSpec()
     let ts_pointer = Pointer[_CTimeSpec].address_of(ts)
 
-    let clockid_si32: c_int = _CLOCK_REALTIME
+    let clockid_si32: c.int = _CLOCK_REALTIME
 
-    external_call["clock_gettime", NoneType, c_int, Pointer[_CTimeSpec]](
+    external_call["clock_gettime", NoneType, c.int, Pointer[_CTimeSpec]](
         clockid_si32, ts_pointer
     )
 
