@@ -11,6 +11,11 @@ def assert_equal(a: String, b: String):
         raise Error()
 
 
+def assert_equal(a: Int, b: Int):
+    if not assert_equal_stdlib(String(a), String(b)):
+        raise Error()
+
+
 def assert_true(value: Bool, message: String):
     if not assert_true_stdlib(value, message):
         raise Error()

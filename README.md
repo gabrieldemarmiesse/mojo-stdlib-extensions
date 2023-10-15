@@ -52,6 +52,7 @@ stdlib_extensions.builtins.string.endswith
 stdlib_extensions.builtins.string.split
 
 stdlib_extensions.builtins.list # only with String for now
+stdlib_extensions.builtins.bytes
 
 stdlib_extensions.datetime.datetime
 stdlib_extensions.datetime.timedelta
