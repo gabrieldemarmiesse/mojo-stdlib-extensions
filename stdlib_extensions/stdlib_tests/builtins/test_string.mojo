@@ -1,5 +1,15 @@
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
-from ...builtins.string import endswith, rjust, ljust, split
+from ...builtins.string import (
+    endswith,
+    rjust,
+    ljust,
+    split,
+    replace,
+    removeprefix,
+    expandtabs,
+    removesuffix,
+    startswith,
+)
 
 
 def test_ljust():
@@ -29,6 +39,37 @@ def test_endswith():
     assert_false(endswith(" worldd", "world"), "endswith 8 failed")
 
 
+def test_startswith():
+    assert_true(startswith("hello world", "hello"), "startswith 1 failed")
+    assert_true(startswith("hello world", "hello", start=0), "startswith 2 failed")
+    assert_true(
+        startswith("hello world", "hello", start=0, end=5), "startswith 3 failed"
+    )
+    assert_true(
+        startswith("hello world", "hello", start=0, end=6), "startswith 4 failed"
+    )
+    assert_true(
+        startswith("hello world", "hello", start=0, end=7), "startswith 5 failed"
+    )
+    assert_true(
+        startswith("hello world", "hello", start=0, end=8), "startswith 6 failed"
+    )
+    assert_false(startswith("hello world", "world"), "startswith 7 failed")
+    assert_false(startswith("hello world", "hello", start=1), "startswith 8 failed")
+    assert_false(
+        startswith("hello world", "hello", start=1, end=5), "startswith 9 failed"
+    )
+    assert_false(
+        startswith("hello world", "hello", start=1, end=6), "startswith 10 failed"
+    )
+    assert_false(
+        startswith("hello world", "hello", start=1, end=7), "startswith 11 failed"
+    )
+    assert_false(
+        startswith("hello world", "hello", start=1, end=8), "startswith 12 failed"
+    )
+
+
 def test_split():
     assert_equal(split("hello world").__str__(), "['hello', 'world']")
     assert_equal(split("Hello world").__str__(), "['Hello', 'world']")
@@ -46,8 +87,53 @@ def test_split():
     )
 
 
+def test_replace():
+    assert_equal(replace("hello world", "world", "there"), "hello there")
+    assert_equal(replace("hello world", "world", "there", 1), "hello there")
+    assert_equal(replace("hello world", "world", "there", 2), "hello there")
+
+    assert_equal(replace("hello world world", "world", "there", 1), "hello there world")
+    assert_equal(replace("hello world world", "world", "there", 2), "hello there there")
+    assert_equal(
+        replace("hello 0 world world", "world", "there", 0), "hello 0 world world"
+    )
+    assert_equal(
+        replace("hello -1 world world", "world", "there", -1), "hello -1 there there"
+    )
+    assert_equal(
+        replace("hello None world world", "world", "there"), "hello None there there"
+    )
+
+
+def test_removeprefix():
+    assert_equal(removeprefix("hello world", "hello"), " world")
+    assert_equal(removeprefix("hello world", "world"), "hello world")
+    assert_equal(removeprefix("hello world", "hello world"), "")
+    assert_equal(removeprefix("hello world", "llo wor"), "hello world")
+
+
+def test_removesuffix():
+    assert_equal(removesuffix("hello world", "world"), "hello ")
+    assert_equal(removesuffix("hello world", "hello"), "hello world")
+    assert_equal(removesuffix("hello world", "hello world"), "")
+    assert_equal(removesuffix("hello world", "llo wor"), "hello world")
+
+
+def test_expandtabs():
+    assert_equal(expandtabs("hello\tworld", 8), "hello        world")
+    assert_equal(expandtabs("hello\tworld", 4), "hello    world")
+    assert_equal(expandtabs("hello\tworld", 2), "hello  world")
+    assert_equal(expandtabs("helloworld", 2), "helloworld")
+    assert_equal(expandtabs("hello\tworld", 0), "helloworld")
+
+
 def run_tests():
     test_ljust()
     test_rjust()
     test_endswith()
+    test_startswith()
     test_split()
+    test_replace()
+    test_removeprefix()
+    test_removesuffix()
+    test_expandtabs()
