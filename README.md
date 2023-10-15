@@ -43,6 +43,8 @@ Refer to the python documention for the documentation of those functions.
 
 ```python
 stdlib_extensions.os.getpid
+stdlib_extensions.os.fspath
+stdlib_extensions.os.rmdir
 
 stdlib_extensions.builtins.string.rjust
 stdlib_extensions.builtins.string.ljust
