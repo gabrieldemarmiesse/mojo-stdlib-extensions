@@ -49,7 +49,12 @@ stdlib_extensions.os.rmdir
 stdlib_extensions.builtins.string.rjust
 stdlib_extensions.builtins.string.ljust
 stdlib_extensions.builtins.string.endswith
+stdlib_extensions.builtins.string.startswith
 stdlib_extensions.builtins.string.split
+stdlib_extensions.builtins.string.replace
+stdlib_extensions.builtins.string.removeprefix
+stdlib_extensions.builtins.string.removesuffix
+stdlib_extensions.builtins.string.expandtabs
 
 stdlib_extensions.builtins.list # only with String for now
 stdlib_extensions.builtins.bytes
