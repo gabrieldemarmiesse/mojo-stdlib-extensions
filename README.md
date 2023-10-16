@@ -46,6 +46,10 @@ stdlib_extensions.os.getpid
 stdlib_extensions.os.fspath
 stdlib_extensions.os.rmdir
 
+stdlib_extensions.pathlib.Path
+-> available: 
+
+
 stdlib_extensions.builtins.string.rjust
 stdlib_extensions.builtins.string.ljust
 stdlib_extensions.builtins.string.endswith
@@ -57,6 +61,7 @@ stdlib_extensions.builtins.string.removesuffix
 stdlib_extensions.builtins.string.expandtabs
 
 stdlib_extensions.builtins.list # only with String for now
+-> available: /, cwd, open,  
 stdlib_extensions.builtins.bytes
 
 stdlib_extensions.datetime.datetime
