@@ -45,6 +45,7 @@ Refer to the python documention for the documentation of those functions.
 stdlib_extensions.os.getpid
 stdlib_extensions.os.fspath
 stdlib_extensions.os.rmdir
+stdlib_extensions.os.unlink
 
 stdlib_extensions.pathlib.Path
 -> /, cwd, open, __fspath__, write_text, read_text, unlink, rmdir 
