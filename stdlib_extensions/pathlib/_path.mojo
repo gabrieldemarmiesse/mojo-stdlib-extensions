@@ -40,7 +40,8 @@ struct Path:
             ends_with_slash = endswith(self.__fspath__(), "/")
         except:
             print(
-                "Couldn't call endswith when using Path /, please report this to"
+                "Couldn't call endswith when using Path / . This should never happen."
+                " Please report this to"
                 " https://github.com/gabrieldemarmiesse/mojo-stdlib-extensions/issues"
             )
             ends_with_slash = False
