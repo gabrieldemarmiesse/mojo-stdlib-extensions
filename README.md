@@ -60,7 +60,7 @@ stdlib_extensions.builtins.string.removesuffix
 stdlib_extensions.builtins.string.expandtabs
 
 stdlib_extensions.builtins.list # only with String for now
--> available: append, __len__, __str__, __getitem__
+-> append, __len__, __str__, __getitem__
 
 stdlib_extensions.builtins.bytes
 -> __len__, __str__, __getitem__, __setitem__, ==,
