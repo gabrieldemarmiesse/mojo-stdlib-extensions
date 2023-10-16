@@ -76,12 +76,14 @@ stdlib_extensions.datetime.timedelta
 
 
 ### Features missing from mojo to have a perfect replica of the api:
+* `__iter__` (we need this badly to avoid indexing errors)
 * `@property` decorator
 * struct attributes
 * a good list
 
 
 ### Features missing from mojo to improve code readability:
+* Union types (we need this badly to avoid code duplication)
 * `String.__mul__()`
 * f-strings
 * subclassing struct
