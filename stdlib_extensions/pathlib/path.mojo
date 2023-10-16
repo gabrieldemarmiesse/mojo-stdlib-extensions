@@ -49,3 +49,20 @@ struct Path:
 
     fn rmdir(self: Self) raises -> None:
         return os.rmdir(self.__str__())
+
+    # TODO: fuse those when we have unions
+    fn write_text(self: Self, text: StringLiteral) raises -> None:
+        with self.open("w") as f:
+            f.write(text)
+
+    fn write_text(self: Self, text: StringRef) raises -> None:
+        with self.open("w") as f:
+            f.write(text)
+
+    fn write_text(self: Self, text: String) raises -> None:
+        with self.open("w") as f:
+            f.write(text)
+
+    fn read_text(self: Self) raises -> String:
+        with self.open("r") as f:
+            return f.read()
