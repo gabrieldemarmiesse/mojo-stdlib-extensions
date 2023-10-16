@@ -54,3 +54,43 @@ fn rmdir(pathname: String) raises:
             raise Error(pathname + " refers to a directory on a read-only filesystem.")
         else:
             raise Error("rmdir failed with unknown error code: " + String(output))
+
+
+fn unlink(pathname: String) raises:
+    with c.Str(pathname) as pathname_as_c_str:
+        let output = external_call["unlink", c.int, c.char_pointer](
+            pathname_as_c_str.vector.data
+        )
+        if output == c.SUCCESS:
+            return
+        elif output == c.EACCES:
+            raise Error(
+                "Write permission is denied for the directory from which the file +"
+                + pathname
+                + " is to be removed, "
+                "or the directory has the sticky bit set and you do not own the file."
+            )
+        elif output == c.EBUSY:
+            raise Error(
+                "the file "
+                + pathname
+                + " is being used by the system in such a way thatit can’t be unlinked."
+                " For example, you might see this error if the filename specifies the"
+                " root directory or a mount point for a file system."
+            )
+        elif output == c.ENOENT:
+            raise Error("he file " + pathname + " doesn’t exist.")
+        elif output == c.EPERM:
+            raise Error(
+                "On some systems unlink cannot be used to delete the name of a"
+                " directory, or at least can only be used this way by a privileged"
+                " user."
+            )
+        elif output == c.EROFS:
+            raise Error(
+                pathname
+                + " refers to a file on a read-only filesystem and thus cannot be"
+                " removed."
+            )
+        else:
+            raise Error("rmdir failed with unknown error code: " + String(output))

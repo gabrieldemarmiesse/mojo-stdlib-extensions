@@ -46,6 +46,9 @@ stdlib_extensions.os.getpid
 stdlib_extensions.os.fspath
 stdlib_extensions.os.rmdir
 
+stdlib_extensions.pathlib.Path
+-> /, cwd, open, __fspath__, write_text, read_text, unlink, rmdir 
+
 stdlib_extensions.builtins.string.rjust
 stdlib_extensions.builtins.string.ljust
 stdlib_extensions.builtins.string.endswith
@@ -57,10 +60,17 @@ stdlib_extensions.builtins.string.removesuffix
 stdlib_extensions.builtins.string.expandtabs
 
 stdlib_extensions.builtins.list # only with String for now
+-> append, __len__, __str__, __getitem__
+
 stdlib_extensions.builtins.bytes
+-> __len__, __str__, __getitem__, __setitem__, ==,
+   !=, +, *, +=, *=
 
 stdlib_extensions.datetime.datetime
+-> microsecond, second, minute, ..., year, +, -, now, min, max
+
 stdlib_extensions.datetime.timedelta
+-> total_seconds, total_microseconds, +, -
 ```
 
 
