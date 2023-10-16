@@ -29,3 +29,15 @@ fn rmdir(path: StringLiteral) raises:
 
 fn rmdir(path: Path) raises:
     return rmdir(fspath(path))
+
+
+fn unlink(path: String) raises:
+    return filesystem.unlink(path)
+
+
+fn unlink(path: StringLiteral) raises:
+    return unlink(fspath(path))
+
+
+fn unlink(path: Path) raises:
+    return unlink(fspath(path))

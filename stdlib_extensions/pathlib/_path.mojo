@@ -66,3 +66,6 @@ struct Path:
     fn read_text(self: Self) raises -> String:
         with self.open("r") as f:
             return f.read()
+
+    fn unlink(self: Self) raises -> None:
+        return os.unlink(self.__str__())
