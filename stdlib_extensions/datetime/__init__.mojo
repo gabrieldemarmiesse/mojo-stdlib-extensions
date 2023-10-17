@@ -107,6 +107,22 @@ fn _get_hour(microseconds_since_start: Int64) -> Int:
     ).to_int()
 
 
+fn _get_month_and_day(days_since_calendar_start: Int) -> Tuple[Int, Int]:
+    let year = compute_years_from_days(days_since_calendar_start)
+    var days_left = days_since_calendar_start - get_number_of_days_since_start_of_calendar(
+        year
+    ) + 1
+    let months_to_days_vector = get_months_to_days_vector(is_leap_year(year))
+    var days_this_month: Int = 0
+    for month_to_try in range(1, 13):
+        days_this_month = months_to_days_vector[month_to_try - 1]
+        if days_left > days_this_month:
+            days_left -= days_this_month
+        else:
+            return month_to_try, days_left
+    return 0, 0  # this should never happen
+
+
 @value
 struct datetime:
     # actually should be a let, this struct is immutable
@@ -181,19 +197,7 @@ struct datetime:
         return compute_years_from_days(self._total_days())
 
     fn _months_and_days(self) -> Tuple[Int, Int]:
-        let year = self.year()
-        var days_left = self._total_days() - get_number_of_days_since_start_of_calendar(
-            year
-        ) + 1
-        let months_to_days_vector = get_months_to_days_vector(is_leap_year(year))
-        var days_this_month: Int = 0
-        for month_to_try in range(1, 13):
-            days_this_month = months_to_days_vector[month_to_try - 1]
-            if days_left > days_this_month:
-                days_left -= days_this_month
-            else:
-                return month_to_try, days_left
-        return 0, 0  # this should never happen
+        return _get_month_and_day(self._total_days())
 
     fn _total_days(self) -> Int:
         return (self._microseconds // DAYS_TO_MICROSECONDS).to_int()
@@ -280,12 +284,44 @@ struct date:
             _get_numbers_of_days_since_the_start_of_calendar(year, month, day)
         )
 
+    fn year(self) -> Int:
+        return compute_years_from_days(self._days_since_start_of_calendar)
+
+    fn month(self) -> Int:
+        return _get_month_and_day(self._days_since_start_of_calendar).get[0, Int]()
+
+    fn day(self) -> Int:
+        return _get_month_and_day(self._days_since_start_of_calendar).get[1, Int]()
+
     @staticmethod
     fn today() raises -> date:
         return datetime.now().date()
 
-    fn year(self) -> Int:
-        return compute_years_from_days(self._days_since_start_of_calendar)
+    @staticmethod
+    fn min() raises -> date:
+        return date(year=MINYEAR, month=MINMONTH, day=MINDAY)
+
+    @staticmethod
+    fn max() raises -> date:
+        return date(year=MAXYEAR, month=MAXMONTH, day=MAXDAY)
+
+    fn __str__(self) raises -> String:
+        var result: String = ""
+        result += rjust(String(self.year()), 4, "0")
+        result += "-" + rjust(String(self.month()), 2, "0")
+        result += "-" + rjust(String(self.day()), 2, "0")
+        return result
+
+    fn __repr__(self) -> String:
+        return (
+            "datetime.date("
+            + String(self.year())
+            + ", "
+            + String(self.month())
+            + ", "
+            + String(self.day())
+            + ")"
+        )
 
 
 @value
@@ -340,7 +376,14 @@ struct time:
         return _get_hour(self._microseconds_since_midnight)
 
     fn __str__(self) raises -> String:
-        pass
+        var result: String = ""
+        result += rjust(String(self.hour()), 2, "0") + ":"
+        result += rjust(String(self.minute()), 2, "0") + ":"
+        result += rjust(String(self.second()), 2, "0")
+
+        if self.microsecond() != 0:
+            result += "." + rjust(String(self.microsecond()), 6, "0")
+        return result
 
     fn __repr__(self) -> String:
         var result = "datetime.time(" + String(self.hour()) + ", " + String(

@@ -47,10 +47,8 @@ struct Path:
             ends_with_slash = False
 
         if ends_with_slash:
-            print("it ends with /")
             return Path(self.__fspath__() + suffix)
         else:
-            print("doesn't end with /")
             return Path(self.__fspath__() + "/" + suffix)
 
     fn __fspath__(self) -> String:
