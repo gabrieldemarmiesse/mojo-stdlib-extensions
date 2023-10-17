@@ -16,6 +16,17 @@ from .utils import (
 from ..builtins.string import rjust
 from ..syscalls.clocks import clock_gettime
 
+let MINYEAR = 1
+let MAXYEAR = 9999
+let MINMONTH = 1
+let MAXMONTH = 12
+let MINDAY = 1
+let MAXDAY = 31
+
+
+def _resolution() -> timedelta:
+    return timedelta(microseconds=0)
+
 
 @value
 struct timedelta:
@@ -57,6 +68,61 @@ struct timedelta:
         )
 
 
+fn _get_numbers_of_days_since_the_start_of_calendar(
+    year: Int, month: Int, day: Int
+) -> Int:
+    let zero_based_year: Int = year - 1
+    var days: Int = zero_based_year * 365 + zero_based_year // 4 - zero_based_year // 100 + zero_based_year // 400
+
+    alias months_to_days_vector = get_months_to_days_vector()
+
+    for i in range(month - 1):
+        days += months_to_days_vector[i]
+
+    if is_leap_year(year) and month >= 2:
+        days += 1
+
+    return (day - 1) + days
+
+
+fn _get_microsecond(microseconds_since_start: Int64) -> Int:
+    return (microseconds_since_start % SECONDS_TO_MICROSECONDS).to_int()
+
+
+fn _get_second(microseconds_since_start: Int64) -> Int:
+    return (
+        (microseconds_since_start % MINUTES_TO_MICROSECONDS) // SECONDS_TO_MICROSECONDS
+    ).to_int()
+
+
+fn _get_minute(microseconds_since_start: Int64) -> Int:
+    return (
+        (microseconds_since_start % HOURS_TO_MICROSECONDS) // MINUTES_TO_MICROSECONDS
+    ).to_int()
+
+
+fn _get_hour(microseconds_since_start: Int64) -> Int:
+    return (
+        (microseconds_since_start % DAYS_TO_MICROSECONDS) // HOURS_TO_MICROSECONDS
+    ).to_int()
+
+
+fn _get_month_and_day(days_since_calendar_start: Int) -> Tuple[Int, Int]:
+    let year = compute_years_from_days(days_since_calendar_start)
+    var days_left = days_since_calendar_start - get_number_of_days_since_start_of_calendar(
+        year
+    ) + 1
+    let months_to_days_vector = get_months_to_days_vector(is_leap_year(year))
+    var days_this_month: Int = 0
+    for month_to_try in range(1, 13):
+        days_this_month = months_to_days_vector[month_to_try - 1]
+        if days_left > days_this_month:
+            days_left -= days_this_month
+        else:
+            return month_to_try, days_left
+    return 0, 0  # this should never happen
+
+
 @value
 struct datetime:
     # actually should be a let, this struct is immutable
@@ -75,13 +141,13 @@ struct datetime:
         second: Int = 0,
         microsecond: Int = 0,
     ) raises:
-        if not (1 <= year <= 9999):
+        if not (MINYEAR <= year <= MAXYEAR):
             raise Error("year must be in the range 1-9999")
 
-        if not (1 <= month <= 12):
+        if not (MINMONTH <= month <= MAXMONTH):
             raise Error("month must be in the range 1-12")
 
-        if not (1 <= day <= 31):
+        if not (MINDAY <= day <= MAXDAY):
             # TODO: this check could be better
             raise Error("day must be in the range 1-31")
 
@@ -97,41 +163,28 @@ struct datetime:
         if not (0 <= microsecond <= 999999):
             raise Error("microsecond must be in the range 0-999999")
 
-        let zero_based_year: Int = year - 1
-        var days: Int = zero_based_year * 365 + zero_based_year // 4 - zero_based_year // 100 + zero_based_year // 400
-
-        alias months_to_days_vector = get_months_to_days_vector()
-
-        for i in range(month - 1):
-            days += months_to_days_vector[i]
-
-        if is_leap_year(year) and month >= 2:
-            days += 1
-
         self._microseconds = _convert_periods_to_microseconds(
-            (day - 1) + days, hour, minute, second, microsecond
+            _get_numbers_of_days_since_the_start_of_calendar(year, month, day),
+            hour,
+            minute,
+            second,
+            microsecond,
         ).to_int()
 
     fn __init__(inout self, _microseconds: Int64):
         self._microseconds = _microseconds
 
     fn microsecond(self) -> Int:
-        return (self._microseconds % SECONDS_TO_MICROSECONDS).to_int()
+        return _get_microsecond(self._microseconds)
 
     fn second(self) -> Int:
-        return (
-            (self._microseconds % MINUTES_TO_MICROSECONDS) // SECONDS_TO_MICROSECONDS
-        ).to_int()
+        return _get_second(self._microseconds)
 
     fn minute(self) -> Int:
-        return (
-            (self._microseconds % HOURS_TO_MICROSECONDS) // MINUTES_TO_MICROSECONDS
-        ).to_int()
+        return _get_minute(self._microseconds)
 
     fn hour(self) -> Int:
-        return (
-            (self._microseconds % DAYS_TO_MICROSECONDS) // HOURS_TO_MICROSECONDS
-        ).to_int()
+        return _get_hour(self._microseconds)
 
     fn day(self) -> Int:
         return self._months_and_days().get[1, Int]()
@@ -144,19 +197,7 @@ struct datetime:
         return compute_years_from_days(self._total_days())
 
     fn _months_and_days(self) -> Tuple[Int, Int]:
-        let year = self.year()
-        var days_left = self._total_days() - get_number_of_days_since_start_of_calendar(
-            year
-        ) + 1
-        let months_to_days_vector = get_months_to_days_vector(is_leap_year(year))
-        var days_this_month: Int = 0
-        for month_to_try in range(1, 13):
-            days_this_month = months_to_days_vector[month_to_try - 1]
-            if days_left > days_this_month:
-                days_left -= days_this_month
-            else:
-                return month_to_try, days_left
-        return 0, 0  # this should never happen
+        return _get_month_and_day(self._total_days())
 
     fn _total_days(self) -> Int:
         return (self._microseconds // DAYS_TO_MICROSECONDS).to_int()
@@ -215,3 +256,146 @@ struct datetime:
     fn max() raises -> datetime:
         """Note that this should be a class property when possible."""
         return datetime(9999, 12, 31, 23, 59, 59, 999999)
+
+    fn date(self) raises -> date:
+        return date(year=self.year(), month=self.month(), day=self.day())
+
+    fn time(self) raises -> time:
+        return time(self.hour(), self.minute(), self.second(), self.microsecond())
+
+
+@value
+struct date:
+    # TODO: this could be a let, this struct is immutable
+    var _days_since_start_of_calendar: Int
+
+    fn __init__(inout self, year: Int, month: Int, day: Int) raises:
+        if not (MINYEAR <= year <= MAXYEAR):
+            raise Error("year must be in the range 1-9999")
+
+        if not (MINMONTH <= month <= MAXMONTH):
+            raise Error("month must be in the range 1-12")
+
+        if not (MINDAY <= day <= MAXDAY):
+            # TODO: this check could be better
+            raise Error("day must be in the range 1-31")
+
+        self._days_since_start_of_calendar = (
+            _get_numbers_of_days_since_the_start_of_calendar(year, month, day)
+        )
+
+    fn year(self) -> Int:
+        return compute_years_from_days(self._days_since_start_of_calendar)
+
+    fn month(self) -> Int:
+        return _get_month_and_day(self._days_since_start_of_calendar).get[0, Int]()
+
+    fn day(self) -> Int:
+        return _get_month_and_day(self._days_since_start_of_calendar).get[1, Int]()
+
+    @staticmethod
+    fn today() raises -> date:
+        return datetime.now().date()
+
+    @staticmethod
+    fn min() raises -> date:
+        return date(year=MINYEAR, month=MINMONTH, day=MINDAY)
+
+    @staticmethod
+    fn max() raises -> date:
+        return date(year=MAXYEAR, month=MAXMONTH, day=MAXDAY)
+
+    fn __str__(self) raises -> String:
+        var result: String = ""
+        result += rjust(String(self.year()), 4, "0")
+        result += "-" + rjust(String(self.month()), 2, "0")
+        result += "-" + rjust(String(self.day()), 2, "0")
+        return result
+
+    fn __repr__(self) -> String:
+        return (
+            "datetime.date("
+            + String(self.year())
+            + ", "
+            + String(self.month())
+            + ", "
+            + String(self.day())
+            + ")"
+        )
+
+
+@value
+struct time:
+    var _microseconds_since_midnight: Int64
+
+    fn __init__(
+        inout self,
+        hour: Int = 0,
+        minute: Int = 0,
+        second: Int = 0,
+        microsecond: Int = 0,
+    ) raises:
+        if not (0 <= hour <= 23):
+            raise Error("hour must be in the range 0-23")
+
+        if not (0 <= minute <= 59):
+            raise Error("minute must be in the range 0-59")
+
+        if not (0 <= second <= 59):
+            raise Error("second must be in the range 0-59")
+
+        if not (0 <= microsecond <= 999999):
+            raise Error("microsecond must be in the range 0-999999")
+
+        self._microseconds_since_midnight = _convert_periods_to_microseconds(
+            0, hour, minute, second, microsecond
+        ).to_int()
+
+    @staticmethod
+    fn min() raises -> time:
+        return time(0, 0, 0, 0)
+
+    @staticmethod
+    fn max() raises -> time:
+        return time(23, 59, 59, 999999)
+
+    @staticmethod
+    fn resolution() raises -> timedelta:
+        return _resolution()
+
+    fn microsecond(self) -> Int:
+        return _get_microsecond(self._microseconds_since_midnight)
+
+    fn second(self) -> Int:
+        return _get_second(self._microseconds_since_midnight)
+
+    fn minute(self) -> Int:
+        return _get_minute(self._microseconds_since_midnight)
+
+    fn hour(self) -> Int:
+        return _get_hour(self._microseconds_since_midnight)
+
+    fn __str__(self) raises -> String:
+        var result: String = ""
+        result += rjust(String(self.hour()), 2, "0") + ":"
+        result += rjust(String(self.minute()), 2, "0") + ":"
+        result += rjust(String(self.second()), 2, "0")
+
+        if self.microsecond() != 0:
+            result += "." + rjust(String(self.microsecond()), 6, "0")
+        return result
+
+    fn __repr__(self) -> String:
+        var result = "datetime.time(" + String(self.hour()) + ", " + String(
+            self.minute()
+        )
+        let second = self.second()
+        let microsecond = self.microsecond()
+
+        if second or microsecond:
+            result += ", " + String(second)
+
+        if microsecond:
+            result += ", " + String(microsecond)
+
+        return result + ")"

@@ -1,8 +1,5 @@
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
-from ...datetime import (
-    datetime,
-    timedelta,
-)
+from ...datetime import datetime, timedelta, date, time
 from python import Python, PythonObject
 
 
@@ -12,6 +9,14 @@ def py_datetime() -> PythonObject:
 
 def py_timedelta() -> PythonObject:
     return Python.import_module("datetime").timedelta
+
+
+def py_time() -> PythonObject:
+    return Python.import_module("datetime").time
+
+
+def py_date() -> PythonObject:
+    return Python.import_module("datetime").date
 
 
 def test_datetime_now():
@@ -49,7 +54,52 @@ def test_datetime_timedelta_interaction():
         assert_equal(mojo_dt.__repr__(), py_dt.__repr__().to_string())
 
 
+def test_date():
+    let simple_date = date(2020, 1, 1)
+    assert_equal(simple_date.year(), 2020)
+    assert_equal(simple_date.month(), 1)
+    assert_equal(simple_date.day(), 1)
+    assert_equal(simple_date.__str__(), "2020-01-01")
+    assert_equal(simple_date.__repr__(), "datetime.date(2020, 1, 1)")
+    assert_equal(
+        simple_date.__str__(),
+        Python.import_module("datetime").date(2020, 1, 1).__str__().to_string(),
+    )
+
+    # we'd be extremely unlucky if this fails
+    assert_equal(date.today().__str__(), py_date().today().__str__().to_string())
+    assert_equal(date.min().__repr__(), "datetime.date(1, 1, 1)")
+    assert_equal(date.max().__repr__(), "datetime.date(9999, 12, 31)")
+
+
+def test_time():
+    let simple_time = time(12, 30, 0)
+    assert_equal(simple_time.hour(), 12)
+    assert_equal(simple_time.minute(), 30)
+    assert_equal(simple_time.second(), 0)
+    assert_equal(simple_time.microsecond(), 0)
+    assert_equal(simple_time.__str__(), "12:30:00")
+    assert_equal(simple_time.__repr__(), "datetime.time(12, 30)")
+    assert_equal(
+        simple_time.__str__(),
+        Python.import_module("datetime").time(12, 30).__str__().to_string(),
+    )
+
+    assert_equal(time.min().__repr__(), "datetime.time(0, 0)")
+    assert_equal(time.max().__repr__(), "datetime.time(23, 59, 59, 999999)")
+
+
+def test_time_with_microseconds():
+    let simple_time = time(12, 30, 0, 123456)
+    assert_equal(simple_time.microsecond(), 123456)
+    assert_equal(simple_time.__str__(), "12:30:00.123456")
+    assert_equal(simple_time.__repr__(), "datetime.time(12, 30, 0, 123456)")
+
+
 def run_tests():
     test_datetime_now()
     test_datetime_min_max()
     test_datetime_timedelta_interaction()
+    test_date()
+    test_time()
+    test_time_with_microseconds()
