@@ -54,6 +54,11 @@ def test_datetime_timedelta_interaction():
         assert_equal(mojo_dt.__repr__(), py_dt.__repr__().to_string())
 
 
+def test_timedelta():
+    divided = timedelta(hours=1) / timedelta(seconds=1)
+    assert_equal(String(divided), "3600.0")
+
+
 def test_date():
     let simple_date = date(2020, 1, 1)
     assert_equal(simple_date.year(), 2020)
@@ -100,6 +105,7 @@ def run_tests():
     test_datetime_now()
     test_datetime_min_max()
     test_datetime_timedelta_interaction()
+    test_timedelta()
     test_date()
     test_time()
     test_time_with_microseconds()

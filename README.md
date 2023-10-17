@@ -71,7 +71,7 @@ stdlib_extensions.datetime.datetime
 -> microsecond, second, minute, ..., year, +, -, now, min, max
 
 stdlib_extensions.datetime.timedelta
--> total_seconds, total_microseconds, +, -
+-> total_seconds, total_microseconds, +, -, /
 
 stdlib_extensions.datetime.time
 -> microsecond, second, minute, hour, min, max
