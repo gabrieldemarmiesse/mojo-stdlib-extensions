@@ -67,6 +67,12 @@ struct timedelta:
             microseconds=(self._microseconds - other._microseconds).to_int()
         )
 
+    fn __truediv__(self, other: timedelta) -> Float64:
+        return (
+            self._microseconds.cast[DType.float64]()
+            / other._microseconds.cast[DType.float64]()
+        )
+
 
 fn _get_numbers_of_days_since_the_start_of_calendar(
     year: Int, month: Int, day: Int
