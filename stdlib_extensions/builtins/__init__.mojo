@@ -9,4 +9,4 @@ fn input(prompt: String) raises -> String:
 
 
 fn input() raises -> String:
-    return read_from_stdin()
+    return read_from_stdin()[:-1]  # we remove the trailing newline
