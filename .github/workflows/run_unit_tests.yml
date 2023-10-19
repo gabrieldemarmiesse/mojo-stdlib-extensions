@@ -33,3 +33,4 @@ jobs:
         export MODULAR_HOME="/home/runner/.modular"
         export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
         mojo run_all_tests.mojo
+        mojo run_all_tests.mojo
