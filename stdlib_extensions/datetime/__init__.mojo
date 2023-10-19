@@ -247,13 +247,6 @@ struct datetime:
         return result + ")"
 
     @staticmethod
-    fn now() raises -> datetime:
-        let ctime_spec = clock_gettime()
-        return datetime(1970, 1, 1) + timedelta(
-            seconds=ctime_spec.tv_sec, microseconds=ctime_spec.tv_nsec // 1_000
-        )
-
-    @staticmethod
     fn min() -> datetime:
         """Note that this should be a class property when possible."""
         return datetime(_microseconds=0)
@@ -298,10 +291,6 @@ struct date:
 
     fn day(self) -> Int:
         return _get_month_and_day(self._days_since_start_of_calendar).get[1, Int]()
-
-    @staticmethod
-    fn today() raises -> date:
-        return datetime.now().date()
 
     @staticmethod
     fn min() raises -> date:
