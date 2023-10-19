@@ -1,7 +1,6 @@
 from utils.vector import DynamicVector
 
 
-
 # Types aliases
 alias void = UInt8
 alias char = UInt8

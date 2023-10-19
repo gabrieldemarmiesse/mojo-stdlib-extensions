@@ -97,21 +97,25 @@ fn unlink(pathname: String) raises:
 
 
 fn read_string_from_fd(file_descriptor: c.int) raises -> String:
-    alias buffer_size: Int = 2 ** 13
+    alias buffer_size: Int = 2**13
     let buffer: c.Str
     with c.Str(size=buffer_size) as buffer:
-        let read_count: c.ssize_t = external_call["read", c.ssize_t, c.int, Pointer[c.char], c.size_t](
-            file_descriptor, buffer.vector.data, buffer_size
-        )
+        let read_count: c.ssize_t = external_call[
+            "read", c.ssize_t, c.int, Pointer[c.char], c.size_t
+        ](file_descriptor, buffer.vector.data, buffer_size)
         if read_count == -1:
             raise Error("Failed to read file descriptor" + String(file_descriptor))
 
         # for stdin, stdout, stderr, we can do this approximation
-        # normally we would decode to utf-8 as we go and check for \n, but we can't do that now because 
+        # normally we would decode to utf-8 as we go and check for \n, but we can't do that now because
         # we don't have easy to use utf-8 support.
-        if read_count == buffer_size:  
-            raise Error("You can only read up to " + String(buffer_size) + " bytes. "
-            "Wait for UTF-8 support in Mojo for better handling of long inputs.")
+        if read_count == buffer_size:
+            raise Error(
+                "You can only read up to "
+                + String(buffer_size)
+                + " bytes. "
+                "Wait for UTF-8 support in Mojo for better handling of long inputs."
+            )
 
         return buffer.to_string(read_count)
 
