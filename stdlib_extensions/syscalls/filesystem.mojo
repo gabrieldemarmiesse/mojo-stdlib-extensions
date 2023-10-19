@@ -100,7 +100,6 @@ fn read_string_from_fd(file_descriptor: c.int) raises -> String:
     alias buffer_size: Int = 2 ** 13
     let buffer: c.Str
     with c.Str(size=buffer_size) as buffer:
-        print("in loop")
         let read_count: c.ssize_t = external_call["read", c.ssize_t, c.int, Pointer[c.char], c.size_t](
             file_descriptor, buffer.vector.data, buffer_size
         )

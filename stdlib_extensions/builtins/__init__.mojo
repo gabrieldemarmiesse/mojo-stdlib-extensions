@@ -4,8 +4,9 @@ from ..syscalls.filesystem import read_from_stdin
 
 
 fn input(prompt: String) raises -> String:
-    print(prompt)
+    print_no_newline(prompt)
     return input()
+
 
 fn input() raises -> String:
     return read_from_stdin()
