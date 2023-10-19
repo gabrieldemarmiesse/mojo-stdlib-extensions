@@ -14,7 +14,6 @@ from .utils import (
     DAYS_TO_MICROSECONDS,
 )
 from ..builtins.string import rjust
-from ..syscalls.clocks import clock_gettime
 
 let MINYEAR = 1
 let MAXYEAR = 9999
