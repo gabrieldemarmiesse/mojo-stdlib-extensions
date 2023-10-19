@@ -1,5 +1,5 @@
 # mojo-stdlib-extensions
-A replica of python's stdlib in mojo
+A replica of python's stdlib in mojo 🔥
 
 
 ```python
@@ -60,6 +60,7 @@ stdlib_extensions.builtins.string.removeprefix
 stdlib_extensions.builtins.string.removesuffix
 stdlib_extensions.builtins.string.expandtabs
 
+stdlib_extensions.builtins.input
 stdlib_extensions.builtins.list # only with String for now
 -> append, __len__, __str__, __getitem__
 

@@ -1,5 +1,6 @@
 from utils.vector import DynamicVector
 
+
 # Types aliases
 alias void = UInt8
 alias char = UInt8
@@ -21,6 +22,10 @@ alias ptrdiff_t = Int64
 alias intptr_t = Int64
 alias uintptr_t = UInt64
 
+# standard io
+alias FD_STDIN: int = 0
+alias FD_STDOUT: int = 1
+alias FD_STDERR: int = 2
 
 # --- ( error.h Constants )-----------------------------------------------------
 alias SUCCESS = 0
@@ -73,14 +78,18 @@ struct Str:
             self.vector.push_back(ord(string[i]))
         self.vector.push_back(0)
 
+    fn __init__(inout self, size: Int):
+        self.vector = DynamicVector[char]()
+        self.vector.resize(size + 1)
+
     fn __len__(self) -> Int:
         for i in range(len(self.vector)):
             if self.vector[i] == 0:
                 return i
         return -1
 
-    fn __str__(self) -> String:
-        return String(self.vector.data.bitcast[Int8](), self.__len__())
+    fn to_string(owned self, size: Int) -> String:
+        return String(self.vector.data.bitcast[Int8](), size)
 
     fn __enter__(owned self: Self) -> Self:
         return self ^
