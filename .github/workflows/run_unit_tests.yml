@@ -29,7 +29,11 @@ jobs:
         modular install mojo
 
     - name: Run tests
+      env:
+        MODULAR_AUTH: ${{ secrets.MODULAR_AUTH }}
       run: |
         export MODULAR_HOME="/home/runner/.modular"
         export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
         mojo run_all_tests.mojo
+        mojo run_all_tests.mojo # we run it twice because of https://github.com/modularml/mojo/issues/1065
+        MODULAR_AUTH="$MODULAR_AUTH"  docker buildx build -f docker/Dockerfile --progress=plain --secret id=MODULAR_AUTH .
