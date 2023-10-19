@@ -16,12 +16,12 @@ from .utils import (
 from ..builtins.string import rjust
 from ..syscalls.clocks import clock_gettime
 
-let MINYEAR = 1
-let MAXYEAR = 9999
-let MINMONTH = 1
-let MAXMONTH = 12
-let MINDAY = 1
-let MAXDAY = 31
+alias MINYEAR = 1
+alias MAXYEAR = 9999
+alias MINMONTH = 1
+alias MAXMONTH = 12
+alias MINDAY = 1
+alias MAXDAY = 31
 
 
 def _resolution() -> timedelta:
