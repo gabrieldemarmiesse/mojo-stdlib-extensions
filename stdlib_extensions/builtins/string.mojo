@@ -83,6 +83,15 @@ fn split(
     return output
 
 
+fn join(separator: String, iterable: list[String]) raises -> String:
+    var result: String = ""
+    for i in range(iterable.__len__()):
+        result += iterable[i]
+        if i != iterable.__len__() - 1:
+            result += separator
+    return result
+
+
 fn replace(input_string: String, old: String, new: String, count: Int = -1) -> String:
     if count == 0:
         return input_string

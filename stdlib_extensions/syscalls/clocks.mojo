@@ -6,8 +6,8 @@ alias _CLOCK_REALTIME = 0
 
 @value
 struct _CTimeSpec:
-    var tv_sec: Int
-    var tv_nsec: Int
+    var tv_sec: c.time_t
+    var tv_nsec: c.long
 
     fn __init__(inout self):
         self.tv_sec = 0
