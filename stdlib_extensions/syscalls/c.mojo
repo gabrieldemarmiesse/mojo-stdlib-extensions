@@ -14,6 +14,7 @@ alias long = Int64
 alias ulong = UInt64
 alias float = Float32
 alias double = Float64
+alias time_t = Int64
 
 alias size_t = Int
 alias ssize_t = Int

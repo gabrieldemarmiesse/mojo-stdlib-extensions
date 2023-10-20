@@ -13,7 +13,8 @@ from .utils import (
     HOURS_TO_MICROSECONDS,
     DAYS_TO_MICROSECONDS,
 )
-from ..builtins.string import rjust
+from ..builtins import list
+from ..builtins.string import rjust, join
 from ..syscalls.clocks import clock_gettime
 
 alias MINYEAR = 1
@@ -48,6 +49,7 @@ struct timedelta:
             hours=hours,
             minutes=minutes,
             seconds=seconds,
+            milliseconds=milliseconds,
             microseconds=microseconds,
         ).to_int()
 
@@ -56,6 +58,19 @@ struct timedelta:
 
     fn total_seconds(self) -> Int:
         return (self._microseconds // SECONDS_TO_MICROSECONDS).to_int()
+
+    # we only get microseconds, seconds and days in timedelta
+    # cf https://docs.python.org/3/library/datetime.html#timedelta-objects
+    fn microseconds(self) -> Int:
+        return (self._microseconds % SECONDS_TO_MICROSECONDS).to_int()
+
+    fn seconds(self) -> Int:
+        return (
+            (self._microseconds % DAYS_TO_MICROSECONDS) // SECONDS_TO_MICROSECONDS
+        ).to_int()
+
+    fn days(self) -> Int:
+        return (self._microseconds // DAYS_TO_MICROSECONDS).to_int()
 
     fn __add__(self, other: timedelta) raises -> timedelta:
         return timedelta(
@@ -72,6 +87,27 @@ struct timedelta:
             self._microseconds.cast[DType.float64]()
             / other._microseconds.cast[DType.float64]()
         )
+
+    fn __repr__(self) raises -> String:
+        if self._microseconds == 0:
+            return "datetime.timedelta(0)"
+
+        let days = self.days()
+        let seconds = self.seconds()
+        let microseconds = self.microseconds()
+
+        var arguments = list[String]()
+
+        if days:
+            arguments.append("days=" + String(days))
+
+        if seconds:
+            arguments.append("seconds=" + String(seconds))
+
+        if microseconds:
+            arguments.append("microseconds=" + String(microseconds))
+
+        return "datetime.timedelta(" + join(", ", arguments) + ")"
 
 
 fn _get_numbers_of_days_since_the_start_of_calendar(
@@ -250,7 +286,8 @@ struct datetime:
     fn now() raises -> datetime:
         let ctime_spec = clock_gettime()
         return datetime(1970, 1, 1) + timedelta(
-            seconds=ctime_spec.tv_sec, microseconds=ctime_spec.tv_nsec // 1_000
+            seconds=ctime_spec.tv_sec.to_int(),
+            microseconds=(ctime_spec.tv_nsec // 1_000).to_int(),
         )
 
     @staticmethod
