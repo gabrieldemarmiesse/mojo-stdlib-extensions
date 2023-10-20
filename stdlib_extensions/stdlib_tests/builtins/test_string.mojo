@@ -9,7 +9,9 @@ from ...builtins.string import (
     expandtabs,
     removesuffix,
     startswith,
+    join,
 )
+from ...builtins import list
 
 
 def test_ljust():
@@ -87,6 +89,27 @@ def test_split():
     )
 
 
+def test_join_simple():
+    input_list = list[String]()
+    input_list.append("hello")
+    input_list.append("Mojo 🔥")
+    input_list.append("world")
+
+    assert_equal(join(" ", input_list), "hello Mojo 🔥 world")
+    assert_equal(join(", ", input_list), "hello, Mojo 🔥, world")
+    assert_equal(join("::", input_list), "hello::Mojo 🔥::world")
+    assert_equal(join("", input_list), "helloMojo 🔥world")
+
+
+def test_join_edge_case():
+    input_list = list[String]()
+
+    assert_equal(join(" ", input_list), "")
+    assert_equal(join(", ", input_list), "")
+    assert_equal(join("::", input_list), "")
+    assert_equal(join("", input_list), "")
+
+
 def test_replace():
     assert_equal(replace("hello world", "world", "there"), "hello there")
     assert_equal(replace("hello world", "world", "there", 1), "hello there")
@@ -133,6 +156,8 @@ def run_tests():
     test_endswith()
     test_startswith()
     test_split()
+    test_join_simple()
+    test_join_edge_case()
     test_replace()
     test_removeprefix()
     test_removesuffix()
