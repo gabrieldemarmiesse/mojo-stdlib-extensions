@@ -49,6 +49,7 @@ struct timedelta:
             hours=hours,
             minutes=minutes,
             seconds=seconds,
+            milliseconds=milliseconds,
             microseconds=microseconds,
         ).to_int()
 

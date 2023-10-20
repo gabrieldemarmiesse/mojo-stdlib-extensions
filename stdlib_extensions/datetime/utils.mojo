@@ -1,4 +1,5 @@
-alias SECONDS_TO_MICROSECONDS = 1000000
+alias MILLISECONDS_TO_MICROSECONDS = 1_000
+alias SECONDS_TO_MICROSECONDS = 1_000 * MILLISECONDS_TO_MICROSECONDS
 alias MINUTES_TO_MICROSECONDS = 60 * SECONDS_TO_MICROSECONDS
 alias HOURS_TO_MICROSECONDS = 60 * MINUTES_TO_MICROSECONDS
 alias DAYS_TO_MICROSECONDS = 24 * HOURS_TO_MICROSECONDS
@@ -10,6 +11,7 @@ fn _convert_periods_to_microseconds(
     minutes: Int = 0,
     seconds: Int = 0,
     microseconds: Int = 0,
+    milliseconds: Int = 0,
 ) -> Int64:
     """Note that here we start at 0 for year, month and day for easier computing"""
     return (
@@ -17,6 +19,7 @@ fn _convert_periods_to_microseconds(
         + hours * HOURS_TO_MICROSECONDS
         + minutes * MINUTES_TO_MICROSECONDS
         + seconds * SECONDS_TO_MICROSECONDS
+        + milliseconds * MILLISECONDS_TO_MICROSECONDS
         + microseconds
     )
 
