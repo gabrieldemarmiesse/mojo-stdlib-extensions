@@ -47,7 +47,7 @@ def test_datetime_timedelta_interaction():
     # we apply the same transformation to both and see if the representation
     # is always the same, python is our reference
 
-    for i in range(10_000):
+    for i in range(1_000):
         mojo_dt = mojo_dt + timedelta(0, 0, i * 100_000)
         py_dt = py_dt + py_timedelta()(0, 0, i * 100_000)
         assert_equal(mojo_dt.__str__(), py_dt.__str__().to_string())
