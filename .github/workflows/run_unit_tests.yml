@@ -22,7 +22,9 @@ jobs:
     - name: Install modular CLI
       env:
         MODULAR_AUTH: ${{ secrets.MODULAR_AUTH }}
-      run: curl https://get.modular.com | MODULAR_AUTH="$MODULAR_AUTH" sh -
+      run: |
+        curl https://get.modular.com | MODULAR_AUTH="$MODULAR_AUTH" sh -
+        modular auth "$MODULAR_AUTH"
 
     - name: Install mojo CLI
       run: |
