@@ -3,6 +3,7 @@ from stdlib_extensions.stdlib_tests.datetime import test_classes
 from stdlib_extensions.stdlib_tests.pathlib import test_path
 from stdlib_extensions.stdlib_tests.os import test_process
 from stdlib_extensions import datetime as dt
+from stdlib_extensions.stdlib_tests.time import test_time
 
 
 def run_each_module():
@@ -12,6 +13,7 @@ def run_each_module():
     test_classes.run_tests()
     test_process.run_tests()
     test_path.run_tests()
+    test_time.run_tests()
 
 
 def main():
