@@ -55,6 +55,7 @@ stdlib_extensions.builtins.string.ljust
 stdlib_extensions.builtins.string.endswith
 stdlib_extensions.builtins.string.startswith
 stdlib_extensions.builtins.string.split
+stdlib_extensions.builtins.string.join
 stdlib_extensions.builtins.string.replace
 stdlib_extensions.builtins.string.removeprefix
 stdlib_extensions.builtins.string.removesuffix
@@ -72,13 +73,15 @@ stdlib_extensions.datetime.datetime
 -> microsecond, second, minute, ..., year, +, -, now, min, max
 
 stdlib_extensions.datetime.timedelta
--> total_seconds, total_microseconds, +, -, /
+-> total_seconds, total_microseconds, microseconds, seconds, days, +, -, /
 
 stdlib_extensions.datetime.time
 -> microsecond, second, minute, hour, min, max
 
 stdlib_extensions.datetime.date
 -> year, month, day, min, max, today
+
+stdlib_extensions.time.time_ns()
 ```
 
 
