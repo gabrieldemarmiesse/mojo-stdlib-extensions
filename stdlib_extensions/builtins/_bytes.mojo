@@ -351,7 +351,6 @@ struct bytes:
     @staticmethod
     fn fromhex(string: String) -> bytes:
         # TODO: remove whitespaces on the input string
-        # TODO: put everything in lowercase
         var vector_of_bytes = DynamicVector[UInt8](capacity=len(string) // 2)
         let string_length = len(string)
         for i in range(0, string_length, 2):
