@@ -56,6 +56,48 @@ def test_bytes_operations_multiplying():
     assert_equal(some_bytes.__len__(), 0)
 
 
+def test_bytes_hex():
+    some_bytes = bytes.fromhex("00")
+    assert_equal(some_bytes.__len__(), 1)
+    assert_equal(some_bytes[0], 0)
+
+    some_bytes = bytes.fromhex("01")
+    assert_equal(some_bytes.__len__(), 1)
+    assert_equal(some_bytes[0], 1)
+
+    some_bytes = bytes.fromhex("0A")
+    assert_equal(some_bytes.__len__(), 1)
+    assert_equal(some_bytes[0], 10)
+
+    some_bytes = bytes.fromhex("0F")
+    assert_equal(some_bytes.__len__(), 1)
+    assert_equal(some_bytes[0], 15)
+
+    some_bytes = bytes.fromhex("10")
+    assert_equal(some_bytes.__len__(), 1)
+    assert_equal(some_bytes[0], 16)
+
+    some_bytes = bytes.fromhex("FF")
+    assert_equal(some_bytes.__len__(), 1)
+    assert_equal(some_bytes[0], 255)
+
+    some_bytes = bytes.fromhex("0000")
+    assert_equal(some_bytes.__len__(), 2)
+    assert_equal(some_bytes[0], 0)
+    assert_equal(some_bytes[1], 0)
+
+    some_bytes = bytes.fromhex("1010")
+    assert_equal(some_bytes.__len__(), 2)
+    assert_equal(some_bytes[0], 16)
+    assert_equal(some_bytes[1], 16)
+
+    some_bytes = bytes.fromhex("FFFF")
+    assert_equal(some_bytes.__len__(), 2)
+    assert_equal(some_bytes[0], 255)
+    assert_equal(some_bytes[1], 255)
+
+
 def run_tests():
     test_bytes_operations_indexing_and_add()
     test_bytes_operations_multiplying()
+    test_bytes_hex()
