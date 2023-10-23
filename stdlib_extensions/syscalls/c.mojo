@@ -16,7 +16,7 @@ alias float = Float32
 alias double = Float64
 alias time_t = Int64
 
-alias size_t = Int
+alias size_t = UInt64
 alias ssize_t = Int
 
 alias ptrdiff_t = Int64
@@ -65,6 +65,9 @@ alias EPIPE = 32
 alias EDOM = 33
 alias ERANGE = 34
 alias EWOULDBLOCK = EAGAIN
+
+# random consts
+alias GRND_NONBLOCK: UInt8 = 1
 
 alias char_pointer = Pointer[char]
 
