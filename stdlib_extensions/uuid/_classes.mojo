@@ -2,14 +2,14 @@ from ..builtins import bytes
 from utils.static_tuple import StaticTuple
 from memory import stack_allocation
 from ..os import urandom
-
+from ..builtins.string import replace
 
 alias RESERVED_NCS = "reserved for NCS compatibility"
 alias RFC_4122 = "specified in RFC 4122"
 alias RESERVED_MICROSOFT = "reserved for Microsoft compatibility"
 alias RESERVED_FUTURE = "reserved for future definition"
 
-alias int_ = int  # The built-in int type
+alias int_ = Int  # The built-in int type
 alias bytes_ = bytes  # The built-in bytes type
 
 
@@ -20,11 +20,17 @@ struct SafeUUID:
 
 
 struct UUID:
-    var __int_as_bytes: stack_allocation[16, UInt8]
-    var is_safe: Int = SafeUUID.unknown
+    var __int_as_bytes: bytes_
+    var is_safe: Int
 
-    fn __init__(inout self, hex: String, version=-1, is_safe=SafeUUID.unknown):
-        hex = hex.replace("urn:", "").replace("uuid:", "")
+    fn __init__(
+        inout self,
+        owned hex: String,
+        version: Int = -1,
+        is_safe: Int = SafeUUID.unknown,
+    ):
+        hex = replace(hex, "urn:", "")
+        hex = replace(hex, "uuid:", "")
         hex = hex.strip("{}").replace("-", "")
         if len(hex) != 32:
             raise Error("badly formed hexadecimal UUID string")
@@ -35,13 +41,6 @@ struct UUID:
             raise ValueError("bytes is not a 16-char string")
         assert isinstance(bytes, bytes_), repr(bytes)
         int = int_.from_bytes(bytes)
-
-    fn __init__(
-        inout self,
-        bytes: stack_allocation[16, UInt8],
-        version=-1,
-        is_safe=SafeUUID.unknown,
-    ):
         if version != -1:
             if not 1 <= version <= 5:
                 raise ValueError("illegal version number")
