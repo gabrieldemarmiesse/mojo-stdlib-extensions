@@ -1,5 +1,7 @@
 from ..syscalls import process, filesystem
+from ..syscalls import random as syscalls_random
 from pathlib import Path
+from ..builtins import bytes
 
 
 fn getpid() -> Int:
@@ -41,3 +43,15 @@ fn unlink(path: StringLiteral) raises:
 
 fn unlink(path: Path) raises:
     return unlink(fspath(path))
+
+
+fn urandom(size: Int) raises -> bytes:
+    # TODO: we currently use the getrandom syscalls, but it will work only in linux.
+    # to be compatible with other systems, we should follow what cpython does, which is by order
+    # of priority:
+    # BCryptGenRandom() on Windows
+    # getrandom() function (ex: Linux and Solaris)
+    # getentropy() function (ex: OpenBSD)
+    # /dev/urandom device
+
+    return syscalls_random.getrandom(size)
