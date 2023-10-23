@@ -71,7 +71,7 @@ stdlib_extensions.builtins.list # only with String for now
 
 stdlib_extensions.builtins.bytes
 -> __len__, __str__, __getitem__, __setitem__, ==,
-   !=, +, *, +=, *=
+   !=, +, *, +=, *=, fromhex
 
 stdlib_extensions.datetime.datetime
 -> microsecond, second, minute, ..., year, +, -, now, min, max
