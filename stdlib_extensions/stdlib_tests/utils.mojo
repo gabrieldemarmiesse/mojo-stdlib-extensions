@@ -7,13 +7,13 @@ from testing import (
 
 
 def assert_equal(a: String, b: String):
-    if not assert_equal_stdlib(a, b):
-        raise Error()
+    if a != b:
+        raise Error("Expected '" + a + "' to be equal to '" + b + "'")
 
 
 def assert_equal(a: Int, b: Int):
-    if not assert_equal_stdlib(String(a), String(b)):
-        raise Error()
+    if a != b:
+        raise Error("Expected " + String(a) + " to be equal to " + String(b))
 
 
 def assert_true(value: Bool, message: String):

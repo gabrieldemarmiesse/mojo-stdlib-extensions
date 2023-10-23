@@ -10,6 +10,11 @@ from ...builtins.string import (
     removesuffix,
     startswith,
     join,
+    rstrip,
+    lstrip,
+    strip,
+    __str_contains__,
+    _ALL_WHITESPACES,
 )
 from ...builtins import list
 
@@ -150,6 +155,65 @@ def test_expandtabs():
     assert_equal(expandtabs("hello\tworld", 0), "helloworld")
 
 
+def test_contains():
+    assert_true(__str_contains__(" ", _ALL_WHITESPACES), "whitespace has no space")
+    assert_true(__str_contains__("\t", _ALL_WHITESPACES), "whitespace has no tab")
+    assert_true(
+        __str_contains__("\n", _ALL_WHITESPACES), "whitespace has no carriage return"
+    )
+    assert_true(__str_contains__("\r", _ALL_WHITESPACES), "whitespace has no newline")
+    assert_true(
+        __str_contains__("\x0b", _ALL_WHITESPACES), "whitespace has no vertical tab"
+    )
+    assert_true(
+        __str_contains__("\x0c", _ALL_WHITESPACES), "whitespace has no form feed"
+    )
+
+    assert_true(__str_contains__(" ", " "), "space has no space")
+    assert_false(__str_contains__(" ", "\t"), "space has tab")
+    assert_true(__str_contains__("a", "abc"), "a in abc")
+    assert_true(__str_contains__("b", "abc"), "b in abc")
+    assert_true(__str_contains__("c", "abc"), "c in abc")
+    assert_true(__str_contains__("ab", "abc"), "ab in abc")
+    assert_true(__str_contains__("bc", "abc"), "bc in abc")
+    assert_true(__str_contains__("abc", "abc"), "abc in abc")
+    assert_false(__str_contains__("d", "abc"), "d not in abc")
+    assert_false(__str_contains__("ba", "abc"), "ba not in abc")
+
+
+def test_rstrip():
+    assert_equal(rstrip(" hello world "), " hello world")
+    assert_equal(rstrip(" hello world ", " "), " hello world")
+    assert_equal(rstrip(" hello world ", "d "), " hello worl")
+    assert_equal(rstrip(" hello world ", "d"), " hello world ")
+    assert_equal(rstrip(" hello world ", " d"), " hello worl")  # order doesn't matter
+    assert_equal(
+        rstrip(" \t\n\r\x0b\f hello world  \t\n\r\x0b\f"), " \t\n\r\x0b\f hello world"
+    )
+
+
+def test_lstrip():
+    assert_equal(lstrip(" hello world "), "hello world ")
+    assert_equal(lstrip(" hello world ", " "), "hello world ")
+    assert_equal(lstrip(" hello world ", "d "), "hello world ")
+    assert_equal(lstrip(" hello world ", "h"), " hello world ")
+    assert_equal(lstrip(" hello world ", "h "), "ello world ")  # order doesn't matter
+    assert_equal(lstrip(" hello world ", " h"), "ello world ")
+    assert_equal(lstrip("\thello world \t"), "hello world \t")
+    assert_equal(
+        lstrip(" \t\n\r\x0b\fhello world \t\n\r\x0b\f"), "hello world \t\n\r\x0b\f"
+    )
+
+
+def test_strip():
+    assert_equal(strip(" hello world "), "hello world")
+    assert_equal(strip(" hello world ", " "), "hello world")
+    assert_equal(strip(" hello world ", "d "), "hello worl")
+    assert_equal(strip(" hello world ", "d"), " hello world ")
+    assert_equal(strip(" hello world ", " d"), "hello worl")  # order doesn't matter
+    assert_equal(strip(" \t\n\r\x0b\f hello world  \t\n\r\x0b\f"), "hello world")
+
+
 def run_tests():
     test_ljust()
     test_rjust()
@@ -162,3 +226,7 @@ def run_tests():
     test_removeprefix()
     test_removesuffix()
     test_expandtabs()
+    test_contains()
+    test_rstrip()
+    test_lstrip()
+    test_strip()

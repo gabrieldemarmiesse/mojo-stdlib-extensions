@@ -20,6 +20,8 @@ struct SafeUUID:
 
 
 struct UUID:
+    # it would be much better to have something static and stack allocated
+    # but I cannot find how to do it.
     var __int_as_bytes: bytes_
     var is_safe: Int
 
