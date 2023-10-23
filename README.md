@@ -46,6 +46,7 @@ stdlib_extensions.os.getpid
 stdlib_extensions.os.fspath
 stdlib_extensions.os.rmdir
 stdlib_extensions.os.unlink
+stdlib_extensions.os.urandom
 
 stdlib_extensions.pathlib.Path
 -> /, cwd, open, __fspath__, write_text, read_text, unlink, rmdir 
