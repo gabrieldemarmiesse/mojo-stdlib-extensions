@@ -347,3 +347,31 @@ struct bytes:
 
     fn __repr__(self) raises -> String:
         return self.__str__()
+
+    @staticmethod
+    fn fromhex(string: String) -> bytes:
+        # TODO: remove whitespaces on the input string
+        # TODO: put everything in lowercase
+        var vector_of_bytes = DynamicVector[UInt8](capacity=len(string) // 2)
+        let string_length = len(string)
+        for i in range(0, string_length, 2):
+            let first_char = string[i]
+            let second_char = string[i + 1]
+            let first_value = _ascii_char_to_int(first_char)
+            let second_value = _ascii_char_to_int(second_char)
+            let final_value = (first_value << 4) + second_value
+            vector_of_bytes.push_back(UInt8(final_value))
+        return bytes(vector_of_bytes)
+
+
+fn _ascii_char_to_int(char: String) -> Int:
+    let ord_value: Int = ord(char)
+    if 48 <= ord_value <= 57:
+        return ord_value - 48
+    elif 65 <= ord_value <= 70:
+        return ord_value - 55
+    elif 97 <= ord_value <= 102:
+        return ord_value - 87
+    else:
+        # TODO: raise error here
+        return 0
