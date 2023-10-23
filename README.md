@@ -61,6 +61,9 @@ stdlib_extensions.builtins.string.replace
 stdlib_extensions.builtins.string.removeprefix
 stdlib_extensions.builtins.string.removesuffix
 stdlib_extensions.builtins.string.expandtabs
+stdlib_extensions.builtins.string.rstrip
+stdlib_extensions.builtins.string.lstrip
+stdlib_extensions.builtins.string.strip
 
 stdlib_extensions.builtins.input
 stdlib_extensions.builtins.list # only with String for now
