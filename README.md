@@ -65,13 +65,14 @@ stdlib_extensions.builtins.string.rstrip
 stdlib_extensions.builtins.string.lstrip
 stdlib_extensions.builtins.string.strip
 
+stdlib_extensions.builtins.hex
 stdlib_extensions.builtins.input
 stdlib_extensions.builtins.list # only with String for now
 -> append, __len__, __str__, __getitem__
 
 stdlib_extensions.builtins.bytes
 -> __len__, __str__, __getitem__, __setitem__, ==,
-   !=, +, *, +=, *=, fromhex
+   !=, +, *, +=, *=, fromhex, hex
 
 stdlib_extensions.datetime.datetime
 -> microsecond, second, minute, ..., year, +, -, now, min, max
