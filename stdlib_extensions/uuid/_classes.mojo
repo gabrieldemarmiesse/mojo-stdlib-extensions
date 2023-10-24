@@ -1,8 +1,9 @@
-from utils.static_tuple import StaticTuple
-from memory import stack_allocation
-from ..os import urandom
 from ..builtins.string import replace, strip
 from ..builtins import bytes as bytes_
+from ..os import urandom
+
+from utils.static_tuple import StaticTuple
+from memory import stack_allocation
 
 alias RESERVED_NCS = "reserved for NCS compatibility"
 alias RFC_4122 = "specified in RFC 4122"
@@ -33,27 +34,32 @@ struct UUID:
         hex = strip(hex, "{}")
         hex = replace(hex, "-", "")
 
-        # TODO: enable erroring when it's allowed at compile time
+        # TODO: enable erroring when it's allowed to raise at compile time
         # if len(hex) != 32:
         #     raise Error("badly formed hexadecimal UUID string")
         self.__init__(bytes_.fromhex(hex), version, is_safe)
 
     fn __init__(
-        inout self, bytes: bytes_, version: Int = -1, is_safe: Int = SafeUUID.unknown
+        inout self,
+        owned bytes: bytes_,
+        version: Int = -1,
+        is_safe: Int = SafeUUID.unknown,
     ):
-        # TODO: enable this when it's allowed at compile time
+        # TODO: enable this when it's allowed to raise at compile time
         # if bytes.__len__() != 16:
         #    raise ValueError("bytes is not a 16-char string")
-        int = int_.from_bytes(bytes)
         if version != -1:
-            if not 1 <= version <= 5:
-                raise ValueError("illegal version number")
+            # TODO: enable this when it's allowed at compile time
+            # if not 1 <= version <= 5:
+            #    raise ValueError("illegal version number")
             # Set the variant to RFC 4122.
-            int &= ~(0xC000 << 48)
-            int |= 0x8000 << 48
-            # Set the version number.
-            int &= ~(0xF000 << 64)
-            int |= version << 76
+            bytes[8] &= 0x3F
+
+            bytes[8] |= 0x80
+
+            bytes[6] &= 0x0F
+
+            bytes[6] |= version << 4
 
         self.__int_as_bytes = bytes
         self.is_safe = is_safe
@@ -72,4 +78,4 @@ struct UUID:
 
 def uuid4():
     """Generate a random UUID."""
-    return UUID(bytes=os.urandom(16), version=4)
+    return UUID(bytes=urandom(16), version=4)
