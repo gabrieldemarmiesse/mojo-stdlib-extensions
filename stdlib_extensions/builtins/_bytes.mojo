@@ -348,6 +348,12 @@ struct bytes:
     fn __repr__(self) raises -> String:
         return self.__str__()
 
+    fn hex(self) -> String:
+        var result: String = ""
+        for i in range(self.__len__()):
+            result += hex(self.__getitem__(i))[2:]
+        return result
+
     @staticmethod
     fn fromhex(string: String) -> bytes:
         # TODO: remove whitespaces on the input string

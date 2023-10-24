@@ -97,7 +97,21 @@ def test_bytes_hex():
     assert_equal(some_bytes[1], 255)
 
 
+def test_convert_to_hex():
+    assert_equal(bytes(0).hex(), "")
+    assert_equal(bytes(1).hex(), "00")
+    assert_equal(bytes(2).hex(), "0000")
+    assert_equal(bytes(3).hex(), "000000")
+
+    assert_equal(bytes.fromhex("ab").hex(), "ab")
+    assert_equal(bytes.fromhex("abcd").hex(), "abcd")
+    assert_equal(bytes.fromhex("abcdef").hex(), "abcdef")
+    assert_equal(bytes.fromhex("abcdef12").hex(), "abcdef12")
+    assert_equal(bytes.fromhex("abcdef1234").hex(), "abcdef1234")
+
+
 def run_tests():
     test_bytes_operations_indexing_and_add()
     test_bytes_operations_multiplying()
     test_bytes_hex()
+    test_convert_to_hex()
