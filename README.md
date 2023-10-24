@@ -4,7 +4,7 @@ A replica of python's stdlib in mojo 🔥
 
 ```python
 from stdlib_extensions.datetime import datetime, timedelta
-from stdlib_extensions.builtins.string import rjust, ljust, endswith
+from stdlib_extensions.builtins.string import rjust
 from stdlib_extensions.builtins import list
 
 def main():
@@ -13,27 +13,22 @@ def main():
     print(now.__repr__())
     print(now.year())
     print(now.month())
-    print(now.day())
-    print(now.hour())
-    print(now.second())
-    print(now.microsecond())
+    ...
 
     time_elapsed = datetime.now() - now
     
     print(time_elapsed.total_seconds())
 
     print(rjust("hello world", 20, "*"))
-    print(datetime.min().__str__())
-    print(datetime.max().__str__())
-
-    # only String is supported at the moment. And they are copied in the list.
+    
+    # only String is supported for lists at the moment. 
+    # And it's not fast.
+    # And they are copied in the list... :(
     # If you want Ints, use utils.vector in the mojo standard library
     my_list = list[String]()
     my_list.append("hello")
     my_list.append("world")
     print(my_list.__str__())
-    print(my_list[0])
-    print(my_list[:1].__str__())
 ```
 
 Refer to the python documention for the documentation of those functions.
