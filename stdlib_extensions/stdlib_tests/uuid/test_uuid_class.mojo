@@ -19,5 +19,12 @@ def test_uuid_class_no_version():
     assert_equal(UUID(corresponding_bytes).__str__(), some_uuid.__str__())
 
 
+def test_uuid4():
+    for _ in range(100):
+        first_uuid = uuid4()
+        assert_equal(first_uuid.version(), 4)
+
+
 def run_tests():
     test_uuid_class_no_version()
+    test_uuid4()

@@ -85,6 +85,37 @@ struct UUID:
     fn bytes(self) -> bytes_:
         return self.__int_as_bytes
 
+    def time_low(self):
+        return self.int >> 96
+
+    def time_mid(self):
+        return (self.int >> 80) & 0xFFFF
+
+    def time_hi_version(self):
+        return (self.int >> 64) & 0xFFFF
+
+    def clock_seq_hi_variant(self):
+        return (self.int >> 56) & 0xFF
+
+    def clock_seq_low(self):
+        return (self.int >> 48) & 0xFF
+
+    fn variant(self) -> StringLiteral:
+        if not self.__int_as_bytes[8] & 0x80:
+            return RESERVED_NCS
+        elif not self.__int_as_bytes[8] & 0x40:
+            return RFC_4122
+        elif not self.__int_as_bytes[8] & 0x20:
+            return RESERVED_MICROSOFT
+        else:
+            return RESERVED_FUTURE
+
+    fn version(self) -> Int:
+        # The version bits are only meaningful for RFC 4122 UUIDs.
+        if self.variant() == RFC_4122:
+            return (self.__int_as_bytes[8].to_int() >> 4) & 0xF
+        return -1
+
 
 fn uuid4() raises -> UUID:
     """Generate a random UUID."""
