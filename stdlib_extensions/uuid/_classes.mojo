@@ -54,11 +54,9 @@ struct UUID:
             #    raise ValueError("illegal version number")
             # Set the variant to RFC 4122.
             bytes[8] &= 0x3F
-
             bytes[8] |= 0x80
 
             bytes[6] &= 0x0F
-
             bytes[6] |= version << 4
 
         self.__int_as_bytes = bytes
@@ -67,15 +65,27 @@ struct UUID:
     fn __eq__(self, other: UUID) -> Bool:
         return self.__int_as_bytes == other.__int_as_bytes
 
-    def __str__(self):
-        hex = "%032x" % self.int
-        return "%s-%s-%s-%s-%s" % (hex[:8], hex[8:12], hex[12:16], hex[16:20], hex[20:])
+    fn __str__(self) -> String:
+        let hex = self.__int_as_bytes.hex()
+        return (
+            hex[:8]
+            + "-"
+            + hex[8:12]
+            + "-"
+            + hex[12:16]
+            + "-"
+            + hex[16:20]
+            + "-"
+            + hex[20:]
+        )
 
-    @property
-    def bytes(self):
-        return self.int.to_bytes(16)  # big endian
+    fn __repr__(self) -> String:
+        return "UUID('" + self.__str__() + "')"
+
+    fn bytes(self) -> bytes_:
+        return self.__int_as_bytes
 
 
-def uuid4():
+fn uuid4() raises -> UUID:
     """Generate a random UUID."""
     return UUID(bytes=urandom(16), version=4)
