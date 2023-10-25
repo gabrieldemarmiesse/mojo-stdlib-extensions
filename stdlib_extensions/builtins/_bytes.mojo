@@ -354,10 +354,6 @@ struct bytes:
             result += hex(self.__getitem__(i))[2:]
         return result
 
-    fn to_int(self) -> Int:
-        let hex_string = self.hex()
-        return Int.fromhex(hex_string)
-
     @staticmethod
     fn fromhex(string: String) -> bytes:
         # TODO: remove whitespaces on the input string

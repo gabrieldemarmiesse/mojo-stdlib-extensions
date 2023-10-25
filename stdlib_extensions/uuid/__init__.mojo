@@ -1,1 +1,1 @@
-from ._classes import UUID, uuid4
+from ._classes import UUID

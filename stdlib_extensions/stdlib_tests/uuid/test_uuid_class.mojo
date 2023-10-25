@@ -1,5 +1,5 @@
 from ..utils import assert_equal
-from ...uuid import UUID, uuid4
+from ...uuid import UUID
 from ...builtins import bytes
 
 
@@ -18,13 +18,11 @@ def test_uuid_class_no_version():
     assert_equal(corresponding_bytes.__len__(), 16)
     assert_equal(UUID(corresponding_bytes).__str__(), some_uuid.__str__())
 
-
-def test_uuid4():
-    for _ in range(100):
-        first_uuid = uuid4()
-        assert_equal(first_uuid.version(), 4)
+    assert_equal(
+        UUID("76fb1595-8b2f-456a-b809-bc2e00c70a45").__repr__(),
+        "UUID('76fb1595-8b2f-456a-b809-bc2e00c70a45')",
+    )
 
 
 def run_tests():
     test_uuid_class_no_version()
-    test_uuid4()

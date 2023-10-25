@@ -26,7 +26,6 @@ struct UUID:
     fn __init__(
         inout self,
         owned hex: String,
-        version: Int = -1,
         is_safe: Int = SafeUUID.unknown,
     ):
         hex = replace(hex, "urn:", "")
@@ -37,28 +36,13 @@ struct UUID:
         # TODO: enable erroring when it's allowed to raise at compile time
         # if len(hex) != 32:
         #     raise Error("badly formed hexadecimal UUID string")
-        self.__init__(bytes_.fromhex(hex), version, is_safe)
+        self.__init__(bytes_.fromhex(hex), is_safe)
 
     fn __init__(
         inout self,
         owned bytes: bytes_,
-        version: Int = -1,
         is_safe: Int = SafeUUID.unknown,
     ):
-        # TODO: enable this when it's allowed to raise at compile time
-        # if bytes.__len__() != 16:
-        #    raise ValueError("bytes is not a 16-char string")
-        if version != -1:
-            # TODO: enable this when it's allowed at compile time
-            # if not 1 <= version <= 5:
-            #    raise ValueError("illegal version number")
-            # Set the variant to RFC 4122.
-            bytes[8] &= 0x3F
-            bytes[8] |= 0x80
-
-            bytes[6] &= 0x0F
-            bytes[6] |= version << 4
-
         self.__int_as_bytes = bytes
         self.is_safe = is_safe
 
@@ -85,38 +69,10 @@ struct UUID:
     fn bytes(self) -> bytes_:
         return self.__int_as_bytes
 
-    def time_low(self):
-        return self.int >> 96
 
-    def time_mid(self):
-        return (self.int >> 80) & 0xFFFF
+# The following standard UUIDs are for use with uuid3() or uuid5().
 
-    def time_hi_version(self):
-        return (self.int >> 64) & 0xFFFF
-
-    def clock_seq_hi_variant(self):
-        return (self.int >> 56) & 0xFF
-
-    def clock_seq_low(self):
-        return (self.int >> 48) & 0xFF
-
-    fn variant(self) -> StringLiteral:
-        if not self.__int_as_bytes[8] & 0x80:
-            return RESERVED_NCS
-        elif not self.__int_as_bytes[8] & 0x40:
-            return RFC_4122
-        elif not self.__int_as_bytes[8] & 0x20:
-            return RESERVED_MICROSOFT
-        else:
-            return RESERVED_FUTURE
-
-    fn version(self) -> Int:
-        # The version bits are only meaningful for RFC 4122 UUIDs.
-        if self.variant() == RFC_4122:
-            return (self.__int_as_bytes[8].to_int() >> 4) & 0xF
-        return -1
-
-
-fn uuid4() raises -> UUID:
-    """Generate a random UUID."""
-    return UUID(bytes=urandom(16), version=4)
+alias NAMESPACE_DNS = UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+alias NAMESPACE_URL = UUID("6ba7b811-9dad-11d1-80b4-00c04fd430c8")
+alias NAMESPACE_OID = UUID("6ba7b812-9dad-11d1-80b4-00c04fd430c8")
+alias NAMESPACE_X500 = UUID("6ba7b814-9dad-11d1-80b4-00c04fd430c8")
