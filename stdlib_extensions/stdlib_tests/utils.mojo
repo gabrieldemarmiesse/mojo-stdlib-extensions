@@ -6,9 +6,11 @@ from testing import (
 )
 from ..builtins import bytes
 
+
 def assert_equal(a: bytes, b: bytes):
     if a != b:
         raise Error("Expected '" + a.hex() + "' to be equal to '" + b.hex() + "'")
+
 
 def assert_equal(a: String, b: String):
     if a != b:

@@ -109,6 +109,7 @@ def test_convert_to_hex():
     assert_equal(bytes.fromhex("abcdef12").hex(), "abcdef12")
     assert_equal(bytes.fromhex("abcdef1234").hex(), "abcdef1234")
 
+
 def test_to_bytes():
     assert_equal(bytes.fromhex("03"), to_bytes(3))
     assert_equal(bytes.fromhex("0003"), to_bytes(3, length=2))
