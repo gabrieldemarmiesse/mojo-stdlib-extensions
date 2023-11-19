@@ -24,5 +24,20 @@ def test_uuid_class_no_version():
     )
 
 
+def test_uuid_class_version():
+    # version 1
+    assert_equal(UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5").version(), 1)
+
+    # version 3
+    assert_equal(UUID("a3b9a1b0-8a53-4239-94cb-59bd25191542").version(), 3)
+
+    # version 4
+    assert_equal(UUID("4d3a88c7-8a53-4239-94cb-59bd25191542").version(), 4)
+
+    # version 5
+    assert_equal(UUID("a3b9a1b0-8a53-5239-94cb-59bd25191542").version(), 5)
+
+
 def run_tests():
     test_uuid_class_no_version()
+    test_uuid_class_version()
