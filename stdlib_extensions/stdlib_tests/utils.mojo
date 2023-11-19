@@ -4,6 +4,12 @@ from testing import (
     assert_true as assert_true_stdlib,
     assert_false as assert_false_stdlib,
 )
+from ..builtins import bytes
+
+
+def assert_equal(a: bytes, b: bytes):
+    if a != b:
+        raise Error("Expected '" + a.hex() + "' to be equal to '" + b.hex() + "'")
 
 
 def assert_equal(a: String, b: String):

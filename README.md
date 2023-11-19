@@ -61,6 +61,7 @@ stdlib_extensions.builtins.string.lstrip
 stdlib_extensions.builtins.string.strip
 
 stdlib_extensions.builtins.hex
+stdlib_extensions.builtins.to_bytes
 stdlib_extensions.builtins.input
 stdlib_extensions.builtins.list # only with String for now
 -> append, __len__, __str__, __getitem__
