@@ -1,5 +1,5 @@
 from ._list import list
-from ._bytes import bytes
+from ._bytes import bytes, to_bytes
 from ..syscalls.filesystem import read_from_stdin
 
 

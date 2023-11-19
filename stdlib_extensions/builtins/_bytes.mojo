@@ -380,3 +380,21 @@ fn _ascii_char_to_int(char: String) -> Int:
     else:
         # TODO: raise error here
         return 0
+
+
+
+fn to_bytes(n: Int, length: Int = 1, byteorder: String='big') raises -> bytes:
+    var order = range(0, length, 1)
+    if byteorder == 'little':
+        order = range(0, length, 1)
+    elif byteorder == 'big':
+        order = range(length-1, -1, -1)
+    else:
+        raise Error("byteorder must be either 'little' or 'big'")
+
+    var result_vector = DynamicVector[UInt8](capacity=length)
+
+    for i in order:
+        result_vector.push_back((n >> i*8) & 0xff)
+
+    return bytes(result_vector)

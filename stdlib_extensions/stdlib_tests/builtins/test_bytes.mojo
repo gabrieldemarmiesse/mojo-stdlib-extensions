@@ -1,4 +1,4 @@
-from ...builtins import bytes
+from ...builtins import bytes, to_bytes
 from ..utils import assert_equal
 from utils.vector import DynamicVector
 
@@ -109,9 +109,19 @@ def test_convert_to_hex():
     assert_equal(bytes.fromhex("abcdef12").hex(), "abcdef12")
     assert_equal(bytes.fromhex("abcdef1234").hex(), "abcdef1234")
 
+def test_to_bytes():
+    assert_equal(bytes.fromhex("03"), to_bytes(3))
+    assert_equal(bytes.fromhex("0003"), to_bytes(3, length=2))
+    assert_equal(bytes.fromhex("0300"), to_bytes(3, length=2, byteorder="little"))
+    assert_equal(bytes.fromhex("03e8"), to_bytes(1000, length=2, byteorder="big"))
+    assert_equal(bytes.fromhex("e803"), to_bytes(1000, length=2, byteorder="little"))
+    assert_equal(bytes.fromhex("e80300"), to_bytes(1000, length=3, byteorder="little"))
+    assert_equal(bytes.fromhex("00"), to_bytes(0))
+
 
 def run_tests():
     test_bytes_operations_indexing_and_add()
     test_bytes_operations_multiplying()
     test_bytes_hex()
     test_convert_to_hex()
+    test_to_bytes()
