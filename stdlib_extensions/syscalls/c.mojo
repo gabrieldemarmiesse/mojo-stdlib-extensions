@@ -1,5 +1,5 @@
 from utils.vector import DynamicVector
-
+from memory.unsafe import bitcast
 
 # Types aliases
 alias void = UInt8
@@ -84,7 +84,7 @@ struct Str:
 
     fn __init__(inout self, size: Int):
         self.vector = DynamicVector[char]()
-        self.vector.resize(size + 1)
+        self.vector.resize(size + 1, 0)
 
     fn __len__(self) -> Int:
         for i in range(len(self.vector)):
@@ -92,8 +92,11 @@ struct Str:
                 return i
         return -1
 
-    fn to_string(owned self, size: Int) -> String:
-        return String(self.vector.data.bitcast[Int8](), size)
+    fn to_string(self, size: Int) -> String:
+        var result: String = ""
+        for i in range(size):
+            result += chr(self.vector[i].to_int())
+        return result
 
     fn __enter__(owned self: Self) -> Self:
         return self ^
