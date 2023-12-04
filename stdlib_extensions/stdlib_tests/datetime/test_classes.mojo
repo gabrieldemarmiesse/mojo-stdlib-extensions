@@ -36,8 +36,8 @@ def test_datetime_now():
 
 
 def test_datetime_min_max():
-    assert_equal(datetime.min().__str__(), py_datetime().min.__str__().to_string())
-    assert_equal(datetime.max().__str__(), py_datetime().max.__str__().to_string())
+    assert_equal(datetime.min().__str__(), str(py_datetime().min))
+    assert_equal(datetime.max().__str__(), str(py_datetime().max))
 
 
 def test_datetime_timedelta_interaction():
@@ -50,8 +50,8 @@ def test_datetime_timedelta_interaction():
     for i in range(1_000):
         mojo_dt = mojo_dt + timedelta(0, 0, i * 100_000)
         py_dt = py_dt + py_timedelta()(0, 0, i * 100_000)
-        assert_equal(mojo_dt.__str__(), py_dt.__str__().to_string())
-        assert_equal(mojo_dt.__repr__(), py_dt.__repr__().to_string())
+        assert_equal(mojo_dt.__str__(), str(py_dt))
+        assert_equal(mojo_dt.__repr__(), str(py_dt.__repr__()))
 
 
 def test_timedelta():
@@ -107,11 +107,11 @@ def test_date():
     assert_equal(simple_date.__repr__(), "datetime.date(2020, 1, 1)")
     assert_equal(
         simple_date.__str__(),
-        Python.import_module("datetime").date(2020, 1, 1).__str__().to_string(),
+        str(Python.import_module("datetime").date(2020, 1, 1)),
     )
 
     # we'd be extremely unlucky if this fails
-    assert_equal(date.today().__str__(), py_date().today().__str__().to_string())
+    assert_equal(date.today().__str__(), str(py_date().today()))
     assert_equal(date.min().__repr__(), "datetime.date(1, 1, 1)")
     assert_equal(date.max().__repr__(), "datetime.date(9999, 12, 31)")
 
@@ -126,7 +126,7 @@ def test_time():
     assert_equal(simple_time.__repr__(), "datetime.time(12, 30)")
     assert_equal(
         simple_time.__str__(),
-        Python.import_module("datetime").time(12, 30).__str__().to_string(),
+        str(Python.import_module("datetime").time(12, 30)),
     )
 
     assert_equal(time.min().__repr__(), "datetime.time(0, 0)")
