@@ -1,5 +1,4 @@
 from utils.vector import DynamicVector
-from memory.unsafe import bitcast
 
 # Types aliases
 alias void = UInt8
