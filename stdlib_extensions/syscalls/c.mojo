@@ -69,7 +69,7 @@ alias EWOULDBLOCK = EAGAIN
 # random consts
 alias GRND_NONBLOCK: UInt8 = 1
 
-alias char_pointer = Pointer[char]
+alias char_pointer = AnyPointer[char]
 
 
 @value
