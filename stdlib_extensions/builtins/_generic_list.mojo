@@ -42,10 +42,12 @@ struct list[T: CollectionElement](Sized):
         self._internal_vector.resize(len(self._internal_vector) - 1, element)
         return element
 
-    fn reverse(inout self):
+    fn reverse(inout self) raises:
         for i in range(len(self) // 2):
             let mirror_i = len(self) - 1 - i
-            self[i], self[mirror_i] = self[mirror_i], self[i]
+            let tmp = self[i]
+            self[i] = self[mirror_i]
+            self[mirror_i] = tmp
 
     fn __getitem__(self, index: Int) raises -> T:
         if index >= len(self._internal_vector):
