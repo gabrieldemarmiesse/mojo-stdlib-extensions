@@ -1,6 +1,6 @@
 """Unlike what is present in the standard stdlib, we stop if something fails."""
 
-from ..builtins import bytes
+from ..builtins import bytes, Equalable
 
 
 def assert_equal(a: bytes, b: bytes):

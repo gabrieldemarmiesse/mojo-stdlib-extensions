@@ -1,7 +1,8 @@
 from ._generic_list import list, list_to_str
 from ._bytes import bytes, to_bytes
 from ..syscalls.filesystem import read_from_stdin
-from ._hash import hash, Hashable, HashableCollectionElement
+from ._hash import hash, Hashable, HashableCollectionElement, Equalable
+from ._dict import dict
 
 
 fn input(prompt: String) raises -> String:
