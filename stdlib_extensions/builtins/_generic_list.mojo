@@ -18,10 +18,21 @@ struct list[T: CollectionElement](Sized):
     fn append(inout self, value: T):
         self._internal_vector.push_back(value)
 
+    fn clear(inout self):
+        self._internal_vector.clear()
+
+    fn copy(self) -> list[T]:
+        return list(self._internal_vector)
+
     fn __getitem__(self, index: Int) raises -> T:
         if index >= len(self._internal_vector):
             raise Error("list index out of range")
-        return self._getitem_without_raise(index)
+        let new_index: Int
+        if index < 0:
+            new_index = len(self) + index
+        else:
+            new_index = index
+        return self.unchecked_get(new_index)
 
     fn __getitem__(self: Self, limits: slice) raises -> Self:
         var new_list: Self = Self()
@@ -29,14 +40,23 @@ struct list[T: CollectionElement](Sized):
             new_list.append(self[i])
         return new_list
 
-    fn _getitem_without_raise(self, index: Int) -> T:
-        let new_index: Int
-        if index < 0:
-            new_index = len(self) + index
-        else:
-            new_index = index
+    @always_inline
+    fn unchecked_get(self, index: Int) -> T:
+        return self._internal_vector[index]
 
-        return self._internal_vector[new_index]
+    fn __setitem__(inout self, key: Int, value: T) raises:
+        if key >= len(self._internal_vector):
+            raise Error("list index out of range")
+        let new_index: Int
+        if key < 0:
+            new_index = len(self) + key
+        else:
+            new_index = key
+        self.unchecked_set(new_index, value)
+
+    @always_inline
+    fn unchecked_set(inout self, key: Int, value: T):
+        self._internal_vector[key] = value
 
     fn __len__(self) -> Int:
         return len(self._internal_vector)
