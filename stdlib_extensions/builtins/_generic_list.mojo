@@ -24,6 +24,29 @@ struct list[T: CollectionElement](Sized):
     fn copy(self) -> list[T]:
         return list(self._internal_vector)
 
+    fn extend(inout self, other: list[T]):
+        for i in range(len(other)):
+            self.append(other.unchecked_get(i))
+
+    fn pop(inout self, index: Int = -1) raises -> T:
+        if index >= len(self._internal_vector):
+            raise Error("list index out of range")
+        let new_index: Int
+        if index < 0:
+            new_index = len(self) + index
+        else:
+            new_index = index
+        let element = self.unchecked_get(new_index)
+        for i in range(new_index, len(self) - 1):
+            self[i] = self[i + 1]
+        self._internal_vector.resize(len(self._internal_vector) - 1, element)
+        return element
+
+    fn reverse(inout self):
+        for i in range(len(self) // 2):
+            let mirror_i = len(self) - 1 - i
+            self[i], self[mirror_i] = self[mirror_i], self[i]
+
     fn __getitem__(self, index: Int) raises -> T:
         if index >= len(self._internal_vector):
             raise Error("list index out of range")
@@ -58,6 +81,7 @@ struct list[T: CollectionElement](Sized):
     fn unchecked_set(inout self, key: Int, value: T):
         self._internal_vector[key] = value
 
+    @always_inline
     fn __len__(self) -> Int:
         return len(self._internal_vector)
 
