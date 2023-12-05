@@ -77,8 +77,71 @@ def test_pop_negative_values():
     assert_equal(some_list.__getitem__(index=1), 2)
 
 
+def test_pop_positive_values():
+    some_list = list[Int]()
+    some_list.append(0)
+    some_list.append(1)
+    some_list.append(2)
+    some_list.append(3)
+
+    assert_equal(some_list.pop(index=3), 3)
+    assert_equal(list_to_str(some_list), "[0, 1, 2]")
+
+    assert_equal(some_list.pop(index=1), 1)
+    assert_equal(list_to_str(some_list), "[0, 2]")
+
+
+def test_reverse_4_elements():
+    some_list = list[Int]()
+    some_list.append(0)
+    some_list.append(1)
+    some_list.append(2)
+    some_list.append(3)
+
+    some_list.reverse()
+    assert_equal(list_to_str(some_list), "[3, 2, 1, 0]")
+
+    some_list.reverse()
+    assert_equal(list_to_str(some_list), "[0, 1, 2, 3]")
+
+
+def test_reverse_5_elements():
+    some_list = list[Int]()
+    some_list.append(0)
+    some_list.append(1)
+    some_list.append(2)
+    some_list.append(3)
+    some_list.append(4)
+
+    some_list.reverse()
+    assert_equal(list_to_str(some_list), "[4, 3, 2, 1, 0]")
+
+    some_list.reverse()
+    assert_equal(list_to_str(some_list), "[0, 1, 2, 3, 4]")
+
+
+def test_insert():
+    some_list = list[Int]()
+    some_list.append(0)
+    some_list.append(1)
+    some_list.append(2)
+
+    some_list.insert(10, 14)
+    assert_equal(list_to_str(some_list), "[0, 1, 2, 14]")
+
+    some_list.insert(-1, 22)
+    assert_equal(list_to_str(some_list), "[0, 1, 2, 14, 22]")
+
+    some_list.insert(1, 100)
+    assert_equal(list_to_str(some_list), "[0, 100, 1, 2, 14, 22]")
+
+
 def run_tests():
     test_list_of_strings()
     test_extend()
     test_pop_default()
     test_pop_negative_values()
+    test_pop_positive_values()
+    test_reverse_4_elements()
+    test_reverse_5_elements()
+    test_insert()

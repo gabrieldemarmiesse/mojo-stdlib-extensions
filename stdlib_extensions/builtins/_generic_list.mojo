@@ -11,6 +11,13 @@ struct list[T: CollectionElement](Sized):
     fn __init__(inout self, owned value: DynamicVector[T]):
         self._internal_vector = value
 
+    @always_inline
+    fn _normalize_index(self, index: Int) -> Int:
+        if index < 0:
+            return len(self) + index
+        else:
+            return index
+
     fn append(inout self, value: T):
         self._internal_vector.push_back(value)
 
@@ -27,11 +34,7 @@ struct list[T: CollectionElement](Sized):
     fn pop(inout self, index: Int = -1) raises -> T:
         if index >= len(self._internal_vector):
             raise Error("list index out of range")
-        let new_index: Int
-        if index < 0:
-            new_index = len(self) + index
-        else:
-            new_index = index
+        let new_index = self._normalize_index(index)
         let element = self.unchecked_get(new_index)
         for i in range(new_index, len(self) - 1):
             self[i] = self[i + 1]
@@ -46,24 +49,20 @@ struct list[T: CollectionElement](Sized):
             self[mirror_i] = tmp
 
     fn insert(inout self, key: Int, value: T) raises:
-        if key >= len(self):
+        let index = self._normalize_index(key)
+        if index >= len(self):
             self.append(value)
             return
         # we increase the size of the array before insertion
         self.append(self[-1])
-        for i in range(len(self) - 2, key + 1, -1):
+        for i in range(len(self) - 2, index, -1):
             self[i] = self[i - 1]
         self[key] = value
 
     fn __getitem__(self, index: Int) raises -> T:
         if index >= len(self._internal_vector):
             raise Error("list index out of range")
-        let new_index: Int
-        if index < 0:
-            new_index = len(self) + index
-        else:
-            new_index = index
-        return self.unchecked_get(new_index)
+        return self.unchecked_get(self._normalize_index(index))
 
     fn __getitem__(self: Self, limits: slice) raises -> Self:
         var new_list: Self = Self()
@@ -78,12 +77,7 @@ struct list[T: CollectionElement](Sized):
     fn __setitem__(inout self, key: Int, value: T) raises:
         if key >= len(self._internal_vector):
             raise Error("list index out of range")
-        let new_index: Int
-        if key < 0:
-            new_index = len(self) + key
-        else:
-            new_index = key
-        self.unchecked_set(new_index, value)
+        self.unchecked_set(self._normalize_index(key), value)
 
     @always_inline
     fn unchecked_set(inout self, key: Int, value: T):
@@ -105,6 +99,17 @@ fn list_to_str(input_list: list[String]) raises -> String:
     var result: String = "["
     for i in range(len(input_list)):
         let repr = "'" + str(input_list[i]) + "'"
+        if i != len(input_list) - 1:
+            result += repr + ", "
+        else:
+            result += repr
+    return result + "]"
+
+
+fn list_to_str(input_list: list[Int]) raises -> String:
+    var result: String = "["
+    for i in range(len(input_list)):
+        let repr = str(input_list.__getitem__(index=i))
         if i != len(input_list) - 1:
             result += repr + ", "
         else:
