@@ -5,6 +5,9 @@ trait Hashable:
     fn __hash__(self) -> Int:
         ...
 
+    fn __eq__(self: Self, other: Self) -> Bool:
+        ...
+
 
 fn hash[T: Hashable](x: T) -> Int:
     return x.__hash__()
