@@ -112,6 +112,9 @@ struct timedelta(HashableCollectionElement):
     fn __hash__(self) -> Int:
         return hash(self._microseconds)
 
+    fn __eq__(self, other: timedelta) -> Bool:
+        return self._microseconds == other._microseconds
+
 
 fn _get_numbers_of_days_since_the_start_of_calendar(
     year: Int, month: Int, day: Int
@@ -316,6 +319,9 @@ struct datetime(HashableCollectionElement, Stringable):
     fn __hash__(self) -> Int:
         return hash(self._microseconds)
 
+    fn __eq__(self, other: datetime) -> Bool:
+        return self._microseconds == other._microseconds
+
 
 @value
 struct date(HashableCollectionElement):
@@ -378,6 +384,9 @@ struct date(HashableCollectionElement):
 
     fn __hash__(self) -> Int:
         return hash(self._days_since_start_of_calendar)
+
+    fn __eq__(self, other: date) -> Bool:
+        return self._days_since_start_of_calendar == other._days_since_start_of_calendar
 
 
 @value
