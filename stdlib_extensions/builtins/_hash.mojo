@@ -1,11 +1,13 @@
 from sys.info import sizeof
 
 
-trait Hashable:
-    fn __hash__(self) -> Int:
+trait Equalable:
+    fn __eq__(self: Self, other: Self) -> Bool:
         ...
 
-    fn __eq__(self: Self, other: Self) -> Bool:
+
+trait Hashable(Equalable):
+    fn __hash__(self) -> Int:
         ...
 
 
