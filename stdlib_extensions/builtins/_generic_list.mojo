@@ -12,6 +12,9 @@ struct list[T: CollectionElement](Sized):
     fn __init__(inout self):
         self._internal_vector = DynamicVector[T]()
 
+    fn __init__(inout self, owned value: DynamicVector[T]):
+        self._internal_vector = value
+
     fn append(inout self, value: T):
         self._internal_vector.push_back(value)
 
