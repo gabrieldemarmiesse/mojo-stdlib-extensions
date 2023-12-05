@@ -1,6 +1,7 @@
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
 from ...datetime import datetime, timedelta, date, time
 from python import Python, PythonObject
+from ...builtins import hash
 
 
 def py_datetime() -> PythonObject:
@@ -22,6 +23,7 @@ def py_date() -> PythonObject:
 def test_datetime_now():
     let now = datetime.now()
     now.__str__()
+    str(now)
     now.__repr__()
     now.year()
     now.month()
@@ -35,9 +37,20 @@ def test_datetime_now():
     assert_equal(time_elapsed.total_seconds(), 0)  # gotta go fast
 
 
+def test_datetime_hash():
+    let some_time = datetime(2020, 1, 1, 12, 30, 0)
+    let some_time2 = datetime(2020, 1, 1, 12, 30, 0)
+
+    let some_other_time = datetime(2020, 1, 1, 12, 30, 2)
+
+    assert_equal(hash(some_time), hash(some_time2))
+    assert_true(hash(some_time) != hash(some_other_time), "incorrect hash")
+    assert_true(hash(some_time2) != hash(some_other_time), "incorrect hash 2")
+
+
 def test_datetime_min_max():
-    assert_equal(datetime.min().__str__(), str(py_datetime().min))
-    assert_equal(datetime.max().__str__(), str(py_datetime().max))
+    assert_equal(str(datetime.min()), str(py_datetime().min))
+    assert_equal(str(datetime.max()), str(py_datetime().max))
 
 
 def test_datetime_timedelta_interaction():
@@ -142,6 +155,7 @@ def test_time_with_microseconds():
 
 def run_tests():
     test_datetime_now()
+    test_datetime_hash()
     test_datetime_min_max()
     test_datetime_timedelta_interaction()
     test_timedelta()
