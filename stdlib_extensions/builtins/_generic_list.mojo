@@ -1,10 +1,6 @@
 from utils.vector import DynamicVector
 
 
-trait ListElement(CollectionElement, Stringable):
-    pass
-
-
 @value
 struct list[T: CollectionElement](Sized):
     var _internal_vector: DynamicVector[T]
@@ -48,6 +44,16 @@ struct list[T: CollectionElement](Sized):
             let tmp = self[i]
             self[i] = self[mirror_i]
             self[mirror_i] = tmp
+
+    fn insert(inout self, key: Int, value: T) raises:
+        if key >= len(self):
+            self.append(value)
+            return
+        # we increase the size of the array before insertion
+        self.append(self[-1])
+        for i in range(len(self) - 2, key + 1, -1):
+            self[i] = self[i - 1]
+        self[key] = value
 
     fn __getitem__(self, index: Int) raises -> T:
         if index >= len(self._internal_vector):
