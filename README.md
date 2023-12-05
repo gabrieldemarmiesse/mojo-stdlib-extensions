@@ -24,7 +24,7 @@ def main():
     my_list = list[String]()
     my_list.append("hello")
     my_list.append("world")
-    print(my_list.__str__())
+    print(list_to_str(my_list))
 ```
 
 Refer to the python documention for the documentation of those functions.
