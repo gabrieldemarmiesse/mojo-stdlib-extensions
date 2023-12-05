@@ -89,7 +89,6 @@ stdlib_extensions.time.time_ns()
 * `__iter__` (we need this badly to avoid indexing errors)
 * `@property` decorator
 * struct attributes
-* a good list
 
 
 ### Features missing from mojo to improve code readability:
