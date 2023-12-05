@@ -1,4 +1,4 @@
-from ._list import list
+from ._generic_list import list
 
 
 fn get_mapping_byte_to_value() -> list[String]:
