@@ -1,4 +1,4 @@
-from ..builtins._list import list
+from ..builtins._generic_list import list
 
 alias _ALL_WHITESPACES = " \t\n\r\x0b\f"
 
@@ -66,7 +66,7 @@ fn split(
         maxsplit = len(input_string)
 
     if not sep:
-        return list[String](input_string)[0:maxsplit]
+        return list[String].from_string(input_string)[0:maxsplit]
 
     var output = list[String]()
     var start = 0

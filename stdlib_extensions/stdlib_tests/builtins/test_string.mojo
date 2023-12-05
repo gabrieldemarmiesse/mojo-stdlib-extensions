@@ -16,7 +16,7 @@ from ...builtins.string import (
     __str_contains__,
     _ALL_WHITESPACES,
 )
-from ...builtins import list
+from ...builtins import list, list_to_str
 
 
 def test_ljust():
@@ -78,19 +78,19 @@ def test_startswith():
 
 
 def test_split():
-    assert_equal(split("hello world").__str__(), "['hello', 'world']")
-    assert_equal(split("Hello world").__str__(), "['Hello', 'world']")
-    assert_equal(split("Hello world", maxsplit=1).__str__(), "['Hello', 'world']")
+    assert_equal(list_to_str(split("hello world")), "['hello', 'world']")
+    assert_equal(list_to_str(split("Hello world")), "['Hello', 'world']")
+    assert_equal(list_to_str(split("Hello world", maxsplit=1)), "['Hello', 'world']")
     assert_equal(
-        split("apple::banana::orange", sep="::").__str__(),
+        list_to_str(split("apple::banana::orange", sep="::")),
         "['apple', 'banana', 'orange']",
     )
     assert_equal(
-        split("apple::banana::orange", sep="::", maxsplit=1).__str__(),
+        list_to_str(split("apple::banana::orange", sep="::", maxsplit=1)),
         "['apple', 'banana::orange']",
     )
     assert_equal(
-        split("a--b--c--d", sep="--", maxsplit=2).__str__(), "['a', 'b', 'c--d']"
+        list_to_str(split("a--b--c--d", sep="--", maxsplit=2)), "['a', 'b', 'c--d']"
     )
 
 

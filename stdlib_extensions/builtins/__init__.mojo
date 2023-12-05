@@ -1,4 +1,4 @@
-from ._list import list
+from ._generic_list import list, list_to_str
 from ._bytes import bytes, to_bytes
 from ..syscalls.filesystem import read_from_stdin
 
