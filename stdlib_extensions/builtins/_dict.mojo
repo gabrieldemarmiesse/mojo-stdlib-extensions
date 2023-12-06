@@ -10,7 +10,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     var keys: list[K]
     var values: list[V]
     var key_map: list[Int]
-    var deleted_mask: DTypePointer[DType.uint8]
+    var deleted_mask: DTypePointer[DType.bool]
     var count: Int
     var capacity: Int
 
@@ -22,8 +22,8 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.key_map = list[Int]()
         for i in range(self.capacity):
             self.key_map.append(0)
-        self.deleted_mask = DTypePointer[DType.uint8].alloc(self.capacity >> 3)
-        memset_zero(self.deleted_mask, self.capacity >> 3)
+        self.deleted_mask = DTypePointer[DType.bool].alloc(self.capacity)
+        memset_zero(self.deleted_mask, self.capacity)
 
     fn __setitem__(inout self, key: K, value: V):
         if self.count / self.capacity >= 0.8:
@@ -32,14 +32,14 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self._put(key, value, -1)
 
     fn _rehash(inout self):
-        let old_mask_capacity = self.capacity >> 3
+        let old_mask_capacity = self.capacity
         self.capacity *= 2
-        let mask_capacity = self.capacity >> 3
+        let mask_capacity = self.capacity
         self.key_map = list[Int]()
         for i in range(self.capacity):
             self.key_map.append(0)
 
-        let _deleted_mask = DTypePointer[DType.uint8].alloc(mask_capacity)
+        let _deleted_mask = DTypePointer[DType.bool].alloc(mask_capacity)
         memset_zero(_deleted_mask, mask_capacity)
         memcpy(_deleted_mask, self.deleted_mask, old_mask_capacity)
         self.deleted_mask.free()
@@ -113,21 +113,17 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
 
     @always_inline
     fn _deleted(self, index: Int):
-        let offset = index // 8
-        let bit_index = index % 8
-        self.deleted_mask[offset] = self.deleted_mask[offset] | (1 << bit_index)
+        self.deleted_mask[index] = True
 
     @always_inline
     fn _is_deleted(self, index: Int) -> Bool:
         let offset = index // 8
         let bit_index = index % 8
-        return self.deleted_mask[offset] & (1 << bit_index) != 0
+        return self.deleted_mask[index]
 
     @always_inline
     fn _not_deleted(self, index: Int):
-        let offset = index // 8
-        let bit_index = index % 8
-        self.deleted_mask[offset] = self.deleted_mask[offset] & ~(1 << bit_index)
+        self.deleted_mask[index] = False
 
     fn __len__(self) -> Int:
         return self.count
