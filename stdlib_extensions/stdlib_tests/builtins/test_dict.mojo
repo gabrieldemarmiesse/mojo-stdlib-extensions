@@ -1,26 +1,10 @@
-from ...builtins import dict, hash
+from ...builtins import dict, hash, HashableInt, HashableStr
 from ...builtins import HashableCollectionElement
 from ..utils import assert_equal
 
 
-@value
-struct DummyStructInt(HashableCollectionElement, Intable):
-    """This is to test the dict since Int cannot be used yet."""
-
-    var integer: Int
-
-    fn __hash__(self) -> Int:
-        return hash(self.integer)
-
-    fn __eq__(self, other: DummyStructInt) -> Bool:
-        return self.integer == other.integer
-
-    fn __int__(self) -> Int:
-        return self.integer
-
-
 def test_simple_dict_usage_int():
-    some_dict = dict[DummyStructInt, DummyStructInt]()
+    some_dict = dict[HashableInt, HashableInt]()
     some_dict[1] = 2
     assert_equal(int(some_dict[1]), 2)
     assert_equal(len(some_dict), 1)
@@ -39,7 +23,7 @@ def test_simple_dict_usage_int():
 
 
 def test_lots_of_insersion_and_deletion_int():
-    some_dict = dict[DummyStructInt, DummyStructInt]()
+    some_dict = dict[HashableInt, HashableInt]()
     for i in range(100_000):
         some_dict[i] = i * 10
 
@@ -81,7 +65,7 @@ struct DummyStructStr(HashableCollectionElement, Stringable):
 
 
 def test_simple_dict_usage_str():
-    some_dict = dict[DummyStructStr, DummyStructStr]()
+    some_dict = dict[HashableStr, HashableStr]()
     some_dict["hello"] = "world"
     assert_equal(str(some_dict["hello"]), "world")
     assert_equal(len(some_dict), 1)
@@ -100,7 +84,7 @@ def test_simple_dict_usage_str():
 
 
 def test_lots_of_insersion_and_deletion_str():
-    some_dict = dict[DummyStructStr, DummyStructStr]()
+    some_dict = dict[HashableStr, HashableStr]()
     for i in range(10_000):
         some_dict[str(i)] = str(i * 10)
 
@@ -117,7 +101,7 @@ def test_lots_of_insersion_and_deletion_str():
 
 
 def test_lots_of_insersion_and_deletion_str_interleaved():
-    some_dict = dict[DummyStructStr, DummyStructStr]()
+    some_dict = dict[HashableStr, HashableStr]()
     for i in range(10_000):
         some_dict[str(i)] = str(i * 10)
 

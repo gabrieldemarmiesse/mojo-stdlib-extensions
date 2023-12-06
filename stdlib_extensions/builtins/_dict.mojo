@@ -19,6 +19,43 @@ struct CustomBool(CollectionElement):
         return self.value
 
 
+@value
+struct HashableInt(HashableCollectionElement, Intable):
+    var value: Int
+
+    fn __init__(inout self, value: Int):
+        self.value = value
+
+    fn __hash__(self) -> Int:
+        return hash(self.value)
+
+    fn __eq__(self, other: HashableInt) -> Bool:
+        return self.value == other.value
+
+    fn __int__(self) -> Int:
+        return self.value
+
+
+@value
+struct HashableStr(HashableCollectionElement, Stringable):
+    var value: String
+
+    fn __init__(inout self, value: StringLiteral):
+        self.value = value
+
+    fn __init__(inout self, value: String):
+        self.value = value
+
+    fn __hash__(self) -> Int:
+        return hash(self.value)
+
+    fn __eq__(self, other: HashableStr) -> Bool:
+        return self.value == other.value
+
+    fn __str__(self) -> String:
+        return self.value
+
+
 struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     var keys: list[K]
     var values: list[V]
