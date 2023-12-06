@@ -34,7 +34,6 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.values = list[V]()
         self.key_map = list[Int]()
         self.deleted_mask = list[CustomBool]()
-        self._make_deleted_mask_bigger(0, self.capacity)
         self._initialize_key_map(self.capacity)
 
     fn __setitem__(inout self, key: K, value: V):
@@ -48,16 +47,10 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         for i in range(size):
             self.key_map.append(EMPTY_BUCKET)  # -1 means unused
 
-    fn _make_deleted_mask_bigger(inout self, old_size: Int, new_size: Int):
-        for i in range(old_size, new_size):
-            self.deleted_mask.append(CustomBool(False))
-
     fn _rehash(inout self):
         let old_mask_capacity = self.capacity
         self.capacity *= 2
         self._initialize_key_map(self.capacity)
-
-        self._make_deleted_mask_bigger(old_mask_capacity, self.capacity)
 
         for i in range(len(self.keys)):
             self._put(self.keys.unchecked_get(i), self.values.unchecked_get(i), i)
@@ -73,6 +66,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                 if rehash_index == -1:
                     self.keys.append(key)
                     self.values.append(value)
+                    self.deleted_mask.append(False)
                     self.count += 1
                     new_key_index = len(self.keys) - 1
                 else:
