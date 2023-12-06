@@ -20,16 +20,20 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.keys = list[K]()
         self.values = list[V]()
         self.key_map = list[Int]()
-        for i in range(self.capacity):
-            self.key_map.append(0)
         self.deleted_mask = DTypePointer[DType.bool].alloc(self.capacity)
         memset_zero(self.deleted_mask, self.capacity)
+        self._initialize_key_map(self.capacity)
 
     fn __setitem__(inout self, key: K, value: V):
         if self.count / self.capacity >= 0.8:
             self._rehash()
 
         self._put(key, value, -1)
+
+    fn _initialize_key_map(inout self, size: Int):
+        self.key_map = list[Int]()
+        for i in range(size):
+            self.key_map.append(0)
 
     fn _make_deleted_mask_bigger(inout self, old_size: Int, new_size: Int):
         let _deleted_mask = DTypePointer[DType.bool].alloc(new_size)
@@ -41,9 +45,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     fn _rehash(inout self):
         let old_mask_capacity = self.capacity
         self.capacity *= 2
-        self.key_map = list[Int]()
-        for i in range(self.capacity):
-            self.key_map.append(0)
+        self._initialize_key_map(self.capacity)
 
         self._make_deleted_mask_bigger(old_mask_capacity, self.capacity)
 
