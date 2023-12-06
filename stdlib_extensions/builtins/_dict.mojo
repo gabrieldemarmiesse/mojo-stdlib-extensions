@@ -40,9 +40,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     fn _not_deleted(self, index: Int):
         let offset = index // 8
         let bit_index = index & 7
-        let p = self.deleted_mask.offset(offset)
-        let mask = p.load()
-        p.store(mask & ~(1 << bit_index))
+        self.deleted_mask[offset] = self.deleted_mask[offset] & ~(1 << bit_index)
 
     fn _rehash(inout self):
         let old_mask_capacity = self.capacity >> 3
