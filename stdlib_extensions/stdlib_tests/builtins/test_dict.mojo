@@ -18,12 +18,12 @@ struct DummyStruct(HashableCollectionElement):
 
 def test_simple_dict_usage():
     some_dict = dict[DummyStruct, DummyStruct]()
-    some_dict[DummyStruct(1)] = DummyStruct(2)
-    assert_equal(some_dict[DummyStruct(1)].integer, 2)
+    some_dict[1] = 2
+    assert_equal(some_dict[1].integer, 2)
     assert_equal(len(some_dict), 1)
 
-    some_dict[DummyStruct(1)] = DummyStruct(3)
-    assert_equal(some_dict[DummyStruct(1)].integer, 3)
+    some_dict[1] = 3
+    assert_equal(some_dict[1].integer, 3)
     assert_equal(len(some_dict), 1)
 
     some_dict[2] = 20
