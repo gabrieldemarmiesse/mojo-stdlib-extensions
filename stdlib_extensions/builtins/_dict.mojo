@@ -31,18 +31,6 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
 
         self._put(key, value, -1)
 
-    @always_inline
-    fn _is_deleted(self, index: Int) -> Bool:
-        let offset = index // 8
-        let bit_index = index & 7
-        return self.deleted_mask[offset] & (1 << bit_index) != 0
-
-    @always_inline
-    fn _not_deleted(self, index: Int):
-        let offset = index // 8
-        let bit_index = index & 7
-        self.deleted_mask[offset] = self.deleted_mask[offset] & ~(1 << bit_index)
-
     fn _rehash(inout self):
         let old_mask_capacity = self.capacity >> 3
         self.capacity *= 2
@@ -126,8 +114,20 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     @always_inline
     fn _deleted(self, index: Int):
         let offset = index // 8
-        let bit_index = index & 7
+        let bit_index = index % 8
         self.deleted_mask[offset] = self.deleted_mask[offset] | (1 << bit_index)
+
+    @always_inline
+    fn _is_deleted(self, index: Int) -> Bool:
+        let offset = index // 8
+        let bit_index = index % 8
+        return self.deleted_mask[offset] & (1 << bit_index) != 0
+
+    @always_inline
+    fn _not_deleted(self, index: Int):
+        let offset = index // 8
+        let bit_index = index % 8
+        self.deleted_mask[offset] = self.deleted_mask[offset] & ~(1 << bit_index)
 
     fn __len__(self) -> Int:
         return self.count
