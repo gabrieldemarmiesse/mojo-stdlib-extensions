@@ -69,9 +69,9 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             let other_key = self.keys.unchecked_get(key_index - 1)
             if other_key == key:
                 self.values.unchecked_set(key_index - 1, value)
-                if self._is_deleted(key_index - 1):
+                if self.deleted_mask[key_index - 1]:
                     self.count += 1
-                    self._not_deleted(key_index - 1)
+                    self.deleted_mask[key_index - 1] = False
                 return
 
             key_map_index = (key_map_index + 1) & modulo_mask
@@ -86,7 +86,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                 raise Error("Key not found")
             let other_key = self.keys.unchecked_get(key_index - 1)
             if other_key == key:
-                if self._is_deleted(key_index - 1):
+                if self.deleted_mask[key_index - 1]:
                     raise Error("Key not found")
                 return self.values[key_index - 1]
             key_map_index = (key_map_index + 1) & modulo_mask
@@ -108,20 +108,9 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             let other_key = self.keys.unchecked_get(key_index - 1)
             if other_key == key:
                 self.count -= 1
-                return self._deleted(key_index - 1)
+                self.deleted_mask[key_index - 1] = True
+                return
             key_map_index = (key_map_index + 1) & modulo_mask
-
-    @always_inline
-    fn _deleted(self, index: Int):
-        self.deleted_mask[index] = True
-
-    @always_inline
-    fn _is_deleted(self, index: Int) -> Bool:
-        return self.deleted_mask[index]
-
-    @always_inline
-    fn _not_deleted(self, index: Int):
-        self.deleted_mask[index] = False
 
     fn __len__(self) -> Int:
         return self.count
