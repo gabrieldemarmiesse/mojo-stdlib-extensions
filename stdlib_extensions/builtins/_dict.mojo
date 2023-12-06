@@ -34,7 +34,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     fn _is_deleted(self, index: Int) -> Bool:
         let offset = index // 8
         let bit_index = index & 7
-        return self.deleted_mask.offset(offset).load() & (1 << bit_index) != 0
+        return self.deleted_mask[offset] & (1 << bit_index) != 0
 
     @always_inline
     fn _not_deleted(self, index: Int):
@@ -66,7 +66,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         let modulo_mask = self.capacity - 1
         var key_map_index = int(key_hash & modulo_mask)
         while True:
-            let key_index = self.key_map.offset(key_map_index).load().to_int()
+            let key_index = int(self.key_map[key_map_index])
             if key_index == 0:
                 let new_key_index: Int
                 if rehash_index == -1:
@@ -94,7 +94,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         let modulo_mask = self.capacity - 1
         var key_map_index = int(key_hash & modulo_mask)
         while True:
-            let key_index = self.key_map.offset(key_map_index).load().to_int()
+            let key_index = int(self.key_map[key_map_index])
             if key_index == 0:
                 raise Error("Key not found")
             let other_key = self.keys.unchecked_get(key_index - 1)
@@ -115,7 +115,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         let modulo_mask = self.capacity - 1
         var key_map_index = int(key_hash & modulo_mask)
         while True:
-            let key_index = self.key_map.offset(key_map_index).load().to_int()
+            let key_index = int(self.key_map[key_map_index])
             if key_index == 0:
                 raise Error("KeyError, key not found.")
             let other_key = self.keys.unchecked_get(key_index - 1)
