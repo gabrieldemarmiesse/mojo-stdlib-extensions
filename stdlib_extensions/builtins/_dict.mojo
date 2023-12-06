@@ -9,7 +9,7 @@ from ._generic_list import list
 struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     var keys: list[K]
     var values: list[V]
-    var key_map: DTypePointer[DType.uint32]
+    var key_map: list[Int]
     var deleted_mask: DTypePointer[DType.uint8]
     var count: Int
     var capacity: Int
@@ -19,9 +19,10 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.capacity = 16
         self.keys = list[K]()
         self.values = list[V]()
-        self.key_map = DTypePointer[DType.uint32].alloc(self.capacity)
+        self.key_map = list[Int]()
+        for i in range(self.capacity):
+            self.key_map.append(0)
         self.deleted_mask = DTypePointer[DType.uint8].alloc(self.capacity >> 3)
-        memset_zero(self.key_map, self.capacity)
         memset_zero(self.deleted_mask, self.capacity >> 3)
 
     fn __setitem__(inout self, key: K, value: V):
@@ -44,11 +45,11 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
 
     fn _rehash(inout self):
         let old_mask_capacity = self.capacity >> 3
-        self.key_map.free()
         self.capacity *= 2
         let mask_capacity = self.capacity >> 3
-        self.key_map = DTypePointer[DType.uint32].alloc(self.capacity)
-        memset_zero(self.key_map, self.capacity)
+        self.key_map = list[Int]()
+        for i in range(self.capacity):
+            self.key_map.append(0)
 
         let _deleted_mask = DTypePointer[DType.uint8].alloc(mask_capacity)
         memset_zero(_deleted_mask, mask_capacity)
@@ -64,7 +65,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         let modulo_mask = self.capacity - 1
         var key_map_index = int(key_hash & modulo_mask)
         while True:
-            let key_index = int(self.key_map[key_map_index])
+            let key_index = int(self.key_map.unchecked_get(index=key_map_index))
             if key_index == 0:
                 let new_key_index: Int
                 if rehash_index == -1:
@@ -74,7 +75,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                     new_key_index = len(self.keys)
                 else:
                     new_key_index = rehash_index
-                self.key_map[key_map_index] = UInt32(new_key_index)
+                self.key_map.unchecked_set(key_map_index, new_key_index)
                 return
 
             let other_key = self.keys.unchecked_get(key_index - 1)
@@ -92,7 +93,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         let modulo_mask = self.capacity - 1
         var key_map_index = int(key_hash & modulo_mask)
         while True:
-            let key_index = int(self.key_map[key_map_index])
+            let key_index = self.key_map.__getitem__(index=key_map_index)
             if key_index == 0:
                 raise Error("Key not found")
             let other_key = self.keys.unchecked_get(key_index - 1)
@@ -113,7 +114,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         let modulo_mask = self.capacity - 1
         var key_map_index = int(key_hash & modulo_mask)
         while True:
-            let key_index = int(self.key_map[key_map_index])
+            let key_index = self.key_map.__getitem__(index=key_map_index)
             if key_index == 0:
                 raise Error("KeyError, key not found.")
             let other_key = self.keys.unchecked_get(key_index - 1)
