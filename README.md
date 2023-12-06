@@ -29,6 +29,32 @@ def main():
 
 Refer to the python documention for the documentation of those functions.
 
+### New! `list` and `dict` are now available!
+
+```python
+from stdlib_extensions.builtins import (
+    dict, list, HashableInt, HashableStr, HashableCollectionElement
+)
+
+def main():
+    # since Int and String don't have __hash__ yet, we use the wrapper
+    # classes HashableInt and HashableStr instead, there is automatic
+    # type conversion between them and the original types.
+    # For custom structs, you must implement the trait HashableCollectionElement yourself.
+
+    words = list[String]()
+    words.append("hello")
+    words.append("world")
+    words.append("hello")
+    words.append("there")
+
+    counter = dict[HashableStr, Int]()
+    for word in words:
+        counter[word] = counter.get(word, 0) + 1
+    
+    for key_value in counter.items():
+        print(key_value.key, "was seen" , key_value.value, "times.")
+```
 
 ### Complete list of what is available here:
 
@@ -64,6 +90,8 @@ stdlib_extensions.builtins.list
    unchecked_get, unchecked_set (for performance)
 stdlib_extensions.builtins.list_to_str
 -> for Int and Strings, because Mojo doesn't support multiple traits for the same type yet
+
+stdlib_extensions.builtins.dict
 
 stdlib_extensions.builtins.bytes
 -> __len__, __str__, __getitem__, __setitem__, ==,
