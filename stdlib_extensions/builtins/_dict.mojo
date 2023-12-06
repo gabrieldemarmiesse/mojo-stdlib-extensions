@@ -3,10 +3,11 @@ awesome https://github.com/mzaks/mojo-hash"""
 
 from memory import memset_zero, memcpy
 from ._hash import hash, HashableCollectionElement
+from ._generic_list import list
 
 
 struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
-    var keys: DynamicVector[K]
+    var keys: list[K]
     var values: DynamicVector[V]
     var key_map: DTypePointer[DType.uint32]
     var deleted_mask: DTypePointer[DType.uint8]
@@ -16,7 +17,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     fn __init__(inout self):
         self.count = 0
         self.capacity = 16
-        self.keys = DynamicVector[K](self.capacity)
+        self.keys = list[K]()
         self.values = DynamicVector[V](self.capacity)
         self.key_map = DTypePointer[DType.uint32].alloc(self.capacity)
         self.deleted_mask = DTypePointer[DType.uint8].alloc(self.capacity >> 3)
@@ -46,7 +47,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     fn _rehash(inout self):
         let old_mask_capacity = self.capacity >> 3
         self.key_map.free()
-        self.capacity <<= 1
+        self.capacity *= 2
         let mask_capacity = self.capacity >> 3
         self.key_map = DTypePointer[DType.uint32].alloc(self.capacity)
         memset_zero(self.key_map, self.capacity)
@@ -58,7 +59,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.deleted_mask = _deleted_mask
 
         for i in range(len(self.keys)):
-            self._put(self.keys[i], self.values[i], i + 1)
+            self._put(self.keys.unchecked_get(i), self.values[i], i + 1)
 
     fn _put(inout self, key: K, value: V, rehash_index: Int):
         let key_hash = hash(key)
@@ -69,7 +70,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             if key_index == 0:
                 let new_key_index: Int
                 if rehash_index == -1:
-                    self.keys.push_back(key)
+                    self.keys.append(key)
                     self.values.push_back(value)
                     self.count += 1
                     new_key_index = len(self.keys)
@@ -78,7 +79,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                 self.key_map.offset(key_map_index).store(UInt32(new_key_index))
                 return
 
-            let other_key = self.keys[key_index - 1]
+            let other_key = self.keys.unchecked_get(key_index - 1)
             if other_key == key:
                 self.values[key_index - 1] = value
                 if self._is_deleted(key_index - 1):
@@ -96,7 +97,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             let key_index = self.key_map.offset(key_map_index).load().to_int()
             if key_index == 0:
                 raise Error("Key not found")
-            let other_key = self.keys[key_index - 1]
+            let other_key = self.keys.unchecked_get(key_index - 1)
             if other_key == key:
                 if self._is_deleted(key_index - 1):
                     raise Error("Key not found")
@@ -117,7 +118,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             let key_index = self.key_map.offset(key_map_index).load().to_int()
             if key_index == 0:
                 raise Error("KeyError, key not found.")
-            let other_key = self.keys[key_index - 1]
+            let other_key = self.keys.unchecked_get(key_index - 1)
             if other_key == key:
                 self.count -= 1
                 return self._deleted(key_index - 1)
