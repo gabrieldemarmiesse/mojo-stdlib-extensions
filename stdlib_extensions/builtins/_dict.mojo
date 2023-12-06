@@ -51,7 +51,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     fn _put(inout self, key: K, value: V, rehash_index: Int):
         let key_hash = hash(key)
         let modulo_mask = self.capacity - 1
-        var key_map_index = int(key_hash & modulo_mask)
+        var key_map_index = key_hash % modulo_mask
         while True:
             let key_index = int(self.key_map.unchecked_get(index=key_map_index))
             if key_index == 0:
@@ -74,12 +74,12 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                     self.deleted_mask[key_index - 1] = False
                 return
 
-            key_map_index = (key_map_index + 1) & modulo_mask
+            key_map_index = (key_map_index + 1) % modulo_mask
 
     fn __getitem__(self, key: K) raises -> V:
         let key_hash = hash(key)
         let modulo_mask = self.capacity - 1
-        var key_map_index = int(key_hash & modulo_mask)
+        var key_map_index = key_hash % modulo_mask
         while True:
             let key_index = self.key_map.__getitem__(index=key_map_index)
             if key_index == 0:
@@ -89,7 +89,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                 if self.deleted_mask[key_index - 1]:
                     raise Error("Key not found")
                 return self.values[key_index - 1]
-            key_map_index = (key_map_index + 1) & modulo_mask
+            key_map_index = (key_map_index + 1) % modulo_mask
 
     fn get(self, key: K, default: V) -> V:
         try:
@@ -100,7 +100,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     fn pop(inout self, key: K) raises:
         let key_hash = hash(key)
         let modulo_mask = self.capacity - 1
-        var key_map_index = int(key_hash & modulo_mask)
+        var key_map_index = key_hash % modulo_mask
         while True:
             let key_index = self.key_map.__getitem__(index=key_map_index)
             if key_index == 0:
@@ -110,7 +110,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                 self.count -= 1
                 self.deleted_mask[key_index - 1] = True
                 return
-            key_map_index = (key_map_index + 1) & modulo_mask
+            key_map_index = (key_map_index + 1) % modulo_mask
 
     fn __len__(self) -> Int:
         return self.count
