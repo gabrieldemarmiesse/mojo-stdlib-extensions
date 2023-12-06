@@ -8,7 +8,7 @@ from ._generic_list import list
 
 struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     var keys: list[K]
-    var values: DynamicVector[V]
+    var values: list[V]
     var key_map: DTypePointer[DType.uint32]
     var deleted_mask: DTypePointer[DType.uint8]
     var count: Int
@@ -18,7 +18,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.count = 0
         self.capacity = 16
         self.keys = list[K]()
-        self.values = DynamicVector[V](self.capacity)
+        self.values = list[V]()
         self.key_map = DTypePointer[DType.uint32].alloc(self.capacity)
         self.deleted_mask = DTypePointer[DType.uint8].alloc(self.capacity >> 3)
         memset_zero(self.key_map, self.capacity)
@@ -59,7 +59,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.deleted_mask = _deleted_mask
 
         for i in range(len(self.keys)):
-            self._put(self.keys.unchecked_get(i), self.values[i], i + 1)
+            self._put(self.keys.unchecked_get(i), self.values.unchecked_get(i), i + 1)
 
     fn _put(inout self, key: K, value: V, rehash_index: Int):
         let key_hash = hash(key)
@@ -71,7 +71,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                 let new_key_index: Int
                 if rehash_index == -1:
                     self.keys.append(key)
-                    self.values.push_back(value)
+                    self.values.append(value)
                     self.count += 1
                     new_key_index = len(self.keys)
                 else:
@@ -81,7 +81,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
 
             let other_key = self.keys.unchecked_get(key_index - 1)
             if other_key == key:
-                self.values[key_index - 1] = value
+                self.values.unchecked_set(key_index - 1, value)
                 if self._is_deleted(key_index - 1):
                     self.count += 1
                     self._not_deleted(key_index - 1)
