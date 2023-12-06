@@ -8,11 +8,22 @@ from ._generic_list import list
 alias EMPTY_BUCKET = -1
 
 
+@value
+struct CustomBool(CollectionElement):
+    var value: Bool
+
+    fn __init__(inout self, value: Bool):
+        self.value = value
+
+    fn __bool__(self) -> Bool:
+        return self.value
+
+
 struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     var keys: list[K]
     var values: list[V]
     var key_map: list[Int]
-    var deleted_mask: DTypePointer[DType.bool]
+    var deleted_mask: list[CustomBool]
     var count: Int
     var capacity: Int
 
@@ -22,8 +33,8 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.keys = list[K]()
         self.values = list[V]()
         self.key_map = list[Int]()
-        self.deleted_mask = DTypePointer[DType.bool].alloc(self.capacity)
-        memset_zero(self.deleted_mask, self.capacity)
+        self.deleted_mask = list[CustomBool]()
+        self._make_deleted_mask_bigger(0, self.capacity)
         self._initialize_key_map(self.capacity)
 
     fn __setitem__(inout self, key: K, value: V):
@@ -38,11 +49,8 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             self.key_map.append(EMPTY_BUCKET)  # -1 means unused
 
     fn _make_deleted_mask_bigger(inout self, old_size: Int, new_size: Int):
-        let _deleted_mask = DTypePointer[DType.bool].alloc(new_size)
-        memset_zero(_deleted_mask, new_size)
-        memcpy(_deleted_mask, self.deleted_mask, old_size)
-        self.deleted_mask.free()
-        self.deleted_mask = _deleted_mask
+        for i in range(old_size, new_size):
+            self.deleted_mask.append(CustomBool(False))
 
     fn _rehash(inout self):
         let old_mask_capacity = self.capacity
@@ -75,9 +83,9 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             let existing_key = self.keys.unchecked_get(key_index)
             if existing_key == key:
                 self.values.unchecked_set(key_index, value)
-                if self.deleted_mask[key_index]:
+                if self.deleted_mask.unchecked_get(key_index).value:
                     self.count += 1
-                    self.deleted_mask[key_index] = False
+                    self.deleted_mask.unchecked_set(key_index, False)
                 return
 
             key_map_index = (key_map_index + 1) % modulo_mask
