@@ -117,8 +117,6 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
 
     @always_inline
     fn _is_deleted(self, index: Int) -> Bool:
-        let offset = index // 8
-        let bit_index = index % 8
         return self.deleted_mask[index]
 
     @always_inline
