@@ -22,8 +22,8 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
         self.keys = list[K]()
         self.values = list[V]()
         self.key_map = list[Int]()
-        self.deleted_mask = DTypePointer[DType.bool].alloc(self.capacity)
-        memset_zero(self.deleted_mask, self.capacity)
+        self.deleted_mask = DTypePointer[DType.bool]()
+        self._make_deleted_mask_bigger(0, self.capacity)
         self._initialize_key_map(self.capacity)
 
     fn __setitem__(inout self, key: K, value: V):
