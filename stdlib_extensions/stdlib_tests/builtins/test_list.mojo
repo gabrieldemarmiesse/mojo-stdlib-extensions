@@ -148,6 +148,8 @@ def test_list_iteration():
         index += 1
 
     assert_equal(index, 3)
+    assert_equal(len(some_list), 3)
+    assert_equal(list_to_str(some_list), "[0, 1, 2]")
 
 
 def run_tests():
