@@ -136,6 +136,20 @@ def test_insert():
     assert_equal(list_to_str(some_list), "[0, 100, 1, 2, 14, 22]")
 
 
+def test_list_iteration():
+    some_list = list[Int]()
+    some_list.append(0)
+    some_list.append(1)
+    some_list.append(2)
+
+    index = 0
+    for i in some_list:
+        assert_equal(i, index)
+        index += 1
+
+    assert_equal(index, 3)
+
+
 def run_tests():
     test_list_of_strings()
     test_extend()
@@ -145,3 +159,4 @@ def run_tests():
     test_reverse_4_elements()
     test_reverse_5_elements()
     test_insert()
+    test_list_iteration()

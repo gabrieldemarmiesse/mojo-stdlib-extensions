@@ -1,8 +1,24 @@
 from utils.vector import DynamicVector
 
 
+struct ListIter[T: CollectionElement]:
+    var data: list[T]
+    var idx: Int
+
+    fn __init__(inout self, data: list[T]):
+        self.idx = -1
+        self.data = data
+
+    fn __len__(self) -> Int:
+        return len(self.data) - self.idx - 1
+
+    fn __next__(inout self) raises -> T:
+        self.idx += 1
+        return self.data[self.idx]
+
+
 @value
-struct list[T: CollectionElement](Sized):
+struct list[T: CollectionElement](Sized, Movable):
     var _internal_vector: DynamicVector[T]
 
     fn __init__(inout self):
@@ -86,6 +102,9 @@ struct list[T: CollectionElement](Sized):
     @always_inline
     fn __len__(self) -> Int:
         return len(self._internal_vector)
+
+    fn __iter__(self: Self) -> ListIter[T]:
+        return ListIter(self)
 
     @staticmethod
     fn from_string(input_value: String) -> list[String]:
