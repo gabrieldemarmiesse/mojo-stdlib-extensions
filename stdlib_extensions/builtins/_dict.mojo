@@ -31,19 +31,21 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
 
         self._put(key, value, -1)
 
+    fn _make_deleted_mask_bigger(inout self, old_size: Int, new_size: Int):
+        let _deleted_mask = DTypePointer[DType.bool].alloc(new_size)
+        memset_zero(_deleted_mask, new_size)
+        memcpy(_deleted_mask, self.deleted_mask, old_size)
+        self.deleted_mask.free()
+        self.deleted_mask = _deleted_mask
+
     fn _rehash(inout self):
         let old_mask_capacity = self.capacity
         self.capacity *= 2
-        let mask_capacity = self.capacity
         self.key_map = list[Int]()
         for i in range(self.capacity):
             self.key_map.append(0)
 
-        let _deleted_mask = DTypePointer[DType.bool].alloc(mask_capacity)
-        memset_zero(_deleted_mask, mask_capacity)
-        memcpy(_deleted_mask, self.deleted_mask, old_mask_capacity)
-        self.deleted_mask.free()
-        self.deleted_mask = _deleted_mask
+        self._make_deleted_mask_bigger(old_mask_capacity, self.capacity)
 
         for i in range(len(self.keys)):
             self._put(self.keys.unchecked_get(i), self.values.unchecked_get(i), i + 1)
