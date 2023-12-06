@@ -5,7 +5,7 @@ from memory import memset_zero, memcpy
 from ._hash import hash, HashableCollectionElement
 
 
-struct dict[K: HashableCollectionElement, V: CollectionElement]:
+struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     var keys: DynamicVector[K]
     var values: DynamicVector[V]
     var key_map: DTypePointer[DType.uint32]
@@ -34,14 +34,6 @@ struct dict[K: HashableCollectionElement, V: CollectionElement]:
         let offset = index // 8
         let bit_index = index & 7
         return self.deleted_mask.offset(offset).load() & (1 << bit_index) != 0
-
-    @always_inline
-    fn _deleted(self, index: Int):
-        let offset = index // 8
-        let bit_index = index & 7
-        let p = self.deleted_mask.offset(offset)
-        let mask = p.load()
-        p.store(mask | (1 << bit_index))
 
     @always_inline
     fn _not_deleted(self, index: Int):
@@ -117,16 +109,27 @@ struct dict[K: HashableCollectionElement, V: CollectionElement]:
         except Error:
             return default
 
-    fn delete(inout self, key: K):
+    fn pop(inout self, key: K) raises:
         let key_hash = hash(key)
         let modulo_mask = self.capacity - 1
         var key_map_index = int(key_hash & modulo_mask)
         while True:
             let key_index = self.key_map.offset(key_map_index).load().to_int()
             if key_index == 0:
-                return
+                raise Error("KeyError, key not found.")
             let other_key = self.keys[key_index - 1]
             if other_key == key:
                 self.count -= 1
                 return self._deleted(key_index - 1)
             key_map_index = (key_map_index + 1) & modulo_mask
+
+    @always_inline
+    fn _deleted(self, index: Int):
+        let offset = index // 8
+        let bit_index = index & 7
+        let p = self.deleted_mask.offset(offset)
+        let mask = p.load()
+        p.store(mask | (1 << bit_index))
+
+    fn __len__(self) -> Int:
+        return self.count
