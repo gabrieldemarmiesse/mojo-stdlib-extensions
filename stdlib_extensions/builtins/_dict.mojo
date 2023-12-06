@@ -68,8 +68,8 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                 self.key_map.unchecked_set(key_map_index, new_key_index)
                 return
 
-            let other_key = self.keys.unchecked_get(key_index - 1)
-            if other_key == key:
+            let existing_key = self.keys.unchecked_get(key_index - 1)
+            if existing_key == key:
                 self.values.unchecked_set(key_index - 1, value)
                 if self.deleted_mask[key_index - 1]:
                     self.count += 1
