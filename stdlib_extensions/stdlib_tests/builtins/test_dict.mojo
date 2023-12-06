@@ -4,7 +4,7 @@ from ..utils import assert_equal
 
 
 @value
-struct DummyStruct(HashableCollectionElement):
+struct DummyStructInt(HashableCollectionElement):
     """This is to test the dict since Int cannot be used yet."""
 
     var integer: Int
@@ -12,12 +12,12 @@ struct DummyStruct(HashableCollectionElement):
     fn __hash__(self) -> Int:
         return hash(self.integer)
 
-    fn __eq__(self, other: DummyStruct) -> Bool:
+    fn __eq__(self, other: DummyStructInt) -> Bool:
         return self.integer == other.integer
 
 
-def test_simple_dict_usage():
-    some_dict = dict[DummyStruct, DummyStruct]()
+def test_simple_dict_usage_int():
+    some_dict = dict[DummyStructInt, DummyStructInt]()
     some_dict[1] = 2
     assert_equal(some_dict[1].integer, 2)
     assert_equal(len(some_dict), 1)
@@ -35,8 +35,8 @@ def test_simple_dict_usage():
     assert_equal(len(some_dict), 1)
 
 
-def test_lots_of_insersion_and_deletion():
-    some_dict = dict[DummyStruct, DummyStruct]()
+def test_lots_of_insersion_and_deletion_int():
+    some_dict = dict[DummyStructInt, DummyStructInt]()
     for i in range(100_000):
         some_dict[i] = i * 10
 
@@ -51,5 +51,5 @@ def test_lots_of_insersion_and_deletion():
 
 
 def run_tests():
-    test_simple_dict_usage()
-    test_lots_of_insersion_and_deletion()
+    test_simple_dict_usage_int()
+    test_lots_of_insersion_and_deletion_int()
