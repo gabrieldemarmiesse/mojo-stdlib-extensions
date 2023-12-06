@@ -99,7 +99,25 @@ def test_simple_dict_usage_str():
     assert_equal(len(some_dict), 1)
 
 
+def test_lots_of_insersion_and_deletion_str():
+    some_dict = dict[DummyStructStr, DummyStructStr]()
+    for i in range(10_000):
+        some_dict[str(i)] = str(i * 10)
+
+    for i in range(10_000):
+        assert_equal(str(some_dict[str(i)]), str(i * 10))
+    assert_equal(len(some_dict), 10_000)
+
+    for i in range(5_000):
+        some_dict.pop(str(i))
+
+    assert_equal(len(some_dict), 5_000)
+    for i in range(5_000, 10_000):
+        assert_equal(str(some_dict[str(i)]), str(i * 10))
+
+
 def run_tests():
     test_simple_dict_usage_int()
     test_lots_of_insersion_and_deletion_int()
     test_simple_dict_usage_str()
+    test_lots_of_insersion_and_deletion_str()
