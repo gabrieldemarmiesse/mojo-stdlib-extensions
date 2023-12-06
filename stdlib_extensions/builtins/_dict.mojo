@@ -74,7 +74,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                     new_key_index = len(self.keys)
                 else:
                     new_key_index = rehash_index
-                self.key_map.offset(key_map_index).store(UInt32(new_key_index))
+                self.key_map[key_map_index] = UInt32(new_key_index)
                 return
 
             let other_key = self.keys.unchecked_get(key_index - 1)
@@ -126,9 +126,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
     fn _deleted(self, index: Int):
         let offset = index // 8
         let bit_index = index & 7
-        let p = self.deleted_mask.offset(offset)
-        let mask = p.load()
-        p.store(mask | (1 << bit_index))
+        self.deleted_mask[offset] = self.deleted_mask[offset] | (1 << bit_index)
 
     fn __len__(self) -> Int:
         return self.count
