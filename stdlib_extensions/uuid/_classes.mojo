@@ -38,22 +38,30 @@ struct UUID(Stringable):
 
     fn __init__(
         inout self,
-        owned hex: String,
+        hex: StringLiteral,
         is_safe: Int = SafeUUID.unknown,
     ):
-        hex = replace(hex, "urn:", "")
-        hex = replace(hex, "uuid:", "")
-        hex = strip(hex, "{}")
-        hex = replace(hex, "-", "")
+        self.__init__(String(hex), is_safe)
+
+    fn __init__(
+        inout self,
+        hex: String,
+        is_safe: Int = SafeUUID.unknown,
+    ):
+        var hex_formatted = replace(hex, "urn:", "")
+        hex_formatted = replace(hex_formatted, "uuid:", "")
+        hex_formatted = strip(hex_formatted, "{}")
+        hex_formatted = replace(hex_formatted, "-", "")
 
         # TODO: enable erroring when it's allowed to raise at compile time
         # if len(hex) != 32:
         #     raise Error("badly formed hexadecimal UUID string")
-        self.__init__(bytes_.fromhex(hex), is_safe)
+        self.__init__(bytes_.fromhex(hex_formatted), is_safe)
 
     fn __init__(
         inout self,
         bytes: bytes_,
+        # version: Int = -1,
         is_safe: Int = SafeUUID.unknown,
     ):
         self.__bytes = UUIDBytes(
@@ -74,6 +82,9 @@ struct UUID(Stringable):
             bytes[14],
             bytes[15],
         )
+        let version = 4
+        if version != -1:
+            self.__bytes[6] &= (version << 4) + 0x0F
         self.is_safe = is_safe
 
     fn __eq__(self, other: UUID) -> Bool:
