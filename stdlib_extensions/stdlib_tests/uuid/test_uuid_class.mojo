@@ -48,6 +48,22 @@ def test_uuid_class_version_5():
     assert_equal(some_uuid.version(), 5)
 
 
+def test_set_version():
+    for i in range(1, 6):
+        assert_equal(
+            UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5", version=i).version(), i
+        )
+        assert_equal(
+            UUID("a3b9a1b0-8a53-3239-94cb-59bd25191542", version=i).version(), i
+        )
+        assert_equal(
+            UUID("4d3a88c7-8a53-4239-94cb-59bd25191542", version=i).version(), i
+        )
+        assert_equal(
+            UUID("a3b9a1b0-8a53-5239-94cb-59bd25191542", version=i).version(), i
+        )
+
+
 def test_order():
     assert_true(
         UUID("00000000-0000-0000-0000-000000000000")
@@ -186,6 +202,7 @@ def run_tests():
     test_uuid_class_version_3()
     test_uuid_class_version_4()
     test_uuid_class_version_5()
+    test_set_version()
     test_order()
     test_time_low()
     test_time_mid()
