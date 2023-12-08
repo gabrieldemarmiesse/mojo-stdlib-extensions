@@ -1,5 +1,5 @@
 from ..utils import assert_equal
-from ...uuid import UUID
+from ...uuid import UUID, RFC_4122
 from ...builtins import bytes
 
 
@@ -24,20 +24,33 @@ def test_uuid_class_no_version():
     )
 
 
-def test_uuid_class_version():
-    # version 1
-    assert_equal(UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5").version(), 1)
+def test_uuid_class_version_1():
+    some_uuid = UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5")
+    assert_equal(some_uuid.variant(), RFC_4122)
+    assert_equal(some_uuid.version(), 1)
 
-    # version 3
-    assert_equal(UUID("a3b9a1b0-8a53-4239-94cb-59bd25191542").version(), 3)
 
-    # version 4
-    assert_equal(UUID("4d3a88c7-8a53-4239-94cb-59bd25191542").version(), 4)
+def test_uuid_class_version_3():
+    some_uuid = UUID("a3b9a1b0-8a53-3239-94cb-59bd25191542")
+    assert_equal(some_uuid.variant(), RFC_4122)
+    assert_equal(some_uuid.version(), 3)
 
-    # version 5
-    assert_equal(UUID("a3b9a1b0-8a53-5239-94cb-59bd25191542").version(), 5)
+
+def test_uuid_class_version_4():
+    some_uuid = UUID("4d3a88c7-8a53-4239-94cb-59bd25191542")
+    assert_equal(some_uuid.variant(), RFC_4122)
+    assert_equal(some_uuid.version(), 4)
+
+
+def test_uuid_class_version_5():
+    some_uuid = UUID("a3b9a1b0-8a53-5239-94cb-59bd25191542")
+    assert_equal(some_uuid.variant(), RFC_4122)
+    assert_equal(some_uuid.version(), 5)
 
 
 def run_tests():
     test_uuid_class_no_version()
-    test_uuid_class_version()
+    test_uuid_class_version_1()
+    test_uuid_class_version_3()
+    test_uuid_class_version_4()
+    test_uuid_class_version_5()

@@ -19,7 +19,12 @@ struct SafeUUID:
     alias unknown = -2  # this is normally None but we don't have traits
 
 
-struct UUID:
+@always_inline
+fn get_bit(x: SIMD[DType.uint8, 1], i: Int) -> Bool:
+    return ((x >> i) & 1).cast[DType.bool]()
+
+
+struct UUID(Stringable):
     var __bytes: UUIDBytes
     var is_safe: Int
 
@@ -96,11 +101,11 @@ struct UUID:
         return output
 
     fn variant(self) -> String:
-        if not self.__bytes & (0x8000 << 48):
+        if not (self.__bytes[8] & 0x80).to_int():
             return RESERVED_NCS
-        elif not self.__bytes & (0x4000 << 48):
+        elif not (self.__bytes[8] & 0x40).to_int():
             return RFC_4122
-        elif not self.__bytes & (0x2000 << 48):
+        elif not (self.__bytes[8] & 0x20).to_int():
             return RESERVED_MICROSOFT
         else:
             return RESERVED_FUTURE
@@ -108,7 +113,7 @@ struct UUID:
     fn version(self) -> Int:
         # The version bits are only meaningful for RFC 4122 UUIDs.
         if self.variant() == RFC_4122:
-            return ((self.__bytes >> 76) & 0xF)[-1].to_int()
+            return (self.__bytes[6] >> 4).to_int()
         else:
             # we should actually return None here but we don't have traits/unions
             return -1
