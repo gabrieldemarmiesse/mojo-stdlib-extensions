@@ -1,5 +1,5 @@
-from ..utils import assert_equal, assert_true, assert_false
-from ...uuid import UUID, RFC_4122
+from ..utils import assert_equal, assert_true, assert_false, assert_false
+from ...uuid import UUID, RFC_4122, uuid4
 from ...builtins import bytes
 
 
@@ -196,6 +196,13 @@ def test_urn():
     )
 
 
+def test_uuid4():
+    for _ in range(100):
+        assert_equal(uuid4().variant(), RFC_4122)
+        assert_equal(uuid4().version(), 4)
+        assert_false(uuid4() == uuid4(), "Randomy generated UUIDs are equal")
+
+
 def run_tests():
     test_uuid_class_no_version()
     test_uuid_class_version_1()
@@ -211,3 +218,4 @@ def run_tests():
     test_clock_seq_low()
     test_node()
     test_urn()
+    test_uuid4()

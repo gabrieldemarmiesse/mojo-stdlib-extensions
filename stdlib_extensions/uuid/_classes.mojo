@@ -77,7 +77,13 @@ struct UUID(Stringable):
             bytes[15],
         )
         if version != -1:
-            self.__bytes[6] = UInt8(((version << 4) + (self.__bytes[6] % 16)))
+            # we set the version
+            self.__bytes[6] |= UInt8((version << 4) + 0)
+            self.__bytes[6] &= UInt8((version << 4) + 0xF)
+
+            # we set the variant to RFC 4122
+            self.__bytes[8] |= UInt8(0x80)
+            self.__bytes[8] &= UInt8(0xBF)
         self.is_safe = is_safe
 
     fn __eq__(self, other: UUID) -> Bool:
@@ -186,6 +192,11 @@ struct UUID(Stringable):
         else:
             # we should actually return None here but we don't have traits/unions
             return -1
+
+
+def uuid4() -> UUID:
+    """Generate a random UUID."""
+    return UUID(bytes=urandom(16), version=4)
 
 
 # The following standard UUIDs are for use with uuid3() or uuid5().
