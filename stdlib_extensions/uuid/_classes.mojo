@@ -19,6 +19,14 @@ struct SafeUUID:
     alias unknown = -2  # this is normally None but we don't have traits
 
 
+fn uint8_simd_to_int[simd_size: Int](x: SIMD[DType.uint8, simd_size]) -> Int:
+    # a bitcast would be better but we don't have that yet it seems
+    var output = 0
+    for i in range(simd_size):
+        output += x[i].to_int() * ((2**8) ** (simd_size - i - 1))
+    return output
+
+
 @always_inline
 fn get_bit(x: SIMD[DType.uint8, 1], i: Int) -> Bool:
     return ((x >> i) & 1).cast[DType.bool]()
@@ -99,6 +107,9 @@ struct UUID(Stringable):
                 pass
 
         return output
+
+    def time_low(self) -> Int:
+        return uint8_simd_to_int(self.__bytes.slice[4](0))
 
     fn variant(self) -> String:
         if not (self.__bytes[8] & 0x80).to_int():

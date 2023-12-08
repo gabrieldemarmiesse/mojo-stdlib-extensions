@@ -48,9 +48,16 @@ def test_uuid_class_version_5():
     assert_equal(some_uuid.version(), 5)
 
 
+def test_time_low():
+    assert_equal(UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5").time_low(), 1276264282)
+    assert_equal(UUID("a3b9a1b0-8a53-3239-94cb-59bd25191542").time_low(), 2746851760)
+    assert_equal(UUID("d3b9c1b0-8a53-5239-94cb-59bd25191542").time_low(), 3552166320)
+
+
 def run_tests():
     test_uuid_class_no_version()
     test_uuid_class_version_1()
     test_uuid_class_version_3()
     test_uuid_class_version_4()
     test_uuid_class_version_5()
+    test_time_low()
