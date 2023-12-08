@@ -110,6 +110,10 @@ stdlib_extensions.datetime.date
 -> year, month, day, min, max, today
 
 stdlib_extensions.time.time_ns()
+
+stdlib_extensions.uuid.uuid4()
+stdlib_extensions.uuid.UUID
+-> __str__, hex, ==, <, bytes, urn, variant, version
 ```
 
 
