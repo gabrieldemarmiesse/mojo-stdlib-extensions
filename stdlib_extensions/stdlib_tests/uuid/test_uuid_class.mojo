@@ -1,4 +1,4 @@
-from ..utils import assert_equal
+from ..utils import assert_equal, assert_true, assert_false
 from ...uuid import UUID, RFC_4122
 from ...builtins import bytes
 
@@ -48,9 +48,74 @@ def test_uuid_class_version_5():
     assert_equal(some_uuid.version(), 5)
 
 
+def test_order():
+    assert_true(
+        UUID("00000000-0000-0000-0000-000000000000")
+        < UUID("00000000-0000-0000-0000-000000000001"),
+        "not less",
+    )
+    assert_false(
+        UUID("00000000-0000-0000-0000-000000000000")
+        > UUID("00000000-0000-0000-0000-000000000001"),
+        "not greater",
+    )
+    assert_true(
+        UUID("00000000-0000-0000-0000-000000000000")
+        <= UUID("00000000-0000-0000-0000-000000000001"),
+        "not less or equal",
+    )
+    assert_false(
+        UUID("00000000-0000-0000-0000-000000000000")
+        >= UUID("00000000-0000-0000-0000-000000000001"),
+        "not greater or equal",
+    )
+    assert_true(
+        UUID("00000000-0000-0000-0000-000000000000")
+        == UUID("00000000-0000-0000-0000-000000000000"),
+        "not equal",
+    )
+    assert_false(
+        UUID("00000000-0000-0000-0000-000000000000")
+        != UUID("00000000-0000-0000-0000-000000000000"),
+        "not not equal",
+    )
+
+    assert_true(
+        UUID("e0000000-0000-0000-0000-000000000000")
+        < UUID("f0000000-0000-0000-0000-000000000000"),
+        "not less",
+    )
+    assert_false(
+        UUID("e0000000-0000-0000-0000-000000000000")
+        > UUID("f0000000-0000-0000-0000-000000000000"),
+        "not greater",
+    )
+    assert_true(
+        UUID("e0000000-0000-0000-0000-000000000000")
+        <= UUID("f0000000-0000-0000-0000-000000000000"),
+        "not less or equal",
+    )
+    assert_false(
+        UUID("e0000000-0000-0000-0000-000000000000")
+        >= UUID("f0000000-0000-0000-0000-000000000000"),
+        "not greater or equal",
+    )
+    assert_true(
+        UUID("e0000000-0000-0000-0000-000000000000")
+        == UUID("e0000000-0000-0000-0000-000000000000"),
+        "not equal",
+    )
+    assert_false(
+        UUID("e0000000-0000-0000-0000-000000000000")
+        != UUID("e0000000-0000-0000-0000-000000000000"),
+        "not not equal",
+    )
+
+
 def run_tests():
     test_uuid_class_no_version()
     test_uuid_class_version_1()
     test_uuid_class_version_3()
     test_uuid_class_version_4()
     test_uuid_class_version_5()
+    test_order()

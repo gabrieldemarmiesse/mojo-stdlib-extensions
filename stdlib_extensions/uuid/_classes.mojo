@@ -71,6 +71,38 @@ struct UUID(Stringable):
     fn __eq__(self, other: UUID) -> Bool:
         return self.__bytes == other.__bytes
 
+    fn __ne__(self, other: UUID) -> Bool:
+        return self.__bytes != other.__bytes
+
+    # TODO: Can we vectorize those methods?
+    fn __lt__(self, other: UUID) -> Bool:
+        for i in range(16):
+            if self.__bytes[i] == other.__bytes[i]:
+                continue
+            return self.__bytes[i] < other.__bytes[i]
+        return False
+
+    fn __gt__(self, other: UUID) -> Bool:
+        for i in range(16):
+            if self.__bytes[i] == other.__bytes[i]:
+                continue
+            return self.__bytes[i] > other.__bytes[i]
+        return False
+
+    fn __le__(self, other: UUID) -> Bool:
+        for i in range(16):
+            if self.__bytes[i] == other.__bytes[i]:
+                continue
+            return self.__bytes[i] <= other.__bytes[i]
+        return True
+
+    fn __ge__(self, other: UUID) -> Bool:
+        for i in range(16):
+            if self.__bytes[i] == other.__bytes[i]:
+                continue
+            return self.__bytes[i] >= other.__bytes[i]
+        return True
+
     fn __str__(self) -> String:
         let hex = self.bytes().hex()
         return (
