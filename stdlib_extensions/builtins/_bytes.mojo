@@ -263,7 +263,7 @@ fn get_mapping_byte_to_value() -> list[String]:
 
 
 @value
-struct bytes(StringableRaising):
+struct bytes(Stringable):
     """A mutable sequence of bytes. Behaves like the python version.
 
     Note that some_bytes[i] returns an UInt8.
@@ -337,11 +337,11 @@ struct bytes(StringableRaising):
             for j in range(starting_lenght):
                 self._vector.push_back(self[j])
 
-    fn __str__(self) raises -> String:
+    fn __str__(self) -> String:
         alias mapping = get_mapping_byte_to_value()
         var result_string: String = "b'"
         for i in range(self.__len__()):
-            result_string += mapping[self._vector[i].to_int()]
+            result_string += mapping.unchecked_get(self._vector[i].to_int())
         result_string += "'"
         return result_string
 
