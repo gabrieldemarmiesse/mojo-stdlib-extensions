@@ -132,6 +132,54 @@ def test_time_hi_version():
     assert_equal(UUID("f588b9be-929a-4b15-925f-23c9903b847a").time_hi_version(), 19221)
 
 
+def test_clock_seq_hi_variant():
+    assert_equal(
+        UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5").clock_seq_hi_variant(), 168
+    )
+    assert_equal(
+        UUID("a3b9a1b0-8a53-3239-94cb-59bd25191542").clock_seq_hi_variant(), 148
+    )
+    assert_equal(
+        UUID("d3b9c1b0-8a53-5239-94cb-59bd25191542").clock_seq_hi_variant(), 148
+    )
+    assert_equal(
+        UUID("f588b9be-929a-4b15-925f-23c9903b847a").clock_seq_hi_variant(), 146
+    )
+
+
+def test_clock_seq_low():
+    assert_equal(UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5").clock_seq_low(), 208)
+    assert_equal(UUID("a3b9a1b0-8a53-3239-94cb-59bd25191542").clock_seq_low(), 203)
+    assert_equal(UUID("d3b9c1b0-8a53-5239-94cb-59bd25191542").clock_seq_low(), 203)
+    assert_equal(UUID("f588b9be-929a-4b15-925f-23c9903b847a").clock_seq_low(), 95)
+
+
+def test_node():
+    assert_equal(UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5").node(), 215462552298485)
+    assert_equal(UUID("a3b9a1b0-8a53-3239-94cb-59bd25191542").node(), 98668906091842)
+    assert_equal(UUID("d3b9c1b0-8a53-5239-94cb-59bd25191542").node(), 98668906091842)
+    assert_equal(UUID("f588b9be-929a-4b15-925f-23c9903b847a").node(), 39348615218298)
+
+
+def test_urn():
+    assert_equal(
+        UUID("4c123f5a-86fa-11ee-a8d0-c3f648e463f5").urn(),
+        "urn:uuid:4c123f5a-86fa-11ee-a8d0-c3f648e463f5",
+    )
+    assert_equal(
+        UUID("a3b9a1b0-8a53-3239-94cb-59bd25191542").urn(),
+        "urn:uuid:a3b9a1b0-8a53-3239-94cb-59bd25191542",
+    )
+    assert_equal(
+        UUID("d3b9c1b0-8a53-5239-94cb-59bd25191542").urn(),
+        "urn:uuid:d3b9c1b0-8a53-5239-94cb-59bd25191542",
+    )
+    assert_equal(
+        UUID("f588b9be-929a-4b15-925f-23c9903b847a").urn(),
+        "urn:uuid:f588b9be-929a-4b15-925f-23c9903b847a",
+    )
+
+
 def run_tests():
     test_uuid_class_no_version()
     test_uuid_class_version_1()
@@ -142,3 +190,7 @@ def run_tests():
     test_time_low()
     test_time_mid()
     test_time_hi_version()
+    test_clock_seq_hi_variant()
+    test_clock_seq_low()
+    test_node()
+    test_urn()

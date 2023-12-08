@@ -156,7 +156,11 @@ struct UUID(Stringable):
         return uint8_simd_to_int(self.__bytes.slice[1](9))
 
     fn node(self) -> Int:
-        return uint8_simd_to_int(self.__bytes.slice[6](10))
+        # trick because simd size can only be a power of 2
+        var node_bytes = self.__bytes.slice[8](8)
+        node_bytes[0] = 0
+        node_bytes[1] = 0
+        return uint8_simd_to_int(node_bytes)
 
     fn urn(self) -> String:
         return "urn:uuid:" + str(self)
