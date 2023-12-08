@@ -13,7 +13,7 @@ from .utils import (
     HOURS_TO_MICROSECONDS,
     DAYS_TO_MICROSECONDS,
 )
-from ..builtins import list
+from ..builtins import list, hash, HashableCollectionElement, Hashable
 from ..builtins.string import rjust, join
 from ..syscalls.clocks import clock_gettime
 
@@ -30,7 +30,7 @@ def _resolution() -> timedelta:
 
 
 @value
-struct timedelta:
+struct timedelta(HashableCollectionElement):
     # replace by let when it's available because this struct is immutable
     var _microseconds: Int64
 
@@ -109,6 +109,12 @@ struct timedelta:
 
         return "datetime.timedelta(" + join(", ", arguments) + ")"
 
+    fn __hash__(self) -> Int:
+        return hash(self._microseconds)
+
+    fn __eq__(self, other: timedelta) -> Bool:
+        return self._microseconds == other._microseconds
+
 
 fn _get_numbers_of_days_since_the_start_of_calendar(
     year: Int, month: Int, day: Int
@@ -166,7 +172,7 @@ fn _get_month_and_day(days_since_calendar_start: Int) -> Tuple[Int, Int]:
 
 
 @value
-struct datetime:
+struct datetime(HashableCollectionElement, Stringable):
     # actually should be a let, this struct is immutable
     # this is not since epoch, this is since day 1 or year 1 (start of the Gregorian calendar)
     # we have to use 64 bits to be sure it's big enough.
@@ -252,17 +258,21 @@ struct datetime:
             microseconds=(self._microseconds - other._microseconds).to_int()
         )
 
-    fn __str__(self) raises -> String:
+    fn __str__(self) -> String:
         var result: String = ""
-        result += rjust(String(self.year()), 4, "0")
-        result += "-" + rjust(String(self.month()), 2, "0")
-        result += "-" + rjust(String(self.day()), 2, "0")
-        result += " " + rjust(String(self.hour()), 2, "0")
-        result += ":" + rjust(String(self.minute()), 2, "0")
-        result += ":" + rjust(String(self.second()), 2, "0")
+        try:
+            result += rjust(String(self.year()), 4, "0")
+            result += "-" + rjust(String(self.month()), 2, "0")
+            result += "-" + rjust(String(self.day()), 2, "0")
+            result += " " + rjust(String(self.hour()), 2, "0")
+            result += ":" + rjust(String(self.minute()), 2, "0")
+            result += ":" + rjust(String(self.second()), 2, "0")
 
-        if self.microsecond() != 0:
-            result += "." + rjust(String(self.microsecond()), 6, "0")
+            if self.microsecond() != 0:
+                result += "." + rjust(String(self.microsecond()), 6, "0")
+        except Error:
+            return "Error crafting the string of datetime"
+
         return result
 
     fn __repr__(self) -> String:
@@ -306,9 +316,15 @@ struct datetime:
     fn time(self) raises -> time:
         return time(self.hour(), self.minute(), self.second(), self.microsecond())
 
+    fn __hash__(self) -> Int:
+        return hash(self._microseconds)
+
+    fn __eq__(self, other: datetime) -> Bool:
+        return self._microseconds == other._microseconds
+
 
 @value
-struct date:
+struct date(HashableCollectionElement):
     # TODO: this could be a let, this struct is immutable
     var _days_since_start_of_calendar: Int
 
@@ -365,6 +381,12 @@ struct date:
             + String(self.day())
             + ")"
         )
+
+    fn __hash__(self) -> Int:
+        return hash(self._days_since_start_of_calendar)
+
+    fn __eq__(self, other: date) -> Bool:
+        return self._days_since_start_of_calendar == other._days_since_start_of_calendar
 
 
 @value

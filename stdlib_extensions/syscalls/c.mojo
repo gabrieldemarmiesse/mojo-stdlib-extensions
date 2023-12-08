@@ -1,6 +1,5 @@
 from utils.vector import DynamicVector
 
-
 # Types aliases
 alias void = UInt8
 alias char = UInt8
@@ -69,7 +68,7 @@ alias EWOULDBLOCK = EAGAIN
 # random consts
 alias GRND_NONBLOCK: UInt8 = 1
 
-alias char_pointer = Pointer[char]
+alias char_pointer = AnyPointer[char]
 
 
 @value
@@ -84,7 +83,7 @@ struct Str:
 
     fn __init__(inout self, size: Int):
         self.vector = DynamicVector[char]()
-        self.vector.resize(size + 1)
+        self.vector.resize(size + 1, 0)
 
     fn __len__(self) -> Int:
         for i in range(len(self.vector)):
@@ -92,8 +91,11 @@ struct Str:
                 return i
         return -1
 
-    fn to_string(owned self, size: Int) -> String:
-        return String(self.vector.data.bitcast[Int8](), size)
+    fn to_string(self, size: Int) -> String:
+        var result: String = ""
+        for i in range(size):
+            result += chr(self.vector[i].to_int())
+        return result
 
     fn __enter__(owned self: Self) -> Self:
         return self ^

@@ -7,7 +7,7 @@ fn getrandom(size: c.size_t) raises -> bytes:
     # because it can't track writing directly to memory with pointers
     let result = bytes(size.to_int())
     let nb_bytes_written = external_call[
-        "getrandom", c.ssize_t, Pointer[UInt8], c.size_t, c.uint
+        "getrandom", c.ssize_t, AnyPointer[UInt8], c.size_t, c.uint
     ](result._vector.data, size, c.GRND_NONBLOCK.cast[DType.uint32]())
     if nb_bytes_written < 0:
         raise Error("getrandom failed")

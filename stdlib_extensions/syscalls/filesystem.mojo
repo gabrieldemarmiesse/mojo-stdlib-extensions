@@ -101,7 +101,7 @@ fn read_string_from_fd(file_descriptor: c.int) raises -> String:
     let buffer: c.Str
     with c.Str(size=buffer_size) as buffer:
         let read_count: c.ssize_t = external_call[
-            "read", c.ssize_t, c.int, Pointer[c.char], c.size_t
+            "read", c.ssize_t, c.int, c.char_pointer, c.size_t
         ](file_descriptor, buffer.vector.data, buffer_size)
         if read_count == -1:
             raise Error("Failed to read file descriptor" + String(file_descriptor))

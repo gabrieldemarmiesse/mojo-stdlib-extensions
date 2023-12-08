@@ -10,9 +10,11 @@ from stdlib_extensions.stdlib_tests.os import test_process
 from stdlib_extensions import datetime as dt
 from stdlib_extensions.stdlib_tests.time import test_time
 from stdlib_extensions.stdlib_tests.uuid import test_uuid_class
+from stdlib_extensions.stdlib_tests.builtins import test_dict
 
 
 def run_each_module():
+    test_dict.run_tests()
     test_string.run_tests()
     test_list.run_tests()
     test_bytes.run_tests()
