@@ -1,6 +1,6 @@
 from ...builtins import bytes, to_bytes
 from ..utils import assert_equal
-from utils.vector import DynamicVector
+from collections.vector import DynamicVector
 
 
 def test_bytes_operations_indexing_and_add():
