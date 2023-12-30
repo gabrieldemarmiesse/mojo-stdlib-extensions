@@ -39,11 +39,10 @@ def test_extend():
 
     some_list.extend(second_list)
     assert_equal(len(some_list), 4)
-    # this is because of https://github.com/modularml/mojo/issues/1408
-    assert_equal(some_list.__getitem__(index=0), 0)
-    assert_equal(some_list.__getitem__(index=1), 1)
-    assert_equal(some_list.__getitem__(index=2), 2)
-    assert_equal(some_list.__getitem__(index=3), 3)
+    assert_equal(some_list[0], 0)
+    assert_equal(some_list[1], 1)
+    assert_equal(some_list[2], 2)
+    assert_equal(some_list[3], 3)
 
 
 def test_pop_default():
@@ -73,8 +72,8 @@ def test_pop_negative_values():
 
     assert_equal(len(some_list), 2)
 
-    assert_equal(some_list.__getitem__(index=0), 0)
-    assert_equal(some_list.__getitem__(index=1), 2)
+    assert_equal(some_list[0], 0)
+    assert_equal(some_list[1], 2)
 
 
 def test_pop_positive_values():

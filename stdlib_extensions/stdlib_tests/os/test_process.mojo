@@ -10,13 +10,13 @@ def test_getpid():
 
 def test_urandom():
     some_random_bytes = urandom(10)
-    assert_equal(some_random_bytes.__len__(), 10)
+    assert_equal(len(some_random_bytes), 10)
 
     some_new_bytes = urandom(10)
     assert_true(some_random_bytes != some_new_bytes, "random bytes should be different")
 
     empty_bytes = urandom(0)
-    assert_equal(empty_bytes.__len__(), 0)
+    assert_equal(len(empty_bytes), 0)
 
 
 def run_tests():
