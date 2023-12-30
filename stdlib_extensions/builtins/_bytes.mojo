@@ -263,7 +263,7 @@ fn get_mapping_byte_to_value() -> list[String]:
 
 
 @value
-struct bytes(Stringable):
+struct bytes(Stringable, Sized, CollectionElement):
     """A mutable sequence of bytes. Behaves like the python version.
 
     Note that some_bytes[i] returns an UInt8.
