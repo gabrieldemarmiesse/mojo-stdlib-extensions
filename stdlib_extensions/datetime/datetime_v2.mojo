@@ -8,6 +8,7 @@ It's just been converted to Mojo manually.
 """
 
 from ..builtins import list, divmod, round, abs
+from ..builtins.string import join
 import time as _time
 import math as _math
 import sys
@@ -622,7 +623,8 @@ alias _FRACTION_CORRECTION = list[Int].from_values(100000, 10000, 1000, 100, 10)
 #    return q
 #
 #
-struct timedelta:
+@value
+struct timedelta(CollectionElement, Stringable):
     """Represent the difference between two datetime objects.
 
     Supported operators:
@@ -763,38 +765,51 @@ struct timedelta:
         self.microseconds = us
         self._hashcode = -1
 
+    fn __repr__(self) -> String:
+        var args = list[String]()
+        if self.days:
+            args.append("days=" + str(self.days))
+        if self.seconds:
+            args.append("seconds=" + str(self.seconds))
+        if self.microseconds:
+            args.append("microseconds=" + str(self.microseconds))
+        if len(args) == 0:
+            args.append("0")
+        try:
+            return "datetime.timedelta(" + join(", ", args) + ")"
+        except Error:
+            # can never happen
+            return "datetime.timedelta(BUG REPORT ME)"
 
-#
-#    def __repr__(self):
-#        args = []
-#        if self._days:
-#            args.append("days=%d" % self._days)
-#        if self._seconds:
-#            args.append("seconds=%d" % self._seconds)
-#        if self._microseconds:
-#            args.append("microseconds=%d" % self._microseconds)
-#        if not args:
-#            args.append('0')
-#        return "%s.%s(%s)" % (_get_class_module(self),
-#                              self.__class__.__qualname__,
-#                              ', '.join(args))
-#
-#    def __str__(self):
-#        mm, ss = divmod(self._seconds, 60)
-#        hh, mm = divmod(mm, 60)
-#        s = "%d:%02d:%02d" % (hh, mm, ss)
-#        if self._days:
-#            def plural(n):
-#                return n, abs(n) != 1 and "s" or ""
-#            s = ("%d day%s, " % plural(self._days)) + s
-#        if self._microseconds:
-#            s = s + ".%06d" % self._microseconds
-#        return s
-#
-#    def total_seconds(self):
-#        """Total seconds in the duration."""
-#        return ((self.days * 86400 + self.seconds) * 10**6 +
-#                self.microseconds) / 10**6
+    fn __str__(self) -> String:
+        var mm: Int
+        var ss: Int
+        var hh: Int
+        mm, ss = divmod(self.seconds, 60)
+        hh, mm = divmod(mm, 60)
+        var s = str(hh)
+        try:
+            s += ":" + rjust(str(mm), 2, "0")
+            s += ":" + rjust(str(ss), 2, "0")
+            if self.days:
+                var plural: String = ""
+                if abs(self.days) != 1:
+                    plural = "s"
+                s = str(self.days) + " day" + plural + ", " + s
+            if self.microseconds:
+                s = s + "." + rjust(str(self.microseconds), 6, "0")
+            return s
+        except Error:
+            # can never happen
+            return "timedelta __str__ error, report me."
+
+    fn total_seconds(self) -> Int:
+        """Total seconds in the duration."""
+        return (
+            (self.days * 86400 + self.seconds) * 10**6 + self.microseconds
+        ) // 10**6
+
+
 #
 #    # Read-only field accessors
 #    @property
