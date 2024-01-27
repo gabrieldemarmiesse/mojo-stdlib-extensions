@@ -809,111 +809,66 @@ struct timedelta(CollectionElement, Stringable):
             (self.days * 86400 + self.seconds) * 10**6 + self.microseconds
         ) // 10**6
 
+    fn __add__(self, other: timedelta) -> timedelta:
+        return timedelta(
+            self.days + other.days,
+            self.seconds + other.seconds,
+            self.microseconds + other.microseconds,
+        )
 
-#
-#    # Read-only field accessors
-#    @property
-#    def days(self):
-#        """days"""
-#        return self._days
-#
-#    @property
-#    def seconds(self):
-#        """seconds"""
-#        return self._seconds
-#
-#    @property
-#    def microseconds(self):
-#        """microseconds"""
-#        return self._microseconds
-#
-#    def __add__(self, other):
-#        if isinstance(other, timedelta):
-#            # for CPython compatibility, we cannot use
-#            # our __class__ here, but need a real timedelta
-#            return timedelta(self._days + other._days,
-#                             self._seconds + other._seconds,
-#                             self._microseconds + other._microseconds)
-#        return NotImplemented
-#
-#    __radd__ = __add__
-#
-#    def __sub__(self, other):
-#        if isinstance(other, timedelta):
-#            # for CPython compatibility, we cannot use
-#            # our __class__ here, but need a real timedelta
-#            return timedelta(self._days - other._days,
-#                             self._seconds - other._seconds,
-#                             self._microseconds - other._microseconds)
-#        return NotImplemented
-#
-#    def __rsub__(self, other):
-#        if isinstance(other, timedelta):
-#            return -self + other
-#        return NotImplemented
-#
-#    def __neg__(self):
-#        # for CPython compatibility, we cannot use
-#        # our __class__ here, but need a real timedelta
-#        return timedelta(-self._days,
-#                         -self._seconds,
-#                         -self._microseconds)
-#
-#    def __pos__(self):
-#        return self
-#
-#    def __abs__(self):
-#        if self._days < 0:
-#            return -self
-#        else:
-#            return self
-#
-#    def __mul__(self, other):
-#        if isinstance(other, int):
-#            # for CPython compatibility, we cannot use
-#            # our __class__ here, but need a real timedelta
-#            return timedelta(self._days * other,
-#                             self._seconds * other,
-#                             self._microseconds * other)
-#        if isinstance(other, float):
-#            usec = self._to_microseconds()
-#            a, b = other.as_integer_ratio()
-#            return timedelta(0, 0, _divide_and_round(usec * a, b))
-#        return NotImplemented
-#
-#    __rmul__ = __mul__
-#
-#    def _to_microseconds(self):
-#        return ((self._days * (24*3600) + self._seconds) * 1000000 +
-#                self._microseconds)
-#
-#    def __floordiv__(self, other):
-#        if not isinstance(other, (int, timedelta)):
-#            return NotImplemented
-#        usec = self._to_microseconds()
-#        if isinstance(other, timedelta):
-#            return usec // other._to_microseconds()
-#        if isinstance(other, int):
-#            return timedelta(0, 0, usec // other)
-#
-#    def __truediv__(self, other):
-#        if not isinstance(other, (int, float, timedelta)):
-#            return NotImplemented
-#        usec = self._to_microseconds()
-#        if isinstance(other, timedelta):
-#            return usec / other._to_microseconds()
-#        if isinstance(other, int):
-#            return timedelta(0, 0, _divide_and_round(usec, other))
-#        if isinstance(other, float):
-#            a, b = other.as_integer_ratio()
-#            return timedelta(0, 0, _divide_and_round(b * usec, a))
-#
-#    def __mod__(self, other):
-#        if isinstance(other, timedelta):
-#            r = self._to_microseconds() % other._to_microseconds()
-#            return timedelta(0, 0, r)
-#        return NotImplemented
-#
+    fn __sub__(self, other: timedelta) -> timedelta:
+        return timedelta(
+            self.days - other.days,
+            self.seconds - other.seconds,
+            self.microseconds - other.microseconds,
+        )
+
+    fn __neg__(self) -> timedelta:
+        return timedelta(-self.days, -self.seconds, -self.microseconds)
+
+    fn __pos__(self) -> timedelta:
+        return self
+
+    def __abs__(self) -> timedelta:
+        if self.days < 0:
+            return -self
+        else:
+            return self
+
+    fn __mul__(self, other: Int) -> timedelta:
+        return timedelta(
+            self.days * other, self.seconds * other, self.microseconds * other
+        )
+
+    # TODO: support multiplying by a float
+
+    fn _to_microseconds(self) -> Int64:
+        # we return an Int64 because the result may overflow a 32-bit int
+        return (self.days * (24 * 3600) + self.seconds) * 1000000 + self.microseconds
+
+    fn __floordiv__(self, other: timedelta) -> Int64:
+        return self._to_microseconds() // other._to_microseconds()
+
+    fn __floordiv__(self, other: Int) -> timedelta:
+        return timedelta(0, 0, (self._to_microseconds() // other).to_int())
+
+    fn __truediv__(self, other: timedelta) -> Float64:
+        return (
+            self._to_microseconds().cast[DType.float64]()
+            / other._to_microseconds().cast[DType.float64]()
+        )
+
+    #    if isinstance(other, int):
+    #        return timedelta(0, 0, _divide_and_round(usec, other))
+    #    if isinstance(other, float):
+    #        a, b = other.as_integer_ratio()
+    #        return timedelta(0, 0, _divide_and_round(b * usec, a))
+
+    fn __mod__(self, other: timedelta) -> timedelta:
+        var r = self._to_microseconds() % other._to_microseconds()
+        return timedelta(0, 0, r.to_int())
+
+
 #    def __divmod__(self, other):
 #        if isinstance(other, timedelta):
 #            q, r = divmod(self._to_microseconds(),
