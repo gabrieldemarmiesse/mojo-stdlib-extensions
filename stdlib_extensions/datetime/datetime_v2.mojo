@@ -7,7 +7,7 @@ This file is taken from https://github.com/python/cpython/blob/main/Lib/_pydatet
 It's just been converted to Mojo manually.
 """
 
-from ..builtins import list, divmod
+from ..builtins import list, divmod, round, abs
 import time as _time
 import math as _math
 import sys
@@ -750,17 +750,17 @@ struct timedelta:
         days, s = divmod(s, 24 * 3600)
         d += days
 
-        assert isinstance(d, int)
-        assert isinstance(s, int) and 0 <= s < 24 * 3600
-        assert isinstance(us, int) and 0 <= us < 1000000
+        # assert isinstance(d, int)
+        # assert isinstance(s, int) and 0 <= s < 24 * 3600
+        # assert isinstance(us, int) and 0 <= us < 1000000
 
         if abs(d) > 999999999:
-            raise OverflowError("timedelta # of days is too large: %d" % d)
+            pass
+            # raise OverflowError("timedelta # of days is too large: %d" % d)
 
-        self = object.__new__(cls)
-        self._days = d
-        self._seconds = s
-        self._microseconds = us
+        self.days = d
+        self.seconds = s
+        self.microseconds = us
         self._hashcode = -1
 
 
