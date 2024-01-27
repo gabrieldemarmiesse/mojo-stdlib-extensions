@@ -3,6 +3,7 @@ from stdlib_extensions.stdlib_tests.builtins import (
     test_list,
     test_bytes,
     test_hex,
+    test_math,
 )
 from stdlib_extensions.stdlib_tests.datetime import test_classes
 from stdlib_extensions.stdlib_tests.pathlib import test_path
@@ -24,6 +25,7 @@ def run_each_module():
     test_path.run_tests()
     test_time.run_tests()
     test_uuid_class.run_tests()
+    test_math.run_tests()
 
 
 def main():
