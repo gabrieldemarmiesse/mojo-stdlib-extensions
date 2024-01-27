@@ -4,6 +4,7 @@ from ..syscalls.filesystem import read_from_stdin
 from ._hash import hash, Hashable, HashableCollectionElement, Equalable
 from ._dict import dict, HashableInt, HashableStr
 from ._types import Optional
+from ._math import divmod
 
 
 fn input(prompt: String) raises -> String:

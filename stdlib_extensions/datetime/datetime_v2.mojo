@@ -2,9 +2,12 @@
 
 See http://www.iana.org/time-zones/repository/tz-link.html for
 time zone and DST data sources.
+
+This file is taken from https://github.com/python/cpython/blob/main/Lib/_pydatetime.py
+It's just been converted to Mojo manually.
 """
 
-from ..builtins import list
+from ..builtins import list, divmod
 import time as _time
 import math as _math
 import sys
@@ -56,115 +59,145 @@ fn _is_leap(year: Int) -> Bool:
     return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
 
 
-#
-# def _days_before_year(year):
-#    "year -> number of days before January 1st of year."
-#    y = year - 1
-#    return y*365 + y//4 - y//100 + y//400
-#
-# def _days_in_month(year, month):
-#    "year, month -> number of days in that month in that year."
-#    assert 1 <= month <= 12, month
-#    if month == 2 and _is_leap(year):
-#        return 29
-#    return _DAYS_IN_MONTH[month]
-#
-# def _days_before_month(year, month):
-#    "year, month -> number of days in year preceding first day of month."
-#    assert 1 <= month <= 12, 'month must be in 1..12'
-#    return _DAYS_BEFORE_MONTH[month] + (month > 2 and _is_leap(year))
-#
-# def _ymd2ord(year, month, day):
-#    "year, month, day -> ordinal, considering 01-Jan-0001 as day 1."
-#    assert 1 <= month <= 12, 'month must be in 1..12'
-#    dim = _days_in_month(year, month)
-#    assert 1 <= day <= dim, ('day must be in 1..%d' % dim)
-#    return (_days_before_year(year) +
-#            _days_before_month(year, month) +
-#            day)
-#
-# _DI400Y = _days_before_year(401)    # number of days in 400 years
-# _DI100Y = _days_before_year(101)    #    "    "   "   " 100   "
-# _DI4Y   = _days_before_year(5)      #    "    "   "   "   4   "
-#
-## A 4-year cycle has an extra leap day over what we'd get from pasting
-## together 4 single years.
+fn _days_before_year(year: Int) -> Int:
+    "year -> number of days before January 1st of year."
+    var y = year - 1
+    return y * 365 + y // 4 - y // 100 + y // 400
+
+
+fn _days_in_month(year: Int, month: Int) -> Int:
+    "year, month -> number of days in that month in that year."
+    # assert 1 <= month <= 12, month
+    if month == 2 and _is_leap(year):
+        return 29
+    return _DAYS_IN_MONTH.unchecked_get(month)
+
+
+fn _bool_to_int(x: Bool) -> Int:
+    """Remove when Bool is Intable"""
+    if x:
+        return 1
+    else:
+        return 0
+
+
+fn _days_before_month(year: Int, month: Int) -> Int:
+    "year, month -> number of days in year preceding first day of month."
+    # assert 1 <= month <= 12, 'month must be in 1..12'
+    return _DAYS_BEFORE_MONTH.unchecked_get(month) + _bool_to_int(
+        month > 2 and _is_leap(year)
+    )
+
+
+fn _ymd2ord(year: Int, month: Int, day: Int) -> Int:
+    "year, month, day -> ordinal, considering 01-Jan-0001 as day 1."
+    var dim = _days_in_month(year, month)
+    return _days_before_year(year) + _days_before_month(year, month) + day
+
+
+alias _DI400Y = _days_before_year(401)  # number of days in 400 years
+alias _DI100Y = _days_before_year(101)  #    "    "   "   " 100   "
+alias _DI4Y = _days_before_year(5)  #    "    "   "   "   4   "
+
+# A 4-year cycle has an extra leap day over what we'd get from pasting
+# together 4 single years.
+
 # assert _DI4Y == 4 * 365 + 1
-#
-## Similarly, a 400-year cycle has an extra leap day over what we'd get from
-## pasting together 4 100-year cycles.
+
+# Similarly, a 400-year cycle has an extra leap day over what we'd get from
+# pasting together 4 100-year cycles.
+
 # assert _DI400Y == 4 * _DI100Y + 1
-#
-## OTOH, a 100-year cycle has one fewer leap day than we'd get from
-## pasting together 25 4-year cycles.
+
+# OTOH, a 100-year cycle has one fewer leap day than we'd get from
+# pasting together 25 4-year cycles.
+
 # assert _DI100Y == 25 * _DI4Y - 1
-#
-# def _ord2ymd(n):
-#    "ordinal -> (year, month, day), considering 01-Jan-0001 as day 1."
-#
-#    # n is a 1-based index, starting at 1-Jan-1.  The pattern of leap years
-#    # repeats exactly every 400 years.  The basic strategy is to find the
-#    # closest 400-year boundary at or before n, then work with the offset
-#    # from that boundary to n.  Life is much clearer if we subtract 1 from
-#    # n first -- then the values of n at 400-year boundaries are exactly
-#    # those divisible by _DI400Y:
-#    #
-#    #     D  M   Y            n              n-1
-#    #     -- --- ----        ----------     ----------------
-#    #     31 Dec -400        -_DI400Y       -_DI400Y -1
-#    #      1 Jan -399         -_DI400Y +1   -_DI400Y      400-year boundary
-#    #     ...
-#    #     30 Dec  000        -1             -2
-#    #     31 Dec  000         0             -1
-#    #      1 Jan  001         1              0            400-year boundary
-#    #      2 Jan  001         2              1
-#    #      3 Jan  001         3              2
-#    #     ...
-#    #     31 Dec  400         _DI400Y        _DI400Y -1
-#    #      1 Jan  401         _DI400Y +1     _DI400Y      400-year boundary
-#    n -= 1
-#    n400, n = divmod(n, _DI400Y)
-#    year = n400 * 400 + 1   # ..., -399, 1, 401, ...
-#
-#    # Now n is the (non-negative) offset, in days, from January 1 of year, to
-#    # the desired date.  Now compute how many 100-year cycles precede n.
-#    # Note that it's possible for n100 to equal 4!  In that case 4 full
-#    # 100-year cycles precede the desired day, which implies the desired
-#    # day is December 31 at the end of a 400-year cycle.
-#    n100, n = divmod(n, _DI100Y)
-#
-#    # Now compute how many 4-year cycles precede it.
-#    n4, n = divmod(n, _DI4Y)
-#
-#    # And now how many single years.  Again n1 can be 4, and again meaning
-#    # that the desired day is December 31 at the end of the 4-year cycle.
-#    n1, n = divmod(n, 365)
-#
-#    year += n100 * 100 + n4 * 4 + n1
-#    if n1 == 4 or n100 == 4:
-#        assert n == 0
-#        return year-1, 12, 31
-#
-#    # Now the year is correct, and n is the offset from January 1.  We find
-#    # the month via an estimate that's either exact or one too large.
-#    leapyear = n1 == 3 and (n4 != 24 or n100 == 3)
-#    assert leapyear == _is_leap(year)
-#    month = (n + 50) >> 5
-#    preceding = _DAYS_BEFORE_MONTH[month] + (month > 2 and leapyear)
-#    if preceding > n:  # estimate is too large
-#        month -= 1
-#        preceding -= _DAYS_IN_MONTH[month] + (month == 2 and leapyear)
-#    n -= preceding
-#    assert 0 <= n < _days_in_month(year, month)
-#
-#    # Now the year and month are correct, and n is the offset from the
-#    # start of that month:  we're done!
-#    return year, month, n+1
-#
-## Month and day names.  For localized versions, see the calendar module.
-# _MONTHNAMES = [None, "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-#                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-# _DAYNAMES = [None, "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+
+fn _ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
+    "ordinal -> (year, month, day), considering 01-Jan-0001 as day 1."
+    # n is a 1-based index, starting at 1-Jan-1.  The pattern of leap years
+    # repeats exactly every 400 years.  The basic strategy is to find the
+    # closest 400-year boundary at or before n, then work with the offset
+    # from that boundary to n.  Life is much clearer if we subtract 1 from
+    # n first -- then the values of n at 400-year boundaries are exactly
+    # those divisible by _DI400Y:
+    #
+    #     D  M   Y            n              n-1
+    #     -- --- ----        ----------     ----------------
+    #     31 Dec -400        -_DI400Y       -_DI400Y -1
+    #      1 Jan -399         -_DI400Y +1   -_DI400Y      400-year boundary
+    #     ...
+    #     30 Dec  000        -1             -2
+    #     31 Dec  000         0             -1
+    #      1 Jan  001         1              0            400-year boundary
+    #      2 Jan  001         2              1
+    #      3 Jan  001         3              2
+    #     ...
+    #     31 Dec  400         _DI400Y        _DI400Y -1
+    #      1 Jan  401         _DI400Y +1     _DI400Y      400-year boundary
+    n -= 1
+    var n400: Int
+    n400, n = divmod(n, _DI400Y)
+    var year = n400 * 400 + 1  # ..., -399, 1, 401, ...
+    # Now n is the (non-negative) offset, in days, from January 1 of year, to
+    # the desired date.  Now compute how many 100-year cycles precede n.
+    # Note that it's possible for n100 to equal 4!  In that case 4 full
+    # 100-year cycles precede the desired day, which implies the desired
+    # day is December 31 at the end of a 400-year cycle.
+    var n100: Int
+    n100, n = divmod(n, _DI100Y)
+    # Now compute how many 4-year cycles precede it.
+    var n4: Int
+    n4, n = divmod(n, _DI4Y)
+    # And now how many single years.  Again n1 can be 4, and again meaning
+    # that the desired day is December 31 at the end of the 4-year cycle.
+    var n1: Int
+    n1, n = divmod(n, 365)
+    year += n100 * 100 + n4 * 4 + n1
+    if n1 == 4 or n100 == 4:
+        # assert n == 0
+        return year - 1, 12, 31
+    # Now the year is correct, and n is the offset from January 1.  We find
+    # the month via an estimate that's either exact or one too large.
+    var leapyear = n1 == 3 and (n4 != 24 or n100 == 3)
+    # assert leapyear == _is_leap(year)
+    var month = (n + 50) >> 5
+    var preceding = _DAYS_BEFORE_MONTH.unchecked_get(month) + _bool_to_int(
+        month > 2 and leapyear
+    )
+    if preceding > n:  # estimate is too large
+        month -= 1
+        preceding -= _DAYS_IN_MONTH.unchecked_get(month) + _bool_to_int(
+            month == 2 and leapyear
+        )
+    n -= preceding
+    # assert 0 <= n < _days_in_month(year, month)
+    # Now the year and month are correct, and n is the offset from the
+    # start of that month:  we're done!
+    return year, month, n + 1
+
+
+# Month and day names.  For localized versions, see the calendar module.
+alias _MONTHNAMES = list[String].from_values(
+    "",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+)
+alias _DAYNAMES = list[String].from_values(
+    "", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+)
 #
 #
 # def _build_struct_time(y, m, d, hh, mm, ss, dstflag):
@@ -375,7 +408,9 @@ fn _is_leap(year: Int) -> Bool:
 #        return [year, month, day]
 #
 #
-# _FRACTION_CORRECTION = [100000, 10000, 1000, 100, 10]
+alias _FRACTION_CORRECTION = list[Int].from_values(100000, 10000, 1000, 100, 10)
+
+
 #
 #
 # def _parse_hh_mm_ss_ff(tstr):
@@ -587,128 +622,148 @@ fn _is_leap(year: Int) -> Bool:
 #    return q
 #
 #
-# class timedelta:
-#    """Represent the difference between two datetime objects.
-#
-#    Supported operators:
-#
-#    - add, subtract timedelta
-#    - unary plus, minus, abs
-#    - compare to timedelta
-#    - multiply, divide by int
-#
-#    In addition, datetime supports subtraction of two datetime objects
-#    returning a timedelta, and addition or subtraction of a datetime
-#    and a timedelta giving a datetime.
-#
-#    Representation: (days, seconds, microseconds).
-#    """
-#    # The representation of (days, seconds, microseconds) was chosen
-#    # arbitrarily; the exact rationale originally specified in the docstring
-#    # was "Because I felt like it."
-#
-#    __slots__ = '_days', '_seconds', '_microseconds', '_hashcode'
-#
-#    def __new__(cls, days=0, seconds=0, microseconds=0,
-#                milliseconds=0, minutes=0, hours=0, weeks=0):
-#        # Doing this efficiently and accurately in C is going to be difficult
-#        # and error-prone, due to ubiquitous overflow possibilities, and that
-#        # C double doesn't have enough bits of precision to represent
-#        # microseconds over 10K years faithfully.  The code here tries to make
-#        # explicit where go-fast assumptions can be relied on, in order to
-#        # guide the C implementation; it's way more convoluted than speed-
-#        # ignoring auto-overflow-to-long idiomatic Python could be.
-#
-#        # XXX Check that all inputs are ints or floats.
-#
-#        # Final values, all integer.
-#        # s and us fit in 32-bit signed ints; d isn't bounded.
-#        d = s = us = 0
-#
-#        # Normalize everything to days, seconds, microseconds.
-#        days += weeks*7
-#        seconds += minutes*60 + hours*3600
-#        microseconds += milliseconds*1000
-#
-#        # Get rid of all fractions, and normalize s and us.
-#        # Take a deep breath <wink>.
-#        if isinstance(days, float):
-#            dayfrac, days = _math.modf(days)
-#            daysecondsfrac, daysecondswhole = _math.modf(dayfrac * (24.*3600.))
-#            assert daysecondswhole == int(daysecondswhole)  # can't overflow
-#            s = int(daysecondswhole)
-#            assert days == int(days)
-#            d = int(days)
-#        else:
-#            daysecondsfrac = 0.0
-#            d = days
-#        assert isinstance(daysecondsfrac, float)
-#        assert abs(daysecondsfrac) <= 1.0
-#        assert isinstance(d, int)
-#        assert abs(s) <= 24 * 3600
-#        # days isn't referenced again before redefinition
-#
-#        if isinstance(seconds, float):
-#            secondsfrac, seconds = _math.modf(seconds)
-#            assert seconds == int(seconds)
-#            seconds = int(seconds)
-#            secondsfrac += daysecondsfrac
-#            assert abs(secondsfrac) <= 2.0
-#        else:
-#            secondsfrac = daysecondsfrac
-#        # daysecondsfrac isn't referenced again
-#        assert isinstance(secondsfrac, float)
-#        assert abs(secondsfrac) <= 2.0
-#
-#        assert isinstance(seconds, int)
-#        days, seconds = divmod(seconds, 24*3600)
-#        d += days
-#        s += int(seconds)    # can't overflow
-#        assert isinstance(s, int)
-#        assert abs(s) <= 2 * 24 * 3600
-#        # seconds isn't referenced again before redefinition
-#
-#        usdouble = secondsfrac * 1e6
-#        assert abs(usdouble) < 2.1e6    # exact value not critical
-#        # secondsfrac isn't referenced again
-#
-#        if isinstance(microseconds, float):
-#            microseconds = round(microseconds + usdouble)
-#            seconds, microseconds = divmod(microseconds, 1000000)
-#            days, seconds = divmod(seconds, 24*3600)
-#            d += days
-#            s += seconds
-#        else:
-#            microseconds = int(microseconds)
-#            seconds, microseconds = divmod(microseconds, 1000000)
-#            days, seconds = divmod(seconds, 24*3600)
-#            d += days
-#            s += seconds
-#            microseconds = round(microseconds + usdouble)
-#        assert isinstance(s, int)
-#        assert isinstance(microseconds, int)
-#        assert abs(s) <= 3 * 24 * 3600
-#        assert abs(microseconds) < 3.1e6
-#
-#        # Just a little bit of carrying possible for microseconds and seconds.
-#        seconds, us = divmod(microseconds, 1000000)
-#        s += seconds
-#        days, s = divmod(s, 24*3600)
-#        d += days
-#
-#        assert isinstance(d, int)
-#        assert isinstance(s, int) and 0 <= s < 24*3600
-#        assert isinstance(us, int) and 0 <= us < 1000000
-#
-#        if abs(d) > 999999999:
-#            raise OverflowError("timedelta # of days is too large: %d" % d)
-#
-#        self = object.__new__(cls)
-#        self._days = d
-#        self._seconds = s
-#        self._microseconds = us
-#        self._hashcode = -1
-#        return self
+struct timedelta:
+    """Represent the difference between two datetime objects.
+
+    Supported operators:
+
+    - add, subtract timedelta
+    - unary plus, minus, abs
+    - compare to timedelta
+    - multiply, divide by int
+
+    In addition, datetime supports subtraction of two datetime objects
+    returning a timedelta, and addition or subtraction of a datetime
+    and a timedelta giving a datetime.
+
+    Representation: (days, seconds, microseconds).
+    """
+
+    # The representation of (days, seconds, microseconds) was chosen
+    # arbitrarily; the exact rationale originally specified in the docstring
+    # was "Because I felt like it."
+
+    var days: Int
+    var seconds: Int
+    var microseconds: Int
+    var _hashcode: Int
+
+    fn __init__(
+        inout self,
+        owned days: Int = 0,
+        owned seconds: Int = 0,
+        owned microseconds: Int = 0,
+        milliseconds: Int = 0,
+        minutes: Int = 0,
+        hours: Int = 0,
+        weeks: Int = 0,
+    ):
+        # Doing this efficiently and accurately in C is going to be difficult
+        # and error-prone, due to ubiquitous overflow possibilities, and that
+        # C double doesn't have enough bits of precision to represent
+        # microseconds over 10K years faithfully.  The code here tries to make
+        # explicit where go-fast assumptions can be relied on, in order to
+        # guide the C implementation; it's way more convoluted than speed-
+        # ignoring auto-overflow-to-long idiomatic Python could be.
+
+        # XXX Check that all inputs are ints or floats.
+
+        # Final values, all integer.
+        # s and us fit in 32-bit signed ints; d isn't bounded.
+        var d = 0
+        var s = 0
+        var us = 0
+
+        # Normalize everything to days, seconds, microseconds.
+        days += weeks * 7
+        seconds += minutes * 60 + hours * 3600
+        microseconds += milliseconds * 1000
+
+        # Get rid of all fractions, and normalize s and us.
+        # Take a deep breath <wink>.
+        # if isinstance(days, float):
+        #    dayfrac, days = _math.modf(days)
+        #    daysecondsfrac, daysecondswhole = _math.modf(dayfrac * (24.*3600.))
+        #    assert daysecondswhole == int(daysecondswhole)  # can't overflow
+        #    s = int(daysecondswhole)
+        #    assert days == int(days)
+        #    d = int(days)
+        # else:
+        var daysecondsfrac = 0.0
+        d = days
+        # TODO: manage floats
+
+        # assert isinstance(daysecondsfrac, float)
+        # assert abs(daysecondsfrac) <= 1.0
+        # assert isinstance(d, int)
+        # assert abs(s) <= 24 * 3600
+        # days isn't referenced again before redefinition
+
+        # if isinstance(seconds, float):
+        #    secondsfrac, seconds = _math.modf(seconds)
+        #    assert seconds == int(seconds)
+        #    seconds = int(seconds)
+        #    secondsfrac += daysecondsfrac
+        #    assert abs(secondsfrac) <= 2.0
+        # else:
+        var secondsfrac = daysecondsfrac
+        # TODO: Manage floats
+
+        # daysecondsfrac isn't referenced again
+        # assert isinstance(secondsfrac, float)
+        # assert abs(secondsfrac) <= 2.0
+
+        # assert isinstance(seconds, int)
+        days, seconds = divmod(seconds, 24 * 3600)
+        d += days
+        s += int(seconds)  # can't overflow
+        # assert isinstance(s, int)
+        # assert abs(s) <= 2 * 24 * 3600
+        # seconds isn't referenced again before redefinition
+
+        var usdouble = secondsfrac * 1e6
+        # assert abs(usdouble) < 2.1e6    # exact value not critical
+        # secondsfrac isn't referenced again
+
+        # if isinstance(microseconds, float):
+        #    microseconds = round(microseconds + usdouble)
+        #    seconds, microseconds = divmod(microseconds, 1000000)
+        #    days, seconds = divmod(seconds, 24*3600)
+        #    d += days
+        #    s += seconds
+        # else:
+        microseconds = int(microseconds)
+        seconds, microseconds = divmod(microseconds, 1000000)
+        days, seconds = divmod(seconds, 24 * 3600)
+        d += days
+        s += seconds
+        microseconds = round(microseconds + usdouble)
+        # TODO: Manage floats
+        # assert isinstance(s, int)
+        # assert isinstance(microseconds, int)
+        # assert abs(s) <= 3 * 24 * 3600
+        # assert abs(microseconds) < 3.1e6
+
+        # Just a little bit of carrying possible for microseconds and seconds.
+        seconds, us = divmod(microseconds, 1000000)
+        s += seconds
+        days, s = divmod(s, 24 * 3600)
+        d += days
+
+        assert isinstance(d, int)
+        assert isinstance(s, int) and 0 <= s < 24 * 3600
+        assert isinstance(us, int) and 0 <= us < 1000000
+
+        if abs(d) > 999999999:
+            raise OverflowError("timedelta # of days is too large: %d" % d)
+
+        self = object.__new__(cls)
+        self._days = d
+        self._seconds = s
+        self._microseconds = us
+        self._hashcode = -1
+
+
 #
 #    def __repr__(self):
 #        args = []
