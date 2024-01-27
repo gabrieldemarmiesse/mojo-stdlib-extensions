@@ -27,6 +27,13 @@ struct list[T: CollectionElement](Sized, Movable):
     fn __init__(inout self, owned value: DynamicVector[T]):
         self._internal_vector = value
 
+    @staticmethod
+    fn from_values(*values: T) -> list[T]:
+        var result = list[T]()
+        for value in values:
+            result.append(value[])
+        return result
+
     @always_inline
     fn _normalize_index(self, index: Int) -> Int:
         if index < 0:
