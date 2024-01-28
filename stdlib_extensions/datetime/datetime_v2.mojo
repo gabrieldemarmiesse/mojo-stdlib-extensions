@@ -880,14 +880,16 @@ struct timedelta(CollectionElement, Stringable):
         q, r = divmod(self._to_microseconds(), other._to_microseconds())
         return q.to_int(), timedelta(0, 0, r.to_int())
 
-    #
-    #    # Comparisons of timedelta objects with other.
-    #
-    #    def __eq__(self, other):
-    #        if isinstance(other, timedelta):
-    #            return self._cmp(other) == 0
-    #        else:
-    #            return NotImplemented
+    # Comparisons of timedelta objects with other.
+    # functools.total_ordering would be useful here if available
+
+    fn __eq__(self, other: timedelta) -> Bool:
+        return (
+            self.days == other.days
+            and self.seconds == other.seconds
+            and self.microseconds == other.microseconds
+        )
+
     #
     #    def __le__(self, other):
     #        if isinstance(other, timedelta):
