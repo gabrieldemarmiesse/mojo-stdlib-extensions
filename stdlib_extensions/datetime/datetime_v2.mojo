@@ -12,7 +12,7 @@ from ..builtins.string import join
 import time as _time
 import math as _math
 import sys
-
+from ..builtins import Optional
 from ..builtins._generic_list import _cmp_list
 from ..builtins._hash import hash as custom_hash
 
@@ -1039,90 +1039,97 @@ struct date:
             + ")"
         )
 
+    #    # XXX These shouldn't depend on time.localtime(), because that
+    #    # clips the usable dates to [1970 .. 2038).  At least ctime() is
+    #    # easily done without using strftime() -- that's better too because
+    #    # strftime("%c", ...) is locale specific.
+    #
+    #
+    #    def ctime(self):
+    #        "Return ctime() style string."
+    #        weekday = self.toordinal() % 7 or 7
+    #        return "%s %s %2d 00:00:00 %04d" % (
+    #            _DAYNAMES[weekday],
+    #            _MONTHNAMES[self._month],
+    #            self._day, self._year)
+    #
+    #    def strftime(self, format):
+    #        """
+    #        Format using strftime().
+    #
+    #        Example: "%d/%m/%Y, %H:%M:%S"
+    #        """
+    #        return _wrap_strftime(self, format, self.timetuple())
+    #
+    #    def __format__(self, fmt):
+    #        if not isinstance(fmt, str):
+    #            raise TypeError("must be str, not %s" % type(fmt).__name__)
+    #        if len(fmt) != 0:
+    #            return self.strftime(fmt)
+    #        return str(self)
+    #
+    fn isoformat(self) -> String:
+        """Return the date formatted according to ISO.
 
-#    # XXX These shouldn't depend on time.localtime(), because that
-#    # clips the usable dates to [1970 .. 2038).  At least ctime() is
-#    # easily done without using strftime() -- that's better too because
-#    # strftime("%c", ...) is locale specific.
-#
-#
-#    def ctime(self):
-#        "Return ctime() style string."
-#        weekday = self.toordinal() % 7 or 7
-#        return "%s %s %2d 00:00:00 %04d" % (
-#            _DAYNAMES[weekday],
-#            _MONTHNAMES[self._month],
-#            self._day, self._year)
-#
-#    def strftime(self, format):
-#        """
-#        Format using strftime().
-#
-#        Example: "%d/%m/%Y, %H:%M:%S"
-#        """
-#        return _wrap_strftime(self, format, self.timetuple())
-#
-#    def __format__(self, fmt):
-#        if not isinstance(fmt, str):
-#            raise TypeError("must be str, not %s" % type(fmt).__name__)
-#        if len(fmt) != 0:
-#            return self.strftime(fmt)
-#        return str(self)
-#
-#    def isoformat(self):
-#        """Return the date formatted according to ISO.
-#
-#        This is 'YYYY-MM-DD'.
-#
-#        References:
-#        - http://www.w3.org/TR/NOTE-datetime
-#        - http://www.cl.cam.ac.uk/~mgk25/iso-time.html
-#        """
-#        return "%04d-%02d-%02d" % (self._year, self._month, self._day)
-#
-#    __str__ = isoformat
-#
-#    # Read-only field accessors
-#    @property
-#    def year(self):
-#        """year (1-9999)"""
-#        return self._year
-#
-#    @property
-#    def month(self):
-#        """month (1-12)"""
-#        return self._month
-#
-#    @property
-#    def day(self):
-#        """day (1-31)"""
-#        return self._day
-#
-#    # Standard conversions, __eq__, __le__, __lt__, __ge__, __gt__,
-#    # __hash__ (and helpers)
-#
-#    def timetuple(self):
-#        "Return local time tuple compatible with time.localtime()."
-#        return _build_struct_time(self._year, self._month, self._day,
-#                                  0, 0, 0, -1)
-#
-#    def toordinal(self):
-#        """Return proleptic Gregorian ordinal for the year, month and day.
-#
-#        January 1 of year 1 is day 1.  Only the year, month and day values
-#        contribute to the result.
-#        """
-#        return _ymd2ord(self._year, self._month, self._day)
-#
-#    def replace(self, year=None, month=None, day=None):
-#        """Return a new date with new values for the specified fields."""
-#        if year is None:
-#            year = self._year
-#        if month is None:
-#            month = self._month
-#        if day is None:
-#            day = self._day
-#        return type(self)(year, month, day)
+        This is 'YYYY-MM-DD'.
+
+        References:
+        - http://www.w3.org/TR/NOTE-datetime
+        - http://www.cl.cam.ac.uk/~mgk25/iso-time.html
+        """
+        try:
+            return (
+                rjust(str(self.year), 4, "0")
+                + "-"
+                + rjust(str(self.month), 2, "0")
+                + "-"
+                + rjust(str(self.day), 2, "0")
+            )
+        except Error:
+            # can never happen
+            return "error in date.isoformat"
+
+    fn __str__(self) -> String:
+        """Convert to string, for str().
+
+        >>> d = date(2010, 1, 1)
+        >>> str(d)
+        '2010-01-01'
+        """
+        return self.isoformat()
+
+    #    # Standard conversions, __eq__, __le__, __lt__, __ge__, __gt__,
+    #    # __hash__ (and helpers)
+    #
+    #    def timetuple(self):
+    #        "Return local time tuple compatible with time.localtime()."
+    #        return _build_struct_time(self._year, self._month, self._day,
+    #                                  0, 0, 0, -1)
+    #
+    #    def toordinal(self):
+    #        """Return proleptic Gregorian ordinal for the year, month and day.
+    #
+    #        January 1 of year 1 is day 1.  Only the year, month and day values
+    #        contribute to the result.
+    #        """
+    #        return _ymd2ord(self._year, self._month, self._day)
+    #
+    def replace(
+        self,
+        owned year: Optional[Int] = None,
+        owned month: Optional[Int] = None,
+        owned day: Optional[Int] = None,
+    ) -> date:
+        """Return a new date with new values for the specified fields."""
+        if year is None:
+            year = self.year
+        if month is None:
+            month = self.month
+        if day is None:
+            day = self.day
+        return date(year.value(), month.value(), day.value())
+
+
 #
 #    __replace__ = replace
 #
