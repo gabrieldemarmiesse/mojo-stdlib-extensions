@@ -12,7 +12,7 @@ from ..builtins.string import join
 import time as _time
 import math as _math
 import sys
-from ..builtins import Optional
+from ..builtins import Optional, bytes
 from ..builtins._generic_list import _cmp_list
 from ..builtins._hash import hash as custom_hash
 
@@ -1129,117 +1129,119 @@ struct date:
             day = self.day
         return date(year.value(), month.value(), day.value())
 
+    #
+    #    __replace__ = replace
+    #
+    #    # Comparisons of date objects with other.
+    #
+    #    def __eq__(self, other):
+    #        if isinstance(other, date):
+    #            return self._cmp(other) == 0
+    #        return NotImplemented
+    #
+    #    def __le__(self, other):
+    #        if isinstance(other, date):
+    #            return self._cmp(other) <= 0
+    #        return NotImplemented
+    #
+    #    def __lt__(self, other):
+    #        if isinstance(other, date):
+    #            return self._cmp(other) < 0
+    #        return NotImplemented
+    #
+    #    def __ge__(self, other):
+    #        if isinstance(other, date):
+    #            return self._cmp(other) >= 0
+    #        return NotImplemented
+    #
+    #    def __gt__(self, other):
+    #        if isinstance(other, date):
+    #            return self._cmp(other) > 0
+    #        return NotImplemented
+    #
+    #    def _cmp(self, other):
+    #        assert isinstance(other, date)
+    #        y, m, d = self._year, self._month, self._day
+    #        y2, m2, d2 = other._year, other._month, other._day
+    #        return _cmp((y, m, d), (y2, m2, d2))
+    #
+    #    def __hash__(self):
+    #        "Hash."
+    #        if self._hashcode == -1:
+    #            self._hashcode = hash(self._getstate())
+    #        return self._hashcode
+    #
+    #    # Computations
+    #
+    #    def __add__(self, other):
+    #        "Add a date to a timedelta."
+    #        if isinstance(other, timedelta):
+    #            o = self.toordinal() + other.days
+    #            if 0 < o <= _MAXORDINAL:
+    #                return type(self).fromordinal(o)
+    #            raise OverflowError("result out of range")
+    #        return NotImplemented
+    #
+    #    __radd__ = __add__
+    #
+    #    def __sub__(self, other):
+    #        """Subtract two dates, or a date and a timedelta."""
+    #        if isinstance(other, timedelta):
+    #            return self + timedelta(-other.days)
+    #        if isinstance(other, date):
+    #            days1 = self.toordinal()
+    #            days2 = other.toordinal()
+    #            return timedelta(days1 - days2)
+    #        return NotImplemented
+    #
+    #    def weekday(self):
+    #        "Return day of the week, where Monday == 0 ... Sunday == 6."
+    #        return (self.toordinal() + 6) % 7
+    #
+    #    # Day-of-the-week and week-of-the-year, according to ISO
+    #
+    #    def isoweekday(self):
+    #        "Return day of the week, where Monday == 1 ... Sunday == 7."
+    #        # 1-Jan-0001 is a Monday
+    #        return self.toordinal() % 7 or 7
+    #
+    #    def isocalendar(self):
+    #        """Return a named tuple containing ISO year, week number, and weekday.
+    #
+    #        The first ISO week of the year is the (Mon-Sun) week
+    #        containing the year's first Thursday; everything else derives
+    #        from that.
+    #
+    #        The first week is 1; Monday is 1 ... Sunday is 7.
+    #
+    #        ISO calendar algorithm taken from
+    #        http://www.phys.uu.nl/~vgent/calendar/isocalendar.htm
+    #        (used with permission)
+    #        """
+    #        year = self._year
+    #        week1monday = _isoweek1monday(year)
+    #        today = _ymd2ord(self._year, self._month, self._day)
+    #        # Internally, week and day have origin 0
+    #        week, day = divmod(today - week1monday, 7)
+    #        if week < 0:
+    #            year -= 1
+    #            week1monday = _isoweek1monday(year)
+    #            week, day = divmod(today - week1monday, 7)
+    #        elif week >= 52:
+    #            if today >= _isoweek1monday(year+1):
+    #                year += 1
+    #                week = 0
+    #        return _IsoCalendarDate(year, week+1, day+1)
+    #
+    #    # Pickle support.
+    #
+    fn _getstate(self) -> bytes:
+        var yhi: Int
+        var ylo: Int
+        yhi, ylo = divmod(self.year, 256)
+        return bytes.from_values(yhi, ylo, self.month, self.day)
 
-#
-#    __replace__ = replace
-#
-#    # Comparisons of date objects with other.
-#
-#    def __eq__(self, other):
-#        if isinstance(other, date):
-#            return self._cmp(other) == 0
-#        return NotImplemented
-#
-#    def __le__(self, other):
-#        if isinstance(other, date):
-#            return self._cmp(other) <= 0
-#        return NotImplemented
-#
-#    def __lt__(self, other):
-#        if isinstance(other, date):
-#            return self._cmp(other) < 0
-#        return NotImplemented
-#
-#    def __ge__(self, other):
-#        if isinstance(other, date):
-#            return self._cmp(other) >= 0
-#        return NotImplemented
-#
-#    def __gt__(self, other):
-#        if isinstance(other, date):
-#            return self._cmp(other) > 0
-#        return NotImplemented
-#
-#    def _cmp(self, other):
-#        assert isinstance(other, date)
-#        y, m, d = self._year, self._month, self._day
-#        y2, m2, d2 = other._year, other._month, other._day
-#        return _cmp((y, m, d), (y2, m2, d2))
-#
-#    def __hash__(self):
-#        "Hash."
-#        if self._hashcode == -1:
-#            self._hashcode = hash(self._getstate())
-#        return self._hashcode
-#
-#    # Computations
-#
-#    def __add__(self, other):
-#        "Add a date to a timedelta."
-#        if isinstance(other, timedelta):
-#            o = self.toordinal() + other.days
-#            if 0 < o <= _MAXORDINAL:
-#                return type(self).fromordinal(o)
-#            raise OverflowError("result out of range")
-#        return NotImplemented
-#
-#    __radd__ = __add__
-#
-#    def __sub__(self, other):
-#        """Subtract two dates, or a date and a timedelta."""
-#        if isinstance(other, timedelta):
-#            return self + timedelta(-other.days)
-#        if isinstance(other, date):
-#            days1 = self.toordinal()
-#            days2 = other.toordinal()
-#            return timedelta(days1 - days2)
-#        return NotImplemented
-#
-#    def weekday(self):
-#        "Return day of the week, where Monday == 0 ... Sunday == 6."
-#        return (self.toordinal() + 6) % 7
-#
-#    # Day-of-the-week and week-of-the-year, according to ISO
-#
-#    def isoweekday(self):
-#        "Return day of the week, where Monday == 1 ... Sunday == 7."
-#        # 1-Jan-0001 is a Monday
-#        return self.toordinal() % 7 or 7
-#
-#    def isocalendar(self):
-#        """Return a named tuple containing ISO year, week number, and weekday.
-#
-#        The first ISO week of the year is the (Mon-Sun) week
-#        containing the year's first Thursday; everything else derives
-#        from that.
-#
-#        The first week is 1; Monday is 1 ... Sunday is 7.
-#
-#        ISO calendar algorithm taken from
-#        http://www.phys.uu.nl/~vgent/calendar/isocalendar.htm
-#        (used with permission)
-#        """
-#        year = self._year
-#        week1monday = _isoweek1monday(year)
-#        today = _ymd2ord(self._year, self._month, self._day)
-#        # Internally, week and day have origin 0
-#        week, day = divmod(today - week1monday, 7)
-#        if week < 0:
-#            year -= 1
-#            week1monday = _isoweek1monday(year)
-#            week, day = divmod(today - week1monday, 7)
-#        elif week >= 52:
-#            if today >= _isoweek1monday(year+1):
-#                year += 1
-#                week = 0
-#        return _IsoCalendarDate(year, week+1, day+1)
-#
-#    # Pickle support.
-#
-#    def _getstate(self):
-#        yhi, ylo = divmod(self._year, 256)
-#        return bytes([yhi, ylo, self._month, self._day]),
-#
+
 #    def __setstate(self, string):
 #        yhi, ylo, self._month, self._day = string
 #        self._year = yhi * 256 + ylo

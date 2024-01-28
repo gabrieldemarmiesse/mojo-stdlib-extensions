@@ -278,13 +278,20 @@ struct bytes(Stringable, Sized, CollectionElement):
     fn __init__(inout self):
         self._vector = DynamicVector[UInt8]()
 
-    fn __init__(inout self, vector: DynamicVector[UInt8]):
+    fn __init__(inout self, owned vector: DynamicVector[UInt8]):
         self._vector = vector
 
     fn __init__(inout self, size: Int):
         self._vector = DynamicVector[UInt8](capacity=size)
         for i in range(size):
             self._vector.push_back(0)
+
+    @staticmethod
+    fn from_values(*values: UInt8) -> bytes:
+        var vector = DynamicVector[UInt8](capacity=len(values))
+        for value in values:
+            vector.push_back(value)
+        return bytes(vector)
 
     fn __len__(self) -> Int:
         return len(self._vector)
