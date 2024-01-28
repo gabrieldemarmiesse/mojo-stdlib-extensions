@@ -908,12 +908,12 @@ struct timedelta(CollectionElement, Stringable):
     fn _cmp(self, other: timedelta) -> Int:
         return _cmp_list(self._getstate(), other._getstate())
 
-    def __hash__(self):
+    fn __hash__(inout self) -> Int:
         if self._hashcode == -1:
             self._hashcode = custom_hash(self._getstate())
         return self._hashcode
 
-    def __bool__(self):
+    fn __bool__(self) -> Bool:
         return self.days != 0 or self.seconds != 0 or self.microseconds != 0
 
     # Pickle support.
@@ -927,128 +927,119 @@ struct timedelta(CollectionElement, Stringable):
 #        return (self.__class__, self._getstate())
 #
 
-#
-# class date:
-#    """Concrete date type.
-#
-#    Constructors:
-#
-#    __new__()
-#    fromtimestamp()
-#    today()
-#    fromordinal()
-#
-#    Operators:
-#
-#    __repr__, __str__
-#    __eq__, __le__, __lt__, __ge__, __gt__, __hash__
-#    __add__, __radd__, __sub__ (add/radd only with timedelta arg)
-#
-#    Methods:
-#
-#    timetuple()
-#    toordinal()
-#    weekday()
-#    isoweekday(), isocalendar(), isoformat()
-#    ctime()
-#    strftime()
-#
-#    Properties (readonly):
-#    year, month, day
-#    """
-#    __slots__ = '_year', '_month', '_day', '_hashcode'
-#
-#    def __new__(cls, year, month=None, day=None):
-#        """Constructor.
-#
-#        Arguments:
-#
-#        year, month, day (required, base 1)
-#        """
-#        if (month is None and
-#            isinstance(year, (bytes, str)) and len(year) == 4 and
-#            1 <= ord(year[2:3]) <= 12):
-#            # Pickle support
-#            if isinstance(year, str):
-#                try:
-#                    year = year.encode('latin1')
-#                except UnicodeEncodeError:
-#                    # More informative error message.
-#                    raise ValueError(
-#                        "Failed to encode latin1 string when unpickling "
-#                        "a date object. "
-#                        "pickle.load(data, encoding='latin1') is assumed.")
-#            self = object.__new__(cls)
-#            self.__setstate(year)
-#            self._hashcode = -1
-#            return self
-#        year, month, day = _check_date_fields(year, month, day)
-#        self = object.__new__(cls)
-#        self._year = year
-#        self._month = month
-#        self._day = day
-#        self._hashcode = -1
-#        return self
-#
-#    # Additional constructors
-#
-#    @classmethod
-#    def fromtimestamp(cls, t):
-#        "Construct a date from a POSIX timestamp (like time.time())."
-#        y, m, d, hh, mm, ss, weekday, jday, dst = _time.localtime(t)
-#        return cls(y, m, d)
-#
-#    @classmethod
-#    def today(cls):
-#        "Construct a date from time.time()."
-#        t = _time.time()
-#        return cls.fromtimestamp(t)
-#
-#    @classmethod
-#    def fromordinal(cls, n):
-#        """Construct a date from a proleptic Gregorian ordinal.
-#
-#        January 1 of year 1 is day 1.  Only the year, month and day are
-#        non-zero in the result.
-#        """
-#        y, m, d = _ord2ymd(n)
-#        return cls(y, m, d)
-#
-#    @classmethod
-#    def fromisoformat(cls, date_string):
-#        """Construct a date from a string in ISO 8601 format."""
-#        if not isinstance(date_string, str):
-#            raise TypeError('fromisoformat: argument must be str')
-#
-#        if len(date_string) not in (7, 8, 10):
-#            raise ValueError(f'Invalid isoformat string: {date_string!r}')
-#
-#        try:
-#            return cls(*_parse_isoformat_date(date_string))
-#        except Exception:
-#            raise ValueError(f'Invalid isoformat string: {date_string!r}')
-#
-#    @classmethod
-#    def fromisocalendar(cls, year, week, day):
-#        """Construct a date from the ISO year, week number and weekday.
-#
-#        This is the inverse of the date.isocalendar() function"""
-#        return cls(*_isoweek_to_gregorian(year, week, day))
-#
-#    # Conversions to string
-#
-#    def __repr__(self):
-#        """Convert to formal string, for repr().
-#
-#        >>> d = date(2010, 1, 1)
-#        >>> repr(d)
-#        'datetime.date(2010, 1, 1)'
-#        """
-#        return "%s.%s(%d, %d, %d)" % (_get_class_module(self),
-#                                      self.__class__.__qualname__,
-#                                      self._year,
-#                                      self._month,
-#                                      self._day)
+
+struct date:
+    """Concrete date type.
+
+    Constructors:
+
+    __new__()
+    fromtimestamp()
+    today()
+    fromordinal()
+
+    Operators:
+
+    __repr__, __str__
+    __eq__, __le__, __lt__, __ge__, __gt__, __hash__
+    __add__, __radd__, __sub__ (add/radd only with timedelta arg)
+
+    Methods:
+
+    timetuple()
+    toordinal()
+    weekday()
+    isoweekday(), isocalendar(), isoformat()
+    ctime()
+    strftime()
+
+    Properties (readonly):
+    year, month, day
+    """
+
+    var year: Int
+    var month: Int
+    var day: Int
+    var _hashcode: Int
+
+    fn __init__(inout self, year: Int, month: Int, day: Int):
+        """Constructor.
+
+        Arguments:
+
+        year, month, day (required, base 1)
+        """
+        # year, month, day = _check_date_fields(year, month, day)
+
+        self.year = year
+        self.month = month
+        self.day = day
+        self._hashcode = -1
+
+    # Additional constructors
+    #
+    #    @classmethod
+    #    def fromtimestamp(cls, t):
+    #        "Construct a date from a POSIX timestamp (like time.time())."
+    #        y, m, d, hh, mm, ss, weekday, jday, dst = _time.localtime(t)
+    #        return cls(y, m, d)
+    #
+    #    @classmethod
+    #    def today(cls):
+    #        "Construct a date from time.time()."
+    #        t = _time.time()
+    #        return cls.fromtimestamp(t)
+    #
+    #    @classmethod
+    #    def fromordinal(cls, n):
+    #        """Construct a date from a proleptic Gregorian ordinal.
+    #
+    #        January 1 of year 1 is day 1.  Only the year, month and day are
+    #        non-zero in the result.
+    #        """
+    #        y, m, d = _ord2ymd(n)
+    #        return cls(y, m, d)
+    #
+    #    @classmethod
+    #    def fromisoformat(cls, date_string):
+    #        """Construct a date from a string in ISO 8601 format."""
+    #        if not isinstance(date_string, str):
+    #            raise TypeError('fromisoformat: argument must be str')
+    #
+    #        if len(date_string) not in (7, 8, 10):
+    #            raise ValueError(f'Invalid isoformat string: {date_string!r}')
+    #
+    #        try:
+    #            return cls(*_parse_isoformat_date(date_string))
+    #        except Exception:
+    #            raise ValueError(f'Invalid isoformat string: {date_string!r}')
+    #
+    #    @classmethod
+    #    def fromisocalendar(cls, year, week, day):
+    #        """Construct a date from the ISO year, week number and weekday.
+    #
+    #        This is the inverse of the date.isocalendar() function"""
+    #        return cls(*_isoweek_to_gregorian(year, week, day))
+    #
+    #    # Conversions to string
+    fn __repr__(self) -> String:
+        """Convert to formal string, for repr().
+
+        >>> d = date(2010, 1, 1)
+        >>> repr(d)
+        'datetime.date(2010, 1, 1)'
+        """
+        return (
+            "datetime.date("
+            + str(self.year)
+            + ", "
+            + str(self.month)
+            + ", "
+            + str(self.day)
+            + ")"
+        )
+
+
 #    # XXX These shouldn't depend on time.localtime(), because that
 #    # clips the usable dates to [1970 .. 2038).  At least ctime() is
 #    # easily done without using strftime() -- that's better too because
