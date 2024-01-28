@@ -650,6 +650,12 @@ struct timedelta(CollectionElement, Stringable):
     var microseconds: Int
     var _hashcode: Int
 
+    alias min = timedelta(-999999999)
+    alias max = timedelta(
+        days=999999999, hours=23, minutes=59, seconds=59, microseconds=999999
+    )
+    alias resolution = timedelta(microseconds=1)
+
     fn __init__(
         inout self,
         owned days: Int = 0,
@@ -868,72 +874,70 @@ struct timedelta(CollectionElement, Stringable):
         var r = self._to_microseconds() % other._to_microseconds()
         return timedelta(0, 0, r.to_int())
 
+    fn __divmod__(self, other: timedelta) -> Tuple[Int, timedelta]:
+        var q: Int64
+        var r: Int64
+        q, r = divmod(self._to_microseconds(), other._to_microseconds())
+        return q.to_int(), timedelta(0, 0, r.to_int())
 
-#    def __divmod__(self, other):
-#        if isinstance(other, timedelta):
-#            q, r = divmod(self._to_microseconds(),
-#                          other._to_microseconds())
-#            return q, timedelta(0, 0, r)
-#        return NotImplemented
-#
-#    # Comparisons of timedelta objects with other.
-#
-#    def __eq__(self, other):
-#        if isinstance(other, timedelta):
-#            return self._cmp(other) == 0
-#        else:
-#            return NotImplemented
-#
-#    def __le__(self, other):
-#        if isinstance(other, timedelta):
-#            return self._cmp(other) <= 0
-#        else:
-#            return NotImplemented
-#
-#    def __lt__(self, other):
-#        if isinstance(other, timedelta):
-#            return self._cmp(other) < 0
-#        else:
-#            return NotImplemented
-#
-#    def __ge__(self, other):
-#        if isinstance(other, timedelta):
-#            return self._cmp(other) >= 0
-#        else:
-#            return NotImplemented
-#
-#    def __gt__(self, other):
-#        if isinstance(other, timedelta):
-#            return self._cmp(other) > 0
-#        else:
-#            return NotImplemented
-#
-#    def _cmp(self, other):
-#        assert isinstance(other, timedelta)
-#        return _cmp(self._getstate(), other._getstate())
-#
-#    def __hash__(self):
-#        if self._hashcode == -1:
-#            self._hashcode = hash(self._getstate())
-#        return self._hashcode
-#
-#    def __bool__(self):
-#        return (self._days != 0 or
-#                self._seconds != 0 or
-#                self._microseconds != 0)
-#
-#    # Pickle support.
-#
-#    def _getstate(self):
-#        return (self._days, self._seconds, self._microseconds)
-#
+    # Comparisons of timedelta objects with other.
+    # functools.total_ordering would be useful here if available
+
+    fn __eq__(self, other: timedelta) -> Bool:
+        return (
+            self.days == other.days
+            and self.seconds == other.seconds
+            and self.microseconds == other.microseconds
+        )
+
+    #
+    #    def __le__(self, other):
+    #        if isinstance(other, timedelta):
+    #            return self._cmp(other) <= 0
+    #        else:
+    #            return NotImplemented
+    #
+    #    def __lt__(self, other):
+    #        if isinstance(other, timedelta):
+    #            return self._cmp(other) < 0
+    #        else:
+    #            return NotImplemented
+    #
+    #    def __ge__(self, other):
+    #        if isinstance(other, timedelta):
+    #            return self._cmp(other) >= 0
+    #        else:
+    #            return NotImplemented
+    #
+    #    def __gt__(self, other):
+    #        if isinstance(other, timedelta):
+    #            return self._cmp(other) > 0
+    #        else:
+    #            return NotImplemented
+    #
+    #   def _cmp(self, other: timedelta) -> Int:
+    #       assert isinstance(other, timedelta)
+    #       return _cmp(self._getstate(), other._getstate())
+    #
+    #    def __hash__(self):
+    #        if self._hashcode == -1:
+    #            self._hashcode = hash(self._getstate())
+    #        return self._hashcode
+    #
+    def __bool__(self):
+        return self.days != 0 or self.seconds != 0 or self.microseconds != 0
+
+    # Pickle support.
+
+    @always_inline
+    def _getstate(self) -> list[Int]:
+        return list[Int].from_values(self.days, self.seconds, self.microseconds)
+
+
 #    def __reduce__(self):
 #        return (self.__class__, self._getstate())
 #
-# timedelta.min = timedelta(-999999999)
-# timedelta.max = timedelta(days=999999999, hours=23, minutes=59, seconds=59,
-#                          microseconds=999999)
-# timedelta.resolution = timedelta(microseconds=1)
+
 #
 # class date:
 #    """Concrete date type.
