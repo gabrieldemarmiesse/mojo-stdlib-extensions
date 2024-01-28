@@ -141,3 +141,21 @@ fn list_to_str(input_list: list[Int]) raises -> String:
         else:
             result += repr
     return result + "]"
+
+
+fn _cmp_list(a: list[Int], b: list[Int]) -> Int:
+    for i in range(len(a)):
+        if i >= len(b):
+            return 1
+
+        if a.unchecked_get(i) < b.unchecked_get(i):
+            return -1
+        elif a.unchecked_get(i) == b.unchecked_get(i):
+            continue
+        else:
+            return 1
+
+    if len(a) < len(b):
+        return -1
+    else:
+        return 0

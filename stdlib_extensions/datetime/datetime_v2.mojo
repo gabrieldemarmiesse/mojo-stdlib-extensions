@@ -13,6 +13,9 @@ import time as _time
 import math as _math
 import sys
 
+from ..builtins._generic_list import _cmp_list
+from ..builtins._hash import hash as custom_hash
+
 
 def _cmp(x, y):
     return 0 if x == y else 1 if x > y else -1
@@ -890,47 +893,33 @@ struct timedelta(CollectionElement, Stringable):
             and self.microseconds == other.microseconds
         )
 
-    #
-    #    def __le__(self, other):
-    #        if isinstance(other, timedelta):
-    #            return self._cmp(other) <= 0
-    #        else:
-    #            return NotImplemented
-    #
-    #    def __lt__(self, other):
-    #        if isinstance(other, timedelta):
-    #            return self._cmp(other) < 0
-    #        else:
-    #            return NotImplemented
-    #
-    #    def __ge__(self, other):
-    #        if isinstance(other, timedelta):
-    #            return self._cmp(other) >= 0
-    #        else:
-    #            return NotImplemented
-    #
-    #    def __gt__(self, other):
-    #        if isinstance(other, timedelta):
-    #            return self._cmp(other) > 0
-    #        else:
-    #            return NotImplemented
-    #
-    #   def _cmp(self, other: timedelta) -> Int:
-    #       assert isinstance(other, timedelta)
-    #       return _cmp(self._getstate(), other._getstate())
-    #
-    #    def __hash__(self):
-    #        if self._hashcode == -1:
-    #            self._hashcode = hash(self._getstate())
-    #        return self._hashcode
-    #
+    fn __le__(self, other: timedelta) -> Bool:
+        return self._cmp(other) <= 0
+
+    fn __lt__(self, other: timedelta) -> Bool:
+        return self._cmp(other) < 0
+
+    fn __ge__(self, other: timedelta) -> Bool:
+        return self._cmp(other) >= 0
+
+    fn __gt__(self, other: timedelta) -> Bool:
+        return self._cmp(other) > 0
+
+    fn _cmp(self, other: timedelta) -> Int:
+        return _cmp_list(self._getstate(), other._getstate())
+
+    def __hash__(self):
+        if self._hashcode == -1:
+            self._hashcode = custom_hash(self._getstate())
+        return self._hashcode
+
     def __bool__(self):
         return self.days != 0 or self.seconds != 0 or self.microseconds != 0
 
     # Pickle support.
 
     @always_inline
-    def _getstate(self) -> list[Int]:
+    fn _getstate(self) -> list[Int]:
         return list[Int].from_values(self.days, self.seconds, self.microseconds)
 
 
