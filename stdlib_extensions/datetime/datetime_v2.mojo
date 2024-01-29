@@ -1619,36 +1619,37 @@ struct time[T: tzinfo]:
     #        _check_utc_offset("dst", offset)
     #        return offset
     #
-    fn replace(
-        self,
-        owned hour: Optional[Int] = None,
-        owned minute: Optional[Int] = None,
-        owned second: Optional[Int] = None,
-        owned microsecond: Optional[Int] = None,
-        # tzinfo=True,
-        owned fold: Optional[Int] = None,
-    ) -> time[T]:
-        """Return a new time with new values for the specified fields."""
-        if hour is None:
-            hour = self.hour
-        if minute is None:
-            minute = self.minute
-        if second is None:
-            second = self.second
-        if microsecond is None:
-            microsecond = self.microsecond
-        # if tzinfo is True:
-        #    tzinfo = self.tzinfo
-        if fold is None:
-            fold = self.fold
-        return time[T](
-            hour=hour.value,
-            minute=minute.value,
-            second=second.value,
-            microsecond=microsecond.value,
-            tzinfo=self.tzinfo,
-            fold=fold.value,
-        )
+    # parser is crashing here for some reason
+    # fn replace(
+    #    self,
+    #    owned hour: Optional[Int] = None,
+    #    owned minute: Optional[Int] = None,
+    #    owned second: Optional[Int] = None,
+    #    owned microsecond: Optional[Int] = None,
+    #    # tzinfo=True,
+    #    owned fold: Optional[Int] = None,
+    # ) -> time[T]:
+    #    """Return a new time with new values for the specified fields."""
+    #    if hour is None:
+    #        hour = self.hour
+    #    if minute is None:
+    #        minute = self.minute
+    #    if second is None:
+    #        second = self.second
+    #    if microsecond is None:
+    #        microsecond = self.microsecond
+    #    # if tzinfo is True:
+    #    #    tzinfo = self.tzinfo
+    #    if fold is None:
+    #        fold = self.fold
+    #    return time[T](
+    #        hour=hour.value,
+    #        minute=minute.value,
+    #        second=second.value,
+    #        microsecond=microsecond.value,
+    #        tzinfo=self.tzinfo,
+    #        fold=fold.value,
+    #    )
 
 
 #

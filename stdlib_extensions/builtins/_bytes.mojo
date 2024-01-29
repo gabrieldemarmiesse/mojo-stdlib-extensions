@@ -278,7 +278,7 @@ struct bytes(Stringable, Sized, CollectionElement):
     fn __init__(inout self):
         self._vector = DynamicVector[UInt8]()
 
-    fn __init__(inout self, owned vector: DynamicVector[UInt8]):
+    fn __init__(inout self, vector: DynamicVector[UInt8]):
         self._vector = vector
 
     fn __init__(inout self, size: Int):
