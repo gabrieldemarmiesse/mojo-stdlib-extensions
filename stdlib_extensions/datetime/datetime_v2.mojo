@@ -1278,9 +1278,9 @@ trait tzinfo(CollectionElement):
         """
         ...
 
-    fn fromutc(self: Self, dt: datetime) -> datetime:
-        # use the default function below
-        ...
+    # fn fromutc(self: Self, dt: datetime) -> datetime[Self]:
+    #    # use the default function below
+    #    ...
 
 
 # def fromutc[T: tzinfo](self: T, dt: datetime) -> datetime:
@@ -1357,7 +1357,7 @@ struct IsoCalendarDate:
 alias _tzinfo_trait = tzinfo
 
 
-struct time[T: tzinfo]:
+struct time[T: _tzinfo_trait]:
     """Time with time zone.
 
     Constructors:
@@ -1696,176 +1696,164 @@ struct time[T: tzinfo]:
 # time.resolution = timedelta(microseconds=1)
 #
 #
-# class datetime(date):
-#    """datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])
-#
-#    The year, month and day arguments are required. tzinfo may be None, or an
-#    instance of a tzinfo subclass. The remaining arguments may be ints.
-#    """
-#    __slots__ = time.__slots__
-#
-#    def __new__(cls, year, month=None, day=None, hour=0, minute=0, second=0,
-#                microsecond=0, tzinfo=None, *, fold=0):
-#        if (isinstance(year, (bytes, str)) and len(year) == 10 and
-#            1 <= ord(year[2:3])&0x7F <= 12):
-#            # Pickle support
-#            if isinstance(year, str):
-#                try:
-#                    year = bytes(year, 'latin1')
-#                except UnicodeEncodeError:
-#                    # More informative error message.
-#                    raise ValueError(
-#                        "Failed to encode latin1 string when unpickling "
-#                        "a datetime object. "
-#                        "pickle.load(data, encoding='latin1') is assumed.")
-#            self = object.__new__(cls)
-#            self.__setstate(year, month)
-#            self._hashcode = -1
-#            return self
-#        year, month, day = _check_date_fields(year, month, day)
-#        hour, minute, second, microsecond, fold = _check_time_fields(
-#            hour, minute, second, microsecond, fold)
-#        _check_tzinfo_arg(tzinfo)
-#        self = object.__new__(cls)
-#        self._year = year
-#        self._month = month
-#        self._day = day
-#        self._hour = hour
-#        self._minute = minute
-#        self._second = second
-#        self._microsecond = microsecond
-#        self._tzinfo = tzinfo
-#        self._hashcode = -1
-#        self._fold = fold
-#        return self
-#
-#    # Read-only field accessors
-#    @property
-#    def hour(self):
-#        """hour (0-23)"""
-#        return self._hour
-#
-#    @property
-#    def minute(self):
-#        """minute (0-59)"""
-#        return self._minute
-#
-#    @property
-#    def second(self):
-#        """second (0-59)"""
-#        return self._second
-#
-#    @property
-#    def microsecond(self):
-#        """microsecond (0-999999)"""
-#        return self._microsecond
-#
-#    @property
-#    def tzinfo(self):
-#        """timezone info object"""
-#        return self._tzinfo
-#
-#    @property
-#    def fold(self):
-#        return self._fold
-#
-#    @classmethod
-#    def _fromtimestamp(cls, t, utc, tz):
-#        """Construct a datetime from a POSIX timestamp (like time.time()).
-#
-#        A timezone info object may be passed in as well.
-#        """
-#        frac, t = _math.modf(t)
-#        us = round(frac * 1e6)
-#        if us >= 1000000:
-#            t += 1
-#            us -= 1000000
-#        elif us < 0:
-#            t -= 1
-#            us += 1000000
-#
-#        converter = _time.gmtime if utc else _time.localtime
-#        y, m, d, hh, mm, ss, weekday, jday, dst = converter(t)
-#        ss = min(ss, 59)    # clamp out leap seconds if the platform has them
-#        result = cls(y, m, d, hh, mm, ss, us, tz)
-#        if tz is None and not utc:
-#            # As of version 2015f max fold in IANA database is
-#            # 23 hours at 1969-09-30 13:00:00 in Kwajalein.
-#            # Let's probe 24 hours in the past to detect a transition:
-#            max_fold_seconds = 24 * 3600
-#
-#            # On Windows localtime_s throws an OSError for negative values,
-#            # thus we can't perform fold detection for values of time less
-#            # than the max time fold. See comments in _datetimemodule's
-#            # version of this method for more details.
-#            if t < max_fold_seconds and sys.platform.startswith("win"):
-#                return result
-#
-#            y, m, d, hh, mm, ss = converter(t - max_fold_seconds)[:6]
-#            probe1 = cls(y, m, d, hh, mm, ss, us, tz)
-#            trans = result - probe1 - timedelta(0, max_fold_seconds)
-#            if trans.days < 0:
-#                y, m, d, hh, mm, ss = converter(t + trans // timedelta(0, 1))[:6]
-#                probe2 = cls(y, m, d, hh, mm, ss, us, tz)
-#                if probe2 == result:
-#                    result._fold = 1
-#        elif tz is not None:
-#            result = tz.fromutc(result)
-#        return result
-#
-#    @classmethod
-#    def fromtimestamp(cls, timestamp, tz=None):
-#        """Construct a datetime from a POSIX timestamp (like time.time()).
-#
-#        A timezone info object may be passed in as well.
-#        """
-#        _check_tzinfo_arg(tz)
-#
-#        return cls._fromtimestamp(timestamp, tz is not None, tz)
-#
-#    @classmethod
-#    def utcfromtimestamp(cls, t):
-#        """Construct a naive UTC datetime from a POSIX timestamp."""
-#        import warnings
-#        warnings.warn("datetime.utcfromtimestamp() is deprecated and scheduled "
-#                      "for removal in a future version. Use timezone-aware "
-#                      "objects to represent datetimes in UTC: "
-#                      "datetime.datetime.fromtimestamp(t, datetime.UTC).",
-#                      DeprecationWarning,
-#                      stacklevel=2)
-#        return cls._fromtimestamp(t, True, None)
-#
-#    @classmethod
-#    def now(cls, tz=None):
-#        "Construct a datetime from time.time() and optional time zone info."
-#        t = _time.time()
-#        return cls.fromtimestamp(t, tz)
-#
-#    @classmethod
-#    def utcnow(cls):
-#        "Construct a UTC datetime from time.time()."
-#        import warnings
-#        warnings.warn("datetime.utcnow() is deprecated and scheduled for "
-#                      "removal in a future version. Instead, Use timezone-aware "
-#                      "objects to represent datetimes in UTC: "
-#                      "datetime.datetime.now(datetime.UTC).",
-#                      DeprecationWarning,
-#                      stacklevel=2)
-#        t = _time.time()
-#        return cls._fromtimestamp(t, True, None)
-#
-#    @classmethod
-#    def combine(cls, date, time, tzinfo=True):
-#        "Construct a datetime from a given date and a given time."
-#        if not isinstance(date, _date_class):
-#            raise TypeError("date argument must be a date instance")
-#        if not isinstance(time, _time_class):
-#            raise TypeError("time argument must be a time instance")
-#        if tzinfo is True:
-#            tzinfo = time.tzinfo
-#        return cls(date.year, date.month, date.day,
-#                   time.hour, time.minute, time.second, time.microsecond,
-#                   tzinfo, fold=time.fold)
+struct datetime[T: _tzinfo_trait]:
+    #    """datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])
+    #
+    #    The year, month and day arguments are required. tzinfo may be None, or an
+    #    instance of a tzinfo subclass. The remaining arguments may be ints.
+    #    """
+    #    __slots__ = time.__slots__
+    var year: Int
+    var month: Int
+    var day: Int
+    var hour: Int
+    var minute: Int
+    var second: Int
+    var microsecond: Int
+    var tzinfo: Optional[T]
+
+    #    def __new__(cls, year, month=None, day=None, hour=0, minute=0, second=0,
+    #                microsecond=0, tzinfo=None, *, fold=0):
+    #        if (isinstance(year, (bytes, str)) and len(year) == 10 and
+    #            1 <= ord(year[2:3])&0x7F <= 12):
+    #            # Pickle support
+    #            if isinstance(year, str):
+    #                try:
+    #                    year = bytes(year, 'latin1')
+    #                except UnicodeEncodeError:
+    #                    # More informative error message.
+    #                    raise ValueError(
+    #                        "Failed to encode latin1 string when unpickling "
+    #                        "a datetime object. "
+    #                        "pickle.load(data, encoding='latin1') is assumed.")
+    #            self = object.__new__(cls)
+    #            self.__setstate(year, month)
+    #            self._hashcode = -1
+    #            return self
+    #        year, month, day = _check_date_fields(year, month, day)
+    #        hour, minute, second, microsecond, fold = _check_time_fields(
+    #            hour, minute, second, microsecond, fold)
+    #        _check_tzinfo_arg(tzinfo)
+    #        self = object.__new__(cls)
+    #        self._year = year
+    #        self._month = month
+    #        self._day = day
+    #        self._hour = hour
+    #        self._minute = minute
+    #        self._second = second
+    #        self._microsecond = microsecond
+    #        self._tzinfo = tzinfo
+    #        self._hashcode = -1
+    #        self._fold = fold
+    #        return self
+    #
+    #    # Read-only field accessors
+    #    @property
+    #    def hour(self):
+    #        """hour (0-23)"""
+    #        return self._hour
+    #
+    #    @property
+    #    def minute(self):
+    #        """minute (0-59)"""
+    #        return self._minute
+    #
+    #    @property
+    #    def second(self):
+    #        """second (0-59)"""
+    #        return self._second
+    #
+    #    @property
+    #    def microsecond(self):
+    #        """microsecond (0-999999)"""
+    #        return self._microsecond
+    #
+    #    @property
+    #    def tzinfo(self):
+    #        """timezone info object"""
+    #        return self._tzinfo
+    #
+    #    @property
+    #    def fold(self):
+    #        return self._fold
+    #
+    #    @classmethod
+    #    def _fromtimestamp(cls, t, utc, tz):
+    #        """Construct a datetime from a POSIX timestamp (like time.time()).
+    #
+    #        A timezone info object may be passed in as well.
+    #        """
+    #        frac, t = _math.modf(t)
+    #        us = round(frac * 1e6)
+    #        if us >= 1000000:
+    #            t += 1
+    #            us -= 1000000
+    #        elif us < 0:
+    #            t -= 1
+    #            us += 1000000
+    #
+    #        converter = _time.gmtime if utc else _time.localtime
+    #        y, m, d, hh, mm, ss, weekday, jday, dst = converter(t)
+    #        ss = min(ss, 59)    # clamp out leap seconds if the platform has them
+    #        result = cls(y, m, d, hh, mm, ss, us, tz)
+    #        if tz is None and not utc:
+    #            # As of version 2015f max fold in IANA database is
+    #            # 23 hours at 1969-09-30 13:00:00 in Kwajalein.
+    #            # Let's probe 24 hours in the past to detect a transition:
+    #            max_fold_seconds = 24 * 3600
+    #
+    #            # On Windows localtime_s throws an OSError for negative values,
+    #            # thus we can't perform fold detection for values of time less
+    #            # than the max time fold. See comments in _datetimemodule's
+    #            # version of this method for more details.
+    #            if t < max_fold_seconds and sys.platform.startswith("win"):
+    #                return result
+    #
+    #            y, m, d, hh, mm, ss = converter(t - max_fold_seconds)[:6]
+    #            probe1 = cls(y, m, d, hh, mm, ss, us, tz)
+    #            trans = result - probe1 - timedelta(0, max_fold_seconds)
+    #            if trans.days < 0:
+    #                y, m, d, hh, mm, ss = converter(t + trans // timedelta(0, 1))[:6]
+    #                probe2 = cls(y, m, d, hh, mm, ss, us, tz)
+    #                if probe2 == result:
+    #                    result._fold = 1
+    #        elif tz is not None:
+    #            result = tz.fromutc(result)
+    #        return result
+    #
+    #    @classmethod
+    #    def fromtimestamp(cls, timestamp, tz=None):
+    #        """Construct a datetime from a POSIX timestamp (like time.time()).
+    #
+    #        A timezone info object may be passed in as well.
+    #        """
+    #        _check_tzinfo_arg(tz)
+    #
+    #        return cls._fromtimestamp(timestamp, tz is not None, tz)
+    #
+    #
+    #    @classmethod
+    #    def now(cls, tz=None):
+    #        "Construct a datetime from time.time() and optional time zone info."
+    #        t = _time.time()
+    #        return cls.fromtimestamp(t, tz)
+    #
+    @staticmethod
+    fn combine[T: _tzinfo_trait](date: date, time: time[T]) -> datetime[T]:
+        "Construct a datetime from a given date and a given time."
+        return datetime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+            time.second,
+            time.microsecond,
+            time.tzinfo,
+            fold=time.fold,
+        )
+
+
 #
 #    @classmethod
 #    def fromisoformat(cls, date_string):
