@@ -957,6 +957,10 @@ struct date:
     year, month, day
     """
 
+    alias min = date(1, 1, 1)
+    alias max = date(9999, 12, 31)
+    alias resolution = timedelta(days=1)
+
     var year: Int
     var month: Int
     var day: Int
@@ -1248,63 +1252,54 @@ struct date:
 #
 #    def __reduce__(self):
 #        return (self.__class__, self._getstate())
-#
-# _date_class = date  # so functions w/ args named "date" can get at the class
-#
-# date.min = date(1, 1, 1)
-# date.max = date(9999, 12, 31)
-# date.resolution = timedelta(days=1)
+
+
 #
 #
-# class tzinfo:
-#    """Abstract base class for time zone info classes.
-#
-#    Subclasses must override the tzname(), utcoffset() and dst() methods.
-#    """
-#    __slots__ = ()
-#
-#    def tzname(self, dt):
-#        "datetime -> string name of time zone."
-#        raise NotImplementedError("tzinfo subclass must override tzname()")
-#
-#    def utcoffset(self, dt):
-#        "datetime -> timedelta, positive for east of UTC, negative for west of UTC"
-#        raise NotImplementedError("tzinfo subclass must override utcoffset()")
-#
-#    def dst(self, dt):
-#        """datetime -> DST offset as timedelta, positive for east of UTC.
-#
-#        Return 0 if DST not in effect.  utcoffset() must include the DST
-#        offset.
-#        """
-#        raise NotImplementedError("tzinfo subclass must override dst()")
-#
-#    def fromutc(self, dt):
-#        "datetime in UTC -> datetime in local time."
-#
-#        if not isinstance(dt, datetime):
-#            raise TypeError("fromutc() requires a datetime argument")
-#        if dt.tzinfo is not self:
-#            raise ValueError("dt.tzinfo is not self")
-#
-#        dtoff = dt.utcoffset()
-#        if dtoff is None:
-#            raise ValueError("fromutc() requires a non-None utcoffset() "
-#                             "result")
-#
-#        # See the long comment block at the end of this file for an
-#        # explanation of this algorithm.
+trait tzinfo:
+    """Abstract base class for time zone info classes.
+
+    Subclasses must override the tzname(), utcoffset() and dst() methods.
+    """
+
+    fn tzname(self, dt: datetime) -> String:
+        """Name of time zone."""
+        ...
+
+    fn utcoffset(self, dt: datetime) -> timedelta:
+        """Positive for east of UTC, negative for west of UTC."""
+        ...
+
+    def dst(self, dt: datetime) -> timedelta:
+        """From datetime -> DST offset as timedelta, positive for east of UTC.
+
+        Return 0 if DST not in effect.  utcoffset() must include the DST
+        offset.
+        """
+        ...
+
+
+# def fromutc[T: tzinfo](self: T, dt: datetime) -> datetime:
+#    """From datetime in UTC to datetime in local time."""
+#    if dt.tzinfo is not self:
+#        raise ValueError("dt.tzinfo is not self")
+#    dtoff = dt.utcoffset()
+#    if dtoff is None:
+#        raise ValueError("fromutc() requires a non-None utcoffset() "
+#                         "result")
+#    # See the long comment block at the end of this file for an
+#    # explanation of this algorithm.
+#    dtdst = dt.dst()
+#    if dtdst is None:
+#        raise ValueError("fromutc() requires a non-None dst() result")
+#    delta = dtoff - dtdst
+#    if delta:
+#        dt += delta
 #        dtdst = dt.dst()
 #        if dtdst is None:
-#            raise ValueError("fromutc() requires a non-None dst() result")
-#        delta = dtoff - dtdst
-#        if delta:
-#            dt += delta
-#            dtdst = dt.dst()
-#            if dtdst is None:
-#                raise ValueError("fromutc(): dt.dst gave inconsistent "
-#                                 "results; cannot convert")
-#        return dt + dtdst
+#            raise ValueError("fromutc(): dt.dst gave inconsistent "
+#                             "results; cannot convert")
+#    return dt + dtdst
 #
 #    # Pickle support.
 #
@@ -1317,62 +1312,78 @@ struct date:
 #        return (self.__class__, args, self.__getstate__())
 #
 #
-# class IsoCalendarDate(tuple):
-#
-#    def __new__(cls, year, week, weekday, /):
-#        return super().__new__(cls, (year, week, weekday))
-#
-#    @property
-#    def year(self):
-#        return self[0]
-#
-#    @property
-#    def week(self):
-#        return self[1]
-#
-#    @property
-#    def weekday(self):
-#        return self[2]
-#
-#    def __reduce__(self):
-#        # This code is intended to pickle the object without making the
-#        # class public. See https://bugs.python.org/msg352381
-#        return (tuple, (tuple(self),))
-#
-#    def __repr__(self):
-#        return (f'{self.__class__.__name__}'
-#                f'(year={self[0]}, week={self[1]}, weekday={self[2]})')
-#
-#
-# _IsoCalendarDate = IsoCalendarDate
-# del IsoCalendarDate
+@value
+struct IsoCalendarDate:
+    var year: Int
+    var week: Int
+    var weekday: Int
+
+    fn __getitem__(self, index: Int) -> Int:
+        if index == 0:
+            return self.year
+        elif index == 1:
+            return self.week
+        elif index == 2:
+            return self.weekday
+        else:
+            # raise error here
+            return 0
+
+    fn __len__(self) -> Int:
+        return 3
+
+    # def __reduce__(self):
+    #    # This code is intended to pickle the object without making the
+    #    # class public. See https://bugs.python.org/msg352381
+    #    return (tuple, (tuple(self),))
+
+    def __repr__(self) -> String:
+        return (
+            "IsoCalendarDate(year="
+            + str(self[0])
+            + ", week="
+            + str(self[1])
+            + ", weekday="
+            + str(self[2])
+            + ")"
+        )
+
+
 # _tzinfo_class = tzinfo
 #
-# class time:
-#    """Time with time zone.
-#
-#    Constructors:
-#
-#    __new__()
-#
-#    Operators:
-#
-#    __repr__, __str__
-#    __eq__, __le__, __lt__, __ge__, __gt__, __hash__
-#
-#    Methods:
-#
-#    strftime()
-#    isoformat()
-#    utcoffset()
-#    tzname()
-#    dst()
-#
-#    Properties (readonly):
-#    hour, minute, second, microsecond, tzinfo, fold
-#    """
-#    __slots__ = '_hour', '_minute', '_second', '_microsecond', '_tzinfo', '_hashcode', '_fold'
-#
+struct time[T: tzinfo]:
+    """Time with time zone.
+
+    Constructors:
+
+    __new__()
+
+    Operators:
+
+    __repr__, __str__
+    __eq__, __le__, __lt__, __ge__, __gt__, __hash__
+
+    Methods:
+
+    strftime()
+    isoformat()
+    utcoffset()
+    tzname()
+    dst()
+
+    Properties (readonly):
+    hour, minute, second, microsecond, tzinfo, fold
+    """
+
+    var hour: Int
+    var minute: Int
+    var second: Int
+    var microsecond: Int
+    var tzinfo: T
+    var _hashcode: Int
+    var fold: Int
+
+
 #    def __new__(cls, hour=0, minute=0, second=0, microsecond=0, tzinfo=None, *, fold=0):
 #        """Constructor.
 #
