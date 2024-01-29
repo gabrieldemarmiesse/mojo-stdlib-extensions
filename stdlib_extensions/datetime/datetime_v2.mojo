@@ -1256,10 +1256,10 @@ struct date:
 
 #
 #
-trait tzinfo:
+trait tzinfo(CollectionElement):
     """Abstract base class for time zone info classes.
 
-    Subclasses must override the tzname(), utcoffset() and dst() methods.
+    Subclasses must override the tzname(), utcoffset(), dst(), and fromutc() methods.
     """
 
     fn tzname(self, dt: datetime) -> String:
@@ -1270,12 +1270,16 @@ trait tzinfo:
         """Positive for east of UTC, negative for west of UTC."""
         ...
 
-    def dst(self, dt: datetime) -> timedelta:
+    fn dst(self, dt: datetime) -> timedelta:
         """From datetime -> DST offset as timedelta, positive for east of UTC.
 
         Return 0 if DST not in effect.  utcoffset() must include the DST
         offset.
         """
+        ...
+
+    fn fromutc(self: Self, dt: datetime) -> datetime:
+        # use the default function below
         ...
 
 
@@ -1349,8 +1353,10 @@ struct IsoCalendarDate:
         )
 
 
-# _tzinfo_class = tzinfo
-#
+# may be useless
+alias _tzinfo_trait = tzinfo
+
+
 struct time[T: tzinfo]:
     """Time with time zone.
 
@@ -1379,80 +1385,40 @@ struct time[T: tzinfo]:
     var minute: Int
     var second: Int
     var microsecond: Int
-    var tzinfo: T
+    var tzinfo: Optional[T]
     var _hashcode: Int
     var fold: Int
 
+    fn __init__(
+        inout self,
+        hour: Int = 0,
+        minute: Int = 0,
+        second: Int = 0,
+        microsecond: Int = 0,
+        tzinfo: Optional[T] = None,
+        fold: Int = 0,
+    ):
+        """Constructor.
 
-#    def __new__(cls, hour=0, minute=0, second=0, microsecond=0, tzinfo=None, *, fold=0):
-#        """Constructor.
-#
-#        Arguments:
-#
-#        hour, minute (required)
-#        second, microsecond (default to zero)
-#        tzinfo (default to None)
-#        fold (keyword only, default to zero)
-#        """
-#        if (isinstance(hour, (bytes, str)) and len(hour) == 6 and
-#            ord(hour[0:1])&0x7F < 24):
-#            # Pickle support
-#            if isinstance(hour, str):
-#                try:
-#                    hour = hour.encode('latin1')
-#                except UnicodeEncodeError:
-#                    # More informative error message.
-#                    raise ValueError(
-#                        "Failed to encode latin1 string when unpickling "
-#                        "a time object. "
-#                        "pickle.load(data, encoding='latin1') is assumed.")
-#            self = object.__new__(cls)
-#            self.__setstate(hour, minute or None)
-#            self._hashcode = -1
-#            return self
-#        hour, minute, second, microsecond, fold = _check_time_fields(
-#            hour, minute, second, microsecond, fold)
-#        _check_tzinfo_arg(tzinfo)
-#        self = object.__new__(cls)
-#        self._hour = hour
-#        self._minute = minute
-#        self._second = second
-#        self._microsecond = microsecond
-#        self._tzinfo = tzinfo
-#        self._hashcode = -1
-#        self._fold = fold
-#        return self
-#
-#    # Read-only field accessors
-#    @property
-#    def hour(self):
-#        """hour (0-23)"""
-#        return self._hour
-#
-#    @property
-#    def minute(self):
-#        """minute (0-59)"""
-#        return self._minute
-#
-#    @property
-#    def second(self):
-#        """second (0-59)"""
-#        return self._second
-#
-#    @property
-#    def microsecond(self):
-#        """microsecond (0-999999)"""
-#        return self._microsecond
-#
-#    @property
-#    def tzinfo(self):
-#        """timezone info object"""
-#        return self._tzinfo
-#
-#    @property
-#    def fold(self):
-#        return self._fold
-#
+        Arguments:
+
+        hour, minute (required)
+        second, microsecond (default to zero)
+        tzinfo (default to None)
+        fold (keyword only, default to zero)
+        """
+        # hour, minute, second, microsecond, fold = _check_time_fields(
+        #    hour, minute, second, microsecond, fold)
+        # _check_tzinfo_arg(tzinfo)
+        self.hour = hour
+        self.minute = minute
+        self.second = second
+        self.microsecond = microsecond
+        self.tzinfo = tzinfo
+        self._hashcode = -1
+        self.fold = fold
+
+
 #    # Standard conversions, __hash__ (and helpers)
 #
 #    # Comparisons of time objects with other.
