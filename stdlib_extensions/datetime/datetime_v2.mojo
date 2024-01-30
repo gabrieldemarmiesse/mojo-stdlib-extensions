@@ -598,9 +598,6 @@ alias _FRACTION_CORRECTION = list[Int].from_values(100000, 10000, 1000, 100, 10)
 #        raise ValueError('fold must be either 0 or 1', fold)
 #    return hour, minute, second, microsecond, fold
 #
-# def _check_tzinfo_arg(tz):
-#    if tz is not None and not isinstance(tz, tzinfo):
-#        raise TypeError("tzinfo argument must be None or of a tzinfo subclass")
 #
 # def _cmperror(x, y):
 #    raise TypeError("can't compare '%s' to '%s'" % (
@@ -1409,7 +1406,6 @@ struct time[T: _tzinfo_trait]:
         """
         # hour, minute, second, microsecond, fold = _check_time_fields(
         #    hour, minute, second, microsecond, fold)
-        # _check_tzinfo_arg(tzinfo)
         self.hour = hour
         self.minute = minute
         self.second = second
@@ -1734,7 +1730,6 @@ struct datetime(CollectionElement):
     #        year, month, day = _check_date_fields(year, month, day)
     #        hour, minute, second, microsecond, fold = _check_time_fields(
     #            hour, minute, second, microsecond, fold)
-    #        _check_tzinfo_arg(tzinfo)
     #        self = object.__new__(cls)
     #        self._year = year
     #        self._month = month
@@ -1828,8 +1823,6 @@ struct datetime(CollectionElement):
     #
     #        A timezone info object may be passed in as well.
     #        """
-    #        _check_tzinfo_arg(tz)
-    #
     #        return cls._fromtimestamp(timestamp, tz is not None, tz)
     #
     #
