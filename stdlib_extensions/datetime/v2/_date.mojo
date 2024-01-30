@@ -1,6 +1,7 @@
 from ._timedelta import timedelta
 from ...builtins import Optional, bytes
 from ...builtins import divmod
+from ._utils import ord2ymd
 
 
 struct date:
@@ -69,15 +70,19 @@ struct date:
     #        t = _time.time()
     #        return cls.fromtimestamp(t)
     #
-    #    @classmethod
-    #    def fromordinal(cls, n):
-    #        """Construct a date from a proleptic Gregorian ordinal.
-    #
-    #        January 1 of year 1 is day 1.  Only the year, month and day are
-    #        non-zero in the result.
-    #        """
-    #        y, m, d = _ord2ymd(n)
-    #        return cls(y, m, d)
+    @staticmethod
+    fn fromordinal(n: Int) -> date:
+        """Construct a date from a proleptic Gregorian ordinal.
+
+        January 1 of year 1 is day 1.  Only the year, month and day are
+        non-zero in the result.
+        """
+        var y: Int
+        var m: Int
+        var d: Int
+        y, m, d = ord2ymd(n)
+        return date(y, m, d)
+
     #
     #    @classmethod
     #    def fromisoformat(cls, date_string):

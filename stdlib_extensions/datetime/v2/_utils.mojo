@@ -119,8 +119,8 @@ alias _DI4Y = _days_before_year(5)  #    "    "   "   "   4   "
 # assert _DI100Y == 25 * _DI4Y - 1
 
 
-fn _ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
-    "ordinal -> (year, month, day), considering 01-Jan-0001 as day 1."
+fn ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
+    "Ordinal -> (year, month, day), considering 01-Jan-0001 as day 1."
     # n is a 1-based index, starting at 1-Jan-1.  The pattern of leap years
     # repeats exactly every 400 years.  The basic strategy is to find the
     # closest 400-year boundary at or before n, then work with the offset

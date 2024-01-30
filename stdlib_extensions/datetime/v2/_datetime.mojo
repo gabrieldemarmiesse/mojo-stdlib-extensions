@@ -577,38 +577,6 @@ struct datetime(CollectionElement):
 #                self._hashcode = hash(timedelta(days, seconds, self.microsecond) - tzoff)
 #        return self._hashcode
 #
-#    # Pickle support.
-#
-#    def _getstate(self, protocol=3):
-#        yhi, ylo = divmod(self._year, 256)
-#        us2, us3 = divmod(self._microsecond, 256)
-#        us1, us2 = divmod(us2, 256)
-#        m = self._month
-#        if self._fold and protocol > 3:
-#            m += 128
-#        basestate = bytes([yhi, ylo, m, self._day,
-#                           self._hour, self._minute, self._second,
-#                           us1, us2, us3])
-#        if self._tzinfo is None:
-#            return (basestate,)
-#        else:
-#            return (basestate, self._tzinfo)
-#
-#    def __setstate(self, string, tzinfo):
-#        if tzinfo is not None and not isinstance(tzinfo, _tzinfo_class):
-#            raise TypeError("bad tzinfo state arg")
-#        (yhi, ylo, m, self._day, self._hour,
-#         self._minute, self._second, us1, us2, us3) = string
-#        if m > 127:
-#            self._fold = 1
-#            self._month = m - 128
-#        else:
-#            self._fold = 0
-#            self._month = m
-#        self._year = yhi * 256 + ylo
-#        self._microsecond = (((us1 << 8) | us2) << 8) | us3
-#        self._tzinfo = tzinfo
-#
 #    def __reduce_ex__(self, protocol):
 #        return (self.__class__, self._getstate(protocol))
 #
