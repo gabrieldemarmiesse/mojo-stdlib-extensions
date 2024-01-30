@@ -93,8 +93,8 @@ fn _days_before_month(year: Int, month: Int) -> Int:
     )
 
 
-fn _ymd2ord(year: Int, month: Int, day: Int) -> Int:
-    "year, month, day -> ordinal, considering 01-Jan-0001 as day 1."
+fn ymd2ord(year: Int, month: Int, day: Int) -> Int:
+    "Year, month, day -> ordinal, considering 01-Jan-0001 as day 1."
     var dim = _days_in_month(year, month)
     return _days_before_year(year) + _days_before_month(year, month) + day
 
@@ -630,19 +630,19 @@ alias _FRACTION_CORRECTION = list[Int].from_values(100000, 10000, 1000, 100, 10)
 
 #
 
+
 #
 #
-# def _isoweek1monday(year):
-#    # Helper to calculate the day number of the Monday starting week 1
-#    # XXX This could be done more efficiently
-#    THURSDAY = 3
-#    firstday = _ymd2ord(year, 1, 1)
-#    firstweekday = (firstday + 6) % 7  # See weekday() above
-#    week1monday = firstday - firstweekday
-#    if firstweekday > THURSDAY:
-#        week1monday += 7
-#    return week1monday
-#
-#
+fn isoweek1monday(year: Int) -> Int:
+    # Helper to calculate the day number of the Monday starting week 1
+    # XXX This could be done more efficiently
+    var THURSDAY = 3
+    var firstday = ymd2ord(year, 1, 1)
+    var firstweekday = (firstday + 6) % 7  # See weekday() above
+    var week1monday = firstday - firstweekday
+    if firstweekday > THURSDAY:
+        week1monday += 7
+    return week1monday
+
 
 # _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)

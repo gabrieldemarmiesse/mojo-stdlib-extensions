@@ -1,7 +1,8 @@
 from ._timedelta import timedelta
 from ...builtins import Optional, bytes
 from ...builtins import divmod
-from ._utils import ord2ymd
+from ._utils import ord2ymd, isoweek1monday, ymd2ord
+from ._iso_calendar_date import IsoCalendarDate
 
 
 struct date:
@@ -190,14 +191,14 @@ struct date:
     #        return _build_struct_time(self._year, self._month, self._day,
     #                                  0, 0, 0, -1)
     #
-    #    def toordinal(self):
-    #        """Return proleptic Gregorian ordinal for the year, month and day.
-    #
-    #        January 1 of year 1 is day 1.  Only the year, month and day values
-    #        contribute to the result.
-    #        """
-    #        return _ymd2ord(self._year, self._month, self._day)
-    #
+    fn toordinal(self) -> Int:
+        """Return proleptic Gregorian ordinal for the year, month and day.
+
+        January 1 of year 1 is day 1.  Only the year, month and day values
+        contribute to the result.
+        """
+        return ymd2ord(self.year, self.month, self.day)
+
     def replace(
         self,
         owned year: Optional[Int] = None,
@@ -278,57 +279,48 @@ struct date:
     #            return timedelta(days1 - days2)
     #        return NotImplemented
     #
-    #    def weekday(self):
-    #        "Return day of the week, where Monday == 0 ... Sunday == 6."
-    #        return (self.toordinal() + 6) % 7
-    #
-    #    # Day-of-the-week and week-of-the-year, according to ISO
-    #
-    #    def isoweekday(self):
-    #        "Return day of the week, where Monday == 1 ... Sunday == 7."
-    #        # 1-Jan-0001 is a Monday
-    #        return self.toordinal() % 7 or 7
-    #
-    #    def isocalendar(self):
-    #        """Return a named tuple containing ISO year, week number, and weekday.
-    #
-    #        The first ISO week of the year is the (Mon-Sun) week
-    #        containing the year's first Thursday; everything else derives
-    #        from that.
-    #
-    #        The first week is 1; Monday is 1 ... Sunday is 7.
-    #
-    #        ISO calendar algorithm taken from
-    #        http://www.phys.uu.nl/~vgent/calendar/isocalendar.htm
-    #        (used with permission)
-    #        """
-    #        year = self._year
-    #        week1monday = _isoweek1monday(year)
-    #        today = _ymd2ord(self._year, self._month, self._day)
-    #        # Internally, week and day have origin 0
-    #        week, day = divmod(today - week1monday, 7)
-    #        if week < 0:
-    #            year -= 1
-    #            week1monday = _isoweek1monday(year)
-    #            week, day = divmod(today - week1monday, 7)
-    #        elif week >= 52:
-    #            if today >= _isoweek1monday(year+1):
-    #                year += 1
-    #                week = 0
-    #        return _IsoCalendarDate(year, week+1, day+1)
-    #
-    #    # Pickle support.
-    #
+    fn weekday(self) -> Int:
+        "Return day of the week, where Monday == 0 ... Sunday == 6."
+        return (self.toordinal() + 6) % 7
+
+    # Day-of-the-week and week-of-the-year, according to ISO
+
+    fn isoweekday(self) -> Int:
+        "Return day of the week, where Monday == 1 ... Sunday == 7."
+        # 1-Jan-0001 is a Monday
+        return self.toordinal() % 7 or 7
+
+    fn isocalendar(self) -> IsoCalendarDate:
+        """Return a named tuple containing ISO year, week number, and weekday.
+
+        The first ISO week of the year is the (Mon-Sun) week
+        containing the year's first Thursday; everything else derives
+        from that.
+
+        The first week is 1; Monday is 1 ... Sunday is 7.
+
+        ISO calendar algorithm taken from
+        http://www.phys.uu.nl/~vgent/calendar/isocalendar.htm
+        (used with permission)
+        """
+        var year = self.year
+        var week1monday = isoweek1monday(year)
+        var today = ymd2ord(self.year, self.month, self.day)
+        # Internally, week and day have origin 0
+        var week = (today - week1monday) // 7
+        var day = (today - week1monday) % 7
+        if week < 0:
+            year -= 1
+            week1monday = isoweek1monday(year)
+            week, day = divmod(today - week1monday, 7)
+        elif week >= 52:
+            if today >= isoweek1monday(year + 1):
+                year += 1
+                week = 0
+        return IsoCalendarDate(year, week + 1, day + 1)
+
     fn _getstate(self) -> bytes:
         var yhi: Int
         var ylo: Int
         yhi, ylo = divmod(self.year, 256)
         return bytes.from_values(yhi, ylo, self.month, self.day)
-
-
-#    def __setstate(self, string):
-#        yhi, ylo, self._month, self._day = string
-#        self._year = yhi * 256 + ylo
-#
-#    def __reduce__(self):
-#        return (self.__class__, self._getstate())
