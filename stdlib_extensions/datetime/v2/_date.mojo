@@ -4,6 +4,8 @@ from ...builtins import divmod
 from ._utils import ord2ymd, isoweek1monday, ymd2ord
 from ._iso_calendar_date import IsoCalendarDate
 
+from ...builtins._generic_list import _cmp_list
+
 
 struct date:
     """Concrete date type.
@@ -199,7 +201,7 @@ struct date:
         """
         return ymd2ord(self.year, self.month, self.day)
 
-    def replace(
+    fn replace(
         self,
         owned year: Optional[Int] = None,
         owned month: Optional[Int] = None,
@@ -214,41 +216,27 @@ struct date:
             day = self.day
         return date(year.value(), month.value(), day.value())
 
-    #
-    #    __replace__ = replace
-    #
-    #    # Comparisons of date objects with other.
-    #
-    #    def __eq__(self, other):
-    #        if isinstance(other, date):
-    #            return self._cmp(other) == 0
-    #        return NotImplemented
-    #
-    #    def __le__(self, other):
-    #        if isinstance(other, date):
-    #            return self._cmp(other) <= 0
-    #        return NotImplemented
-    #
-    #    def __lt__(self, other):
-    #        if isinstance(other, date):
-    #            return self._cmp(other) < 0
-    #        return NotImplemented
-    #
-    #    def __ge__(self, other):
-    #        if isinstance(other, date):
-    #            return self._cmp(other) >= 0
-    #        return NotImplemented
-    #
-    #    def __gt__(self, other):
-    #        if isinstance(other, date):
-    #            return self._cmp(other) > 0
-    #        return NotImplemented
-    #
-    #    def _cmp(self, other):
-    #        assert isinstance(other, date)
-    #        y, m, d = self._year, self._month, self._day
-    #        y2, m2, d2 = other._year, other._month, other._day
-    #        return _cmp((y, m, d), (y2, m2, d2))
+    # Comparisons of date objects with other.
+    fn __eq__(self, other: date) -> Bool:
+        return self._cmp(other) == 0
+
+    def __le__(self, other: date) -> Bool:
+        return self._cmp(other) <= 0
+
+    def __lt__(self, other: date) -> Bool:
+        return self._cmp(other) < 0
+
+    fn __ge__(self, other: date) -> Bool:
+        return self._cmp(other) >= 0
+
+    fn __gt__(self, other: date) -> Bool:
+        return self._cmp(other) > 0
+
+    fn _cmp(self, other: date) -> Int:
+        var list_1 = list[Int].from_values(self.year, self.month, self.day)
+        var list_2 = list[Int].from_values(other.year, other.month, other.day)
+        return _cmp_list(list_1, list_2)
+
     #
     #    def __hash__(self):
     #        "Hash."
