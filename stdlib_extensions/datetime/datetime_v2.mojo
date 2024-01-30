@@ -599,9 +599,6 @@ alias _FRACTION_CORRECTION = list[Int].from_values(100000, 10000, 1000, 100, 10)
 #    return hour, minute, second, microsecond, fold
 #
 #
-# def _cmperror(x, y):
-#    raise TypeError("can't compare '%s' to '%s'" % (
-#                    type(x).__name__, type(y).__name__))
 #
 # def _divide_and_round(a, b):
 #    """divide a by b and round result to the nearest integer
