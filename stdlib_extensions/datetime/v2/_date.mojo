@@ -84,7 +84,7 @@ struct date(Hashable):
     #            raise ValueError(f'Invalid isoformat string: {date_string!r}')
     #
     #        try:
-    #            return cls(*_parse_isoformat_date(date_string))
+    #            return cls(*_parse_isoformat_date(date_strnig))
     #        except Exception:
     #            raise ValueError(f'Invalid isoformat string: {date_string!r}')
     #
@@ -172,8 +172,8 @@ struct date(Hashable):
         """
         return self.isoformat()
 
-    #    # Standard conversions, __eq__, __le__, __lt__, __ge__, __gt__,
-    #    # __hash__ (and helpers)
+    # Standard conversions, __eq__, __le__, __lt__, __ge__, __gt__,
+    # __hash__ (and helpers)
     #
     #    def timetuple(self):
     #        "Return local time tuple compatible with time.localtime()."
@@ -227,29 +227,23 @@ struct date(Hashable):
     fn __hash__(self) -> Int:
         return custom_hash(str(self.year) + str(self.month) + str(self.day))
 
-    #    # Computations
-    #
-    #    def __add__(self, other):
-    #        "Add a date to a timedelta."
-    #        if isinstance(other, timedelta):
-    #            o = self.toordinal() + other.days
-    #            if 0 < o <= _MAXORDINAL:
-    #                return type(self).fromordinal(o)
-    #            raise OverflowError("result out of range")
-    #        return NotImplemented
-    #
-    #    __radd__ = __add__
-    #
-    #    def __sub__(self, other):
-    #        """Subtract two dates, or a date and a timedelta."""
-    #        if isinstance(other, timedelta):
-    #            return self + timedelta(-other.days)
-    #        if isinstance(other, date):
-    #            days1 = self.toordinal()
-    #            days2 = other.toordinal()
-    #            return timedelta(days1 - days2)
-    #        return NotImplemented
-    #
+    # Computations
+    fn __add__(self, other: timedelta) -> date:
+        "Add a date to a timedelta."
+        var o = self.toordinal() + other.days
+        # if not (0 < o <= _MAXORDINAL):
+        #    raise OverflowError("result out of range")
+        return date.fromordinal(o)
+
+    fn __sub__(self, other: timedelta) -> date:
+        """Subtract two dates, or a date and a timedelta."""
+        return self + timedelta(-other.days)
+
+    fn __sub__(self, other: date) -> timedelta:
+        var days1 = self.toordinal()
+        var days2 = other.toordinal()
+        return timedelta(days1 - days2)
+
     fn weekday(self) -> Int:
         "Return day of the week, where Monday == 0 ... Sunday == 6."
         return (self.toordinal() + 6) % 7
