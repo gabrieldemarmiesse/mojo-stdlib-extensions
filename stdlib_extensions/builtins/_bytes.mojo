@@ -361,6 +361,10 @@ struct bytes(Stringable, Sized, CollectionElement):
             result += hex(self.__getitem__(i))[2:]
         return result
 
+    fn __hash__(self) -> Int:
+        # TODO: do better
+        return hash(str(self))
+
     @staticmethod
     fn fromhex(string: String) -> bytes:
         # TODO: remove whitespaces on the input string

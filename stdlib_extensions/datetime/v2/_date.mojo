@@ -5,9 +5,11 @@ from ._utils import ord2ymd, isoweek1monday, ymd2ord
 from ._iso_calendar_date import IsoCalendarDate
 
 from ...builtins._generic_list import _cmp_list
+from ...builtins._hash import hash as custom_hash
 
 
-struct date:
+@value
+struct date(Hashable):
     """Concrete date type.
 
     Constructors:
@@ -43,21 +45,6 @@ struct date:
     var year: Int
     var month: Int
     var day: Int
-    var _hashcode: Int
-
-    fn __init__(inout self, year: Int, month: Int, day: Int):
-        """Constructor.
-
-        Arguments:
-
-        year, month, day (required, base 1)
-        """
-        # year, month, day = _check_date_fields(year, month, day)
-
-        self.year = year
-        self.month = month
-        self.day = day
-        self._hashcode = -1
 
     # Additional constructors
     #
@@ -237,13 +224,9 @@ struct date:
         var list_2 = list[Int].from_values(other.year, other.month, other.day)
         return _cmp_list(list_1, list_2)
 
-    #
-    #    def __hash__(self):
-    #        "Hash."
-    #        if self._hashcode == -1:
-    #            self._hashcode = hash(self._getstate())
-    #        return self._hashcode
-    #
+    fn __hash__(self) -> Int:
+        return custom_hash(str(self.year) + str(self.month) + str(self.day))
+
     #    # Computations
     #
     #    def __add__(self, other):
