@@ -2371,13 +2371,14 @@ struct timezone:
     #        if self._name is None:
     #            return (self._offset,)
     #        return (self._offset, self._name)
-    #
+
     fn __eq__(self, other: timezone) -> Bool:
         return self._offset == other._offset
 
-    #    def __hash__(self):
-    #        return hash(self._offset)
-    #
+    # TODO: remove inout and make it Hashable
+    fn __hash__(inout self) -> Int:
+        return self._offset.__hash__()
+
     #    def __repr__(self):
     #        """Convert to formal string, for repr().
     #
@@ -2398,58 +2399,57 @@ struct timezone:
     #                                  self.__class__.__qualname__,
     #                                  self._offset, self._name)
     #
-    #    def __str__(self):
-    #        return self.tzname(None)
-    #
-    #    def utcoffset(self, dt):
-    #        if isinstance(dt, datetime) or dt is None:
-    #            return self._offset
-    #        raise TypeError("utcoffset() argument must be a datetime instance"
-    #                        " or None")
-    #
-    #    def tzname(self, dt):
-    #        if isinstance(dt, datetime) or dt is None:
-    #            if self._name is None:
-    #                return self._name_from_offset(self._offset)
-    #            return self._name
-    #        raise TypeError("tzname() argument must be a datetime instance"
-    #                        " or None")
-    #
+    fn __str__(self) -> String:
+        return self.tzname(None)
+
+    fn utcoffset(self, dt: Optional[datetime]) -> timedelta:
+        return self._offset
+
+    fn tzname(self, dt: Optional[datetime]) -> String:
+        if not self._name:
+            return self._name_from_offset(self._offset)
+        return self._name
+
     fn dst(self, dt: Optional[datetime]) -> None:
         return None
 
+    # fn fromutc(self, dt: datetime) -> datetime:
+    #    #if dt.tzinfo is not self:
+    #    #    raise ValueError("fromutc: dt.tzinfo "
+    #    #                     "is not self")
+    #    return dt + self._offset
 
-#
-#    def fromutc(self, dt):
-#        if isinstance(dt, datetime):
-#            if dt.tzinfo is not self:
-#                raise ValueError("fromutc: dt.tzinfo "
-#                                 "is not self")
-#            return dt + self._offset
-#        raise TypeError("fromutc() argument must be a datetime instance"
-#                        " or None")
-#
-#
-#
-#    @staticmethod
-#    def _name_from_offset(delta):
-#        if not delta:
-#            return 'UTC'
-#        if delta < timedelta(0):
-#            sign = '-'
-#            delta = -delta
-#        else:
-#            sign = '+'
-#        hours, rest = divmod(delta, timedelta(hours=1))
-#        minutes, rest = divmod(rest, timedelta(minutes=1))
-#        seconds = rest.seconds
-#        microseconds = rest.microseconds
-#        if microseconds:
-#            return (f'UTC{sign}{hours:02d}:{minutes:02d}:{seconds:02d}'
-#                    f'.{microseconds:06d}')
-#        if seconds:
-#            return f'UTC{sign}{hours:02d}:{minutes:02d}:{seconds:02d}'
-#        return f'UTC{sign}{hours:02d}:{minutes:02d}'
+    @staticmethod
+    fn _name_from_offset(owned delta: timedelta) -> String:
+        if not delta:
+            return "UTC"
+        var sign: String
+        if delta < timedelta(0):
+            sign = "-"
+            delta = -delta
+        else:
+            sign = "+"
+        # can use divmod later when we support non-register-passable for Tuple
+        var hours = delta // timedelta(hours=1)
+        var rest = delta % timedelta(hours=1)
+        var minutes = rest // timedelta(minutes=1)
+        rest = rest % timedelta(minutes=1)
+        var seconds = rest.seconds
+        var microseconds = rest.microseconds
+        try:
+            var result = "UTC" + sign + rjust(str(hours), 2, "0") + ":" + rjust(
+                str(minutes), 2, "0"
+            )
+            if seconds or microseconds:
+                result += ":" + rjust(str(seconds), 2, "0")
+            if microseconds:
+                result += "." + rjust(str(microseconds), 6, "0")
+            return result
+        except Error:
+            # should never happen
+            return "unknown error in _name_from_offset"
+
+
 #
 # UTC = timezone.utc = timezone._create(timedelta(0))
 #
