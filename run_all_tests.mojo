@@ -2,19 +2,16 @@ from collections.vector import DynamicVector
 
 
 @value
-struct list[T: CollectionElement]:
-    var _internal_vector: DynamicVector[T]
-
-    fn __init__(inout self):
-        self._internal_vector = DynamicVector[T]()
+struct list:
+    var _internal_vector: DynamicVector[Int]
 
 
-fn from_values[T: CollectionElement](*values: T) -> list[Int]:
-    return list[Int]()
+fn from_values[T: CollectionElement](*values: T) -> list:
+    return list(DynamicVector[Int]())
 
 
-alias _DAYS_IN_MONTH = from_values(-1)
+alias _DAYS_IN_MONTH = from_values[Int](-1)
 
 
 def main():
-    a = _DAYS_IN_MONTH._internal_vector[0]
+    a = _DAYS_IN_MONTH._internal_vector
