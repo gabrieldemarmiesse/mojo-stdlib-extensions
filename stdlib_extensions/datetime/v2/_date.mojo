@@ -6,10 +6,14 @@ from ._iso_calendar_date import IsoCalendarDate
 
 from ...builtins._generic_list import _cmp_list
 from ...builtins._hash import hash as custom_hash
+from ...time import time, time_ns
+
+
+alias _EPOCH = date(1970, 1, 1)
 
 
 @value
-struct date(Hashable):
+struct date(Hashable, Stringable):
     """Concrete date type.
 
     Constructors:
@@ -54,12 +58,12 @@ struct date(Hashable):
     #        y, m, d, hh, mm, ss, weekday, jday, dst = _time.localtime(t)
     #        return cls(y, m, d)
     #
-    #    @classmethod
-    #    def today(cls):
-    #        "Construct a date from time.time()."
-    #        t = _time.time()
-    #        return cls.fromtimestamp(t)
-    #
+    @staticmethod
+    fn today() -> date:
+        "Construct a date from time.time()."
+        var t = time_ns()
+        return _EPOCH + timedelta(microseconds=(t / 1_000).to_int())
+
     @staticmethod
     fn fromordinal(n: Int) -> date:
         """Construct a date from a proleptic Gregorian ordinal.

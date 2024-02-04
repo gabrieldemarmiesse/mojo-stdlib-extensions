@@ -50,8 +50,10 @@ fn _get_days_before_month() -> list[Int]:
     var result = list[Int]()
     result.append(-1)  # -1 is a placeholder for indexing purposes.
     var dbm = 0
-    for i in range(1, len(_DAYS_IN_MONTH)):
-        var dim = _DAYS_IN_MONTH.unchecked_get(i)
+    # TODO: use the alias instead of the function call when
+    # https://github.com/modularml/mojo/issues/1730 is fixed
+    for i in range(1, len(_get_days_in_month())):
+        var dim = _get_days_in_month().unchecked_get(i)
         result.append(dbm)
         dbm += dim
     return result
@@ -174,12 +176,16 @@ fn ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
     var leapyear = n1 == 3 and (n4 != 24 or n100 == 3)
     # assert leapyear == _is_leap(year)
     var month = (n + 50) >> 5
-    var preceding = _DAYS_BEFORE_MONTH.unchecked_get(month) + _bool_to_int(
+    # TODO: use alias when
+    # https://github.com/modularml/mojo/issues/1730 is fixed
+    var preceding = _get_days_before_month().unchecked_get(month) + _bool_to_int(
         month > 2 and leapyear
     )
     if preceding > n:  # estimate is too large
         month -= 1
-        preceding -= _DAYS_IN_MONTH.unchecked_get(month) + _bool_to_int(
+        # TODO: use alias when
+        # https://github.com/modularml/mojo/issues/1730 is fixed
+        preceding -= _get_days_in_month().unchecked_get(month) + _bool_to_int(
             month == 2 and leapyear
         )
     n -= preceding
