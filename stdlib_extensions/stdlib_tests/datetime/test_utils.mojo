@@ -3,7 +3,6 @@ from ...datetime.v2._utils import (
     _is_leap,
     _days_before_year,
     _days_in_month,
-    _DAYS_IN_MONTH,
 )
 
 
@@ -28,26 +27,20 @@ def test_days_before_year():
 
 
 def test_days_in_month():
-    assert_equal(_DAYS_IN_MONTH.__getitem__(0), 1)
-
-
-# def test_days_in_month2():
-#    assert_equal(_days_in_month(1, 1), 31)
-#    assert_equal(_days_in_month(2, 1), 28)
-#
-#    assert_equal(_days_in_month(2, 4), 29)
-#    assert_equal(_days_in_month(3, 1), 31)
-#    assert_equal(_days_in_month(4, 1), 30)
-#    assert_equal(_days_in_month(5, 1), 31)
-#    assert_equal(_days_in_month(6, 1), 30)
-#    assert_equal(_days_in_month(7, 1), 31)
-#    assert_equal(_days_in_month(8, 1), 31)
-#    assert_equal(_days_in_month(9, 1), 30)
-#    assert_equal(_days_in_month(10, 1), 31)
-#    assert_equal(_days_in_month(11, 1), 30)
-#    assert_equal(_days_in_month(12, 1), 31)
-#
-#    assert_equal(_days_in_month(3, 6), 31)
+    assert_equal(_days_in_month(1, 1), 31)
+    assert_equal(_days_in_month(1, 2), 28)
+    assert_equal(_days_in_month(4, 2), 29)
+    assert_equal(_days_in_month(1, 3), 31)
+    assert_equal(_days_in_month(1, 4), 30)
+    assert_equal(_days_in_month(1, 5), 31)
+    assert_equal(_days_in_month(1, 6), 30)
+    assert_equal(_days_in_month(1, 7), 31)
+    assert_equal(_days_in_month(1, 8), 31)
+    assert_equal(_days_in_month(1, 9), 30)
+    assert_equal(_days_in_month(1, 10), 31)
+    assert_equal(_days_in_month(1, 11), 30)
+    assert_equal(_days_in_month(1, 12), 31)
+    assert_equal(_days_in_month(6, 3), 31)
 
 
 def run_tests():

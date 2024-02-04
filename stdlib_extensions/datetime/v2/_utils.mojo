@@ -36,12 +36,14 @@ alias _MAXORDINAL = 3652059  # date.max.toordinal()
 
 # -1 is a placeholder for indexing purposes.
 
-# fn _get_days_in_month():
+
+fn _get_days_in_month() -> list[Int]:
+    return list[Int].from_values(-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
-alias _DAYS_IN_MONTH = list[Int].from_values(
-    -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-)
+# TODO: use the alias instead of the function call when
+# https://github.com/modularml/mojo/issues/1730 is fixed
+alias _DAYS_IN_MONTH = _get_days_in_month()
 
 
 fn _get_days_before_month() -> list[Int]:
@@ -74,7 +76,9 @@ fn _days_in_month(year: Int, month: Int) -> Int:
     # assert 1 <= month <= 12, month
     if month == 2 and _is_leap(year):
         return 29
-    return _DAYS_IN_MONTH.unchecked_get(month)
+    # TODO: use the alias _DAYS_IN_MONTH when
+    # https://github.com/modularml/mojo/issues/1730 is fixed
+    return _get_days_in_month().unchecked_get(month)
 
 
 fn _bool_to_int(x: Bool) -> Int:
@@ -88,7 +92,9 @@ fn _bool_to_int(x: Bool) -> Int:
 fn _days_before_month(year: Int, month: Int) -> Int:
     "year, month -> number of days in year preceding first day of month."
     # assert 1 <= month <= 12, 'month must be in 1..12'
-    return _DAYS_BEFORE_MONTH.unchecked_get(month) + _bool_to_int(
+    # TODO: use the alias _DAYS_BEFORE_MONTH
+    # when https://github.com/modularml/mojo/issues/1730 is fixed
+    return _get_days_before_month().unchecked_get(month) + _bool_to_int(
         month > 2 and _is_leap(year)
     )
 
