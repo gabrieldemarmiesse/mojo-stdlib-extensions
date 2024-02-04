@@ -1,20 +1,13 @@
-from stdlib_extensions.stdlib_tests.datetime import test_utils
-
-from stdlib_extensions import datetime as dt
+from stdlib_extensions.builtins import list
 
 
+alias _DAYS_IN_MONTH = list[Int].from_values(
+    -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+)
 
 def run_each_module():
-    test_utils.run_tests()
+    a = _DAYS_IN_MONTH.__getitem__(0)
 
 
 def main():
-    test_suite_start_time = dt.datetime.now()
     run_each_module()
-    test_suite_end_time = dt.datetime.now()
-
-    print(
-        "All tests passed in "
-        + (test_suite_end_time - test_suite_start_time).__repr__()
-        + "! 🔥🎉🔥"
-    )
