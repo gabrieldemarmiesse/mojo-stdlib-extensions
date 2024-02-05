@@ -23,5 +23,17 @@ def test_date():
     assert_equal(date.max.__repr__(), "datetime.date(9999, 12, 31)")
 
 
+def test_date_hash():
+    let some_time = date(2020, 1, 1)
+    let some_time2 = date(2020, 1, 1)
+
+    let some_other_time = date(2020, 1, 2)
+
+    assert_equal(hash(some_time), hash(some_time2))
+    assert_true(hash(some_time) != hash(some_other_time), "incorrect hash")
+    assert_true(hash(some_time2) != hash(some_other_time), "incorrect hash 2")
+
+
 def run_tests():
     test_date()
+    test_date_hash()
