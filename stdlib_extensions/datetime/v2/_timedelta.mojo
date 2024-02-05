@@ -1,6 +1,10 @@
 from ...builtins import divmod, round, abs
 from ...builtins._generic_list import _cmp_list
 from ...builtins._hash import hash as custom_hash
+from utils.variant import Variant
+
+
+alias IntOrFloat = Variant[Int, Float64]
 
 
 @value
