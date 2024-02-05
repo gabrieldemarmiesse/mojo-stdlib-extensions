@@ -9,7 +9,7 @@ It's just been converted to Mojo manually.
 
 from ...builtins import list, divmod, round, abs
 from ...builtins.string import join
-import time as _time
+from ...time import struct_time
 import math as _math
 import sys
 from ...builtins import Optional, bytes
@@ -214,13 +214,16 @@ alias _MONTHNAMES = list[String].from_values(
 alias _DAYNAMES = list[String].from_values(
     "", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
 )
-#
-#
-# def _build_struct_time(y, m, d, hh, mm, ss, dstflag):
-#    wday = (_ymd2ord(y, m, d) + 6) % 7
-#    dnum = _days_before_month(y, m) + d
-#    return _time.struct_time((y, m, d, hh, mm, ss, wday, dnum, dstflag))
-#
+
+
+fn _build_struct_time(
+    y: Int, m: Int, d: Int, hh: Int, mm: Int, ss: Int, dstflag: Int
+) -> struct_time:
+    var wday = (ymd2ord(y, m, d) + 6) % 7
+    var dnum = _days_before_month(y, m) + d
+    return struct_time((y, m, d, hh, mm, ss, wday, dnum, dstflag))
+
+
 # def _format_time(hh, mm, ss, us, timespec='auto'):
 #    specs = {
 #        'hours': '{:02d}',

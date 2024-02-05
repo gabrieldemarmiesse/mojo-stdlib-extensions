@@ -1,12 +1,18 @@
 from ._timedelta import timedelta
 from ...builtins import Optional, bytes
 from ...builtins import divmod
-from ._utils import ord2ymd, isoweek1monday, ymd2ord, _isoweek_to_gregorian
+from ._utils import (
+    ord2ymd,
+    isoweek1monday,
+    ymd2ord,
+    _isoweek_to_gregorian,
+    _build_struct_time,
+)
 from ._iso_calendar_date import IsoCalendarDate
 
 from ...builtins._generic_list import _cmp_list
 from ...builtins._hash import hash as custom_hash
-from ...time import time, time_ns
+from ...time import time, time_ns, struct_time
 
 
 alias _EPOCH = date(1970, 1, 1)
@@ -187,12 +193,11 @@ struct date(Hashable, Stringable):
 
     # Standard conversions, __eq__, __le__, __lt__, __ge__, __gt__,
     # __hash__ (and helpers)
-    #
-    #    def timetuple(self):
-    #        "Return local time tuple compatible with time.localtime()."
-    #        return _build_struct_time(self._year, self._month, self._day,
-    #                                  0, 0, 0, -1)
-    #
+
+    def timetuple(self) -> struct_time:
+        "Return local time tuple compatible with time.localtime()."
+        return _build_struct_time(self.year, self.month, self.day, 0, 0, 0, -1)
+
     fn toordinal(self) -> Int:
         """Return proleptic Gregorian ordinal for the year, month and day.
 
