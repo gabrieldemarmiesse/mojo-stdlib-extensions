@@ -5,7 +5,11 @@ from stdlib_extensions.stdlib_tests.builtins import (
     test_hex,
     test_math,
 )
-from stdlib_extensions.stdlib_tests.datetime import test_utils, test_timedelta
+from stdlib_extensions.stdlib_tests.datetime import (
+    test_utils,
+    test_timedelta,
+    test_date,
+)
 from stdlib_extensions.stdlib_tests.pathlib import test_path
 from stdlib_extensions.stdlib_tests.os import test_process
 from stdlib_extensions import datetime as dt
@@ -27,6 +31,7 @@ def run_each_module():
     test_math.run_tests()
     test_utils.run_tests()
     test_timedelta.run_tests()
+    test_date.run_tests()
 
 
 def main():

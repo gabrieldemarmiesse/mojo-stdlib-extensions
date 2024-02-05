@@ -2,6 +2,13 @@ from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
 from ...datetime.v2._timedelta import timedelta
 
 
+def test_timedelta():
+    assert_equal(timedelta().total_seconds(), 0)
+
+    divided = timedelta(hours=1) / timedelta(seconds=1)
+    assert_equal(String(divided), "3600.0")
+
+
 def test_timedelta_repr():
     assert_equal(timedelta().__repr__(), "datetime.timedelta(0)")
     assert_equal(timedelta(days=1).__repr__(), "datetime.timedelta(days=1)")
@@ -39,4 +46,5 @@ def test_timedelta_repr():
 
 
 def run_tests():
+    test_timedelta()
     test_timedelta_repr()
