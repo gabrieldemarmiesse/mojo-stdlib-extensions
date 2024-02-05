@@ -522,38 +522,33 @@ alias _FRACTION_CORRECTION = list[Int].from_values(100000, 10000, 1000, 100, 10)
 #    time_comps.append(tzi)
 #
 #    return time_comps
-#
-## tuple[int, int, int] -> tuple[int, int, int] version of date.fromisocalendar
-# def _isoweek_to_gregorian(year, week, day):
-#    # Year is bounded this way because 9999-12-31 is (9999, 52, 5)
-#    if not MINYEAR <= year <= MAXYEAR:
-#        raise ValueError(f"Year is out of range: {year}")
-#
-#    if not 0 < week < 53:
-#        out_of_range = True
-#
-#        if week == 53:
-#            # ISO years have 53 weeks in them on years starting with a
-#            # Thursday and leap years starting on a Wednesday
-#            first_weekday = _ymd2ord(year, 1, 1) % 7
-#            if (first_weekday == 4 or (first_weekday == 3 and
-#                                       _is_leap(year))):
-#                out_of_range = False
-#
-#        if out_of_range:
-#            raise ValueError(f"Invalid week: {week}")
-#
-#    if not 0 < day < 8:
-#        raise ValueError(f"Invalid weekday: {day} (range is [1, 7])")
-#
-#    # Now compute the offset from (Y, 1, 1) in days:
-#    day_offset = (week - 1) * 7 + (day - 1)
-#
-#    # Calculate the ordinal day for monday, week 1
-#    day_1 = _isoweek1monday(year)
-#    ord_day = day_1 + day_offset
-#
-#    return _ord2ymd(ord_day)
+
+
+# tuple[int, int, int] -> tuple[int, int, int] version of date.fromisocalendar
+fn _isoweek_to_gregorian(year: Int, week: Int, day: Int) -> Tuple[Int, Int, Int]:
+    # Year is bounded this way because 9999-12-31 is (9999, 52, 5)
+    # if not MINYEAR <= year <= MAXYEAR:
+    #    raise ValueError(f"Year is out of range: {year}")
+    if not 0 < week < 53:
+        var out_of_range = True
+        if week == 53:
+            # ISO years have 53 weeks in them on years starting with a
+            # Thursday and leap years starting on a Wednesday
+            var first_weekday = ymd2ord(year, 1, 1) % 7
+            if first_weekday == 4 or (first_weekday == 3 and _is_leap(year)):
+                out_of_range = False
+        # if out_of_range:
+        #    raise ValueError(f"Invalid week: {week}")
+    # if not 0 < day < 8:
+    #    raise ValueError(f"Invalid weekday: {day} (range is [1, 7])")
+    # Now compute the offset from (Y, 1, 1) in days:
+    var day_offset = (week - 1) * 7 + (day - 1)
+    # Calculate the ordinal day for monday, week 1
+    var day_1 = isoweek1monday(year)
+    var ord_day = day_1 + day_offset
+    return ord2ymd(ord_day)
+
+
 #
 #
 ## Just raise TypeError if the arg isn't None or a string.

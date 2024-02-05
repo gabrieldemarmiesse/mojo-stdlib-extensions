@@ -1,7 +1,7 @@
 from ._timedelta import timedelta
 from ...builtins import Optional, bytes
 from ...builtins import divmod
-from ._utils import ord2ymd, isoweek1monday, ymd2ord
+from ._utils import ord2ymd, isoweek1monday, ymd2ord, _isoweek_to_gregorian
 from ._iso_calendar_date import IsoCalendarDate
 
 from ...builtins._generic_list import _cmp_list
@@ -94,12 +94,19 @@ struct date(Hashable, Stringable):
     #        except Exception:
     #            raise ValueError(f'Invalid isoformat string: {date_string!r}')
     #
-    #    @classmethod
-    #    def fromisocalendar(cls, year, week, day):
-    #        """Construct a date from the ISO year, week number and weekday.
-    #
-    #        This is the inverse of the date.isocalendar() function"""
-    #        return cls(*_isoweek_to_gregorian(year, week, day))
+    @staticmethod
+    fn fromisocalendar(year: Int, week: Int, day: Int) -> date:
+        """Construct a date from the ISO year, week number and weekday.
+
+        This is the inverse of the date.isocalendar() function"""
+        var gregorian_year: Int
+        var gregorian_month: Int
+        var gregorian_day: Int
+        gregorian_year, gregorian_month, gregorian_day = _isoweek_to_gregorian(
+            year, week, day
+        )
+        return date(gregorian_year, gregorian_month, gregorian_day)
+
     #
     #    # Conversions to string
     fn __repr__(self) -> String:
