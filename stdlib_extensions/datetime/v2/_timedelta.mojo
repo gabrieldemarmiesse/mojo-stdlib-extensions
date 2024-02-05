@@ -4,6 +4,7 @@ from ...builtins._hash import hash as custom_hash
 from utils.variant import Variant
 
 
+# TODO: use this in the timedelta constructor
 alias IntOrFloat = Variant[Int, Float64]
 
 
@@ -248,8 +249,14 @@ struct timedelta(CollectionElement, Stringable):
             / other._to_microseconds().cast[DType.float64]()
         )
 
-    #    if isinstance(other, int):
-    #        return timedelta(0, 0, _divide_and_round(usec, other))
+    fn __truediv__(self, other: Int) -> timedelta:
+        return timedelta(
+            microseconds=(
+                self._to_microseconds().cast[DType.float64]() / Float64(other)
+            ).to_int()
+        )
+
+    # TODO: divide by a float
     #    if isinstance(other, float):
     #        a, b = other.as_integer_ratio()
     #        return timedelta(0, 0, _divide_and_round(b * usec, a))
