@@ -270,7 +270,6 @@ alias _DAYNAMES = list[String].from_values(
 #
 #    # Scan format for %z, %:z and %Z escapes, replacing as needed.
 #    newformat = []
-#    push = newformat.append
 #    i, n = 0, len(format)
 #    while i < n:
 #        ch = format[i]
@@ -305,9 +304,9 @@ alias _DAYNAMES = list[String].from_values(
 #                            assert '%' not in colonzreplace
 #                            newformat.append(colonzreplace)
 #                        else:
-#                            push('%')
-#                            push(ch)
-#                            push(ch2)
+#                            newformat.append('%')
+#                            newformat.append(ch)
+#                            newformat.append(ch2)
 #                elif ch == 'Z':
 #                    if Zreplace is None:
 #                        Zreplace = ""
@@ -318,12 +317,12 @@ alias _DAYNAMES = list[String].from_values(
 #                                Zreplace = s.replace('%', '%%')
 #                    newformat.append(Zreplace)
 #                else:
-#                    push('%')
-#                    push(ch)
+#                    newformat.append('%')
+#                    newformat.append(ch)
 #            else:
-#                push('%')
+#                newformat.append('%')
 #        else:
-#            push(ch)
+#            newformat.append(ch)
 #    newformat = "".join(newformat)
 #    return _time.strftime(newformat, timetuple)
 #
