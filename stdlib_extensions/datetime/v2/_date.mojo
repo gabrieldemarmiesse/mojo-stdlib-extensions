@@ -51,13 +51,16 @@ struct date(Hashable, Stringable):
     var day: Int
 
     # Additional constructors
-    #
-    #    @classmethod
-    #    def fromtimestamp(cls, t):
-    #        "Construct a date from a POSIX timestamp (like time.time())."
-    #        y, m, d, hh, mm, ss, weekday, jday, dst = _time.localtime(t)
-    #        return cls(y, m, d)
-    #
+    @staticmethod
+    def fromtimestamp(t: Int) -> date:
+        "Construct a date from a POSIX timestamp (like time.time())."
+        return _EPOCH + timedelta(seconds=t)
+
+    @staticmethod
+    def fromtimestamp(t: Float64) -> date:
+        "Construct a date from a POSIX timestamp (like time.time())."
+        return _EPOCH + timedelta(seconds=int(t))
+
     @staticmethod
     fn today() -> date:
         "Construct a date from time.time()."
@@ -77,7 +80,6 @@ struct date(Hashable, Stringable):
         y, m, d = ord2ymd(n)
         return date(y, m, d)
 
-    #
     #    @classmethod
     #    def fromisoformat(cls, date_string):
     #        """Construct a date from a string in ISO 8601 format."""
