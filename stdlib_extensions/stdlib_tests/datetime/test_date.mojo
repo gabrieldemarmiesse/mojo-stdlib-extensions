@@ -34,6 +34,25 @@ def test_date_hash():
     assert_true(hash(some_time2) != hash(some_other_time), "incorrect hash 2")
 
 
+def test_date_strftime():
+    assert_equal(date(2020, 1, 1).strftime("%Y-%m-%d"), "2020-01-01")
+    assert_equal(date(2020, 1, 1).strftime("%Y-%m-%d %H:%M:%S"), "2020-01-01 00:00:00")
+
+
+def test_full_date_strftime():
+    # all codes
+    # TODO: Add U and W
+    var format: String = "%a|%A|%w|%d|%b|%B|%m|%y|%Y|%H|%I|%p|%M|%S|%f|%z|%Z|%j|%c|%x|%X|%%"
+    print("format", format)
+    var expected: String = "Fri|Friday|5|03|May|May|05|20|920|00|12|AM|00|00|000000|||124|Fri May  3 00:00:00 920|05/03/20|00:00:00|%"
+    print("expected", expected)
+    print("expected")
+    assert_equal(date(2020, 5, 3).strftime(format), expected)
+    print("done")
+
+
 def run_tests():
     test_date()
     test_date_hash()
+    test_date_strftime()
+    test_full_date_strftime()

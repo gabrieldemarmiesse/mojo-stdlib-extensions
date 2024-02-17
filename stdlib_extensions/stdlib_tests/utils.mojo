@@ -10,6 +10,10 @@ def assert_equal(a: bytes, b: bytes):
 
 def assert_equal(a: String, b: String):
     if a != b:
+        print(len(a), len(b))
+        print(a, b)
+        error_msg = "Expected '" + a + "' to be equal to '" + b + "'"
+        print(len(error_msg), error_msg)
         raise Error("Expected '" + a + "' to be equal to '" + b + "'")
 
 

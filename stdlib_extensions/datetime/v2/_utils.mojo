@@ -192,24 +192,79 @@ fn ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
 
 
 # Month and day names.  For localized versions, see the calendar module.
-alias _MONTHNAMES = list[String].from_values(
-    "",
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-)
-alias _DAYNAMES = list[String].from_values(
-    "", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
-)
+# TODO: use alias when https://github.com/modularml/mojo/issues/1730 is fixed
+fn get_months_short_names() -> list[String]:
+    return list[String].from_values(
+        "",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    )
+
+
+alias MONTHS_SHORT_NAMES = get_months_short_names()
+
+
+fn get_months_names() -> list[String]:
+    return list[String].from_values(
+        "",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    )
+
+
+alias MONTHS_NAMES = get_months_names()
+
+
+fn get_days_short_names() -> list[String]:
+    return list[String].from_values(
+        "",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun",
+    )
+
+
+alias DAYS_SHORT_NAMES = get_days_short_names()
+
+
+fn get_days_names() -> list[String]:
+    return list[String].from_values(
+        "",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    )
+
+
+alias DAYS_NAMES = get_days_names()
 
 
 fn _build_struct_time(

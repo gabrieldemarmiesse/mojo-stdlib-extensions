@@ -7,7 +7,10 @@ from ._utils import (
     ymd2ord,
     _isoweek_to_gregorian,
     _build_struct_time,
-    _DAYNAMES,
+    get_days_names,
+    get_days_short_names,
+    get_months_names,
+    get_months_short_names,
 )
 from ._iso_calendar_date import IsoCalendarDate
 
@@ -167,28 +170,69 @@ struct date(Hashable, Stringable):
         return result
 
     fn _get_from_letter(self, letter: String) -> String:
+        """See https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes
+        """
         if letter == "%":
             return "%"
-        elif letter == "Y":
-            return rjust(str(self.year), 4, "0")
-        elif letter == "m":
-            return rjust(str(self.month), 2, "0")
+        elif letter == "a":
+            return get_days_short_names()[self.isoweekday()]
+        elif letter == "A":
+            return get_days_names()[self.isoweekday()]
+        elif letter == "w":
+            return str(self.weekday())
         elif letter == "d":
             return rjust(str(self.day), 2, "0")
+        elif letter == "b":
+            return get_months_short_names()[self.month]
+        elif letter == "B":
+            return get_months_names()[self.month]
+        elif letter == "m":
+            return rjust(str(self.month), 2, "0")
+        elif letter == "y":
+            return rjust(str(self.year)[-2:], 2, "0")
+        elif letter == "Y":
+            return rjust(str(self.year), 4, "0")
+        elif letter == "H":
+            return "00"
+        elif letter == "I":
+            return "12"
+        elif letter == "p":
+            return "AM"
+        elif letter == "M":
+            return "00"
+        elif letter == "S":
+            return "00"
+        elif letter == "f":
+            return "000000"
+        elif letter == "z":
+            return ""
+        elif letter == "Z":
+            return ""
+        elif letter == "j":
+            return (self - date(self.year, 1, 1)).days + 1
+        elif letter == "U":
+            custom_debug_assert(False, "Not implemented yet for %U")
+            return ""
+        elif letter == "W":
+            custom_debug_assert(False, "Not implemented yet for %W")
+            return ""
+        elif letter == "c":
+            return self.strftime("%a %b %d %H:%M:%S %Y")
+        elif letter == "x":
+            return self.strftime("%m/%d/%y")
+        elif letter == "X":
+            return self.strftime("%H:%M:%S")
         else:
             custom_debug_assert(
                 False, "strptime format string contains unknown format letter"
             )
             return ""
 
-    #
-    #    def __format__(self, fmt):
-    #        if not isinstance(fmt, str):
-    #            raise TypeError("must be str, not %s" % type(fmt).__name__)
-    #        if len(fmt) != 0:
-    #            return self.strftime(fmt)
-    #        return str(self)
-    #
+    def __format__(self, fmt: String) -> String:
+        if len(fmt) != 0:
+            return self.strftime(fmt)
+        return str(self)
+
     fn isoformat(self) -> String:
         """Return the date formatted according to ISO.
 
