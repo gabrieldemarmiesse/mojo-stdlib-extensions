@@ -7,6 +7,7 @@ from ._utils import (
     ymd2ord,
     _isoweek_to_gregorian,
     _build_struct_time,
+    _DAYNAMES,
 )
 from ._iso_calendar_date import IsoCalendarDate
 
@@ -146,13 +147,38 @@ struct date(Hashable, Stringable):
     #            _MONTHNAMES[self._month],
     #            self._day, self._year)
     #
-    #    def strftime(self, format):
-    #        """
-    #        Format using strftime().
-    #
-    #        Example: "%d/%m/%Y, %H:%M:%S"
-    #        """
-    #        return _wrap_strftime(self, format, self.timetuple())
+    fn strftime(self, format: String) -> String:
+        """
+        Format using strftime().
+
+        Example: "%d/%m/%Y, %H:%M:%S"
+        """
+        var result: String = ""
+        var previous_was_percent = False
+        for i in range(len(format)):
+            var letter = format[i]
+            if previous_was_percent:
+                result += self._get_from_letter(letter)
+                previous_was_percent = False
+            elif letter == "%":
+                previous_was_percent = True
+            else:
+                result += letter
+        return result
+
+    fn _get_from_letter(self, letter: String) -> String:
+        if letter == "%":
+            return "%"
+        elif letter == "Y":
+            return rjust(str(self.year), 4, "0")
+        elif letter == "m":
+            return rjust(str(self.month), 2, "0")
+        elif letter == "d":
+            return rjust(str(self.day), 2, "0")
+        else:
+            debug_assert(True, "strptime format string contains unknown format letter")
+            return ""
+
     #
     #    def __format__(self, fmt):
     #        if not isinstance(fmt, str):
@@ -170,17 +196,13 @@ struct date(Hashable, Stringable):
         - http://www.w3.org/TR/NOTE-datetime
         - http://www.cl.cam.ac.uk/~mgk25/iso-time.html
         """
-        try:
-            return (
-                rjust(str(self.year), 4, "0")
-                + "-"
-                + rjust(str(self.month), 2, "0")
-                + "-"
-                + rjust(str(self.day), 2, "0")
-            )
-        except Error:
-            # can never happen
-            return "error in date.isoformat"
+        return (
+            rjust(str(self.year), 4, "0")
+            + "-"
+            + rjust(str(self.month), 2, "0")
+            + "-"
+            + rjust(str(self.day), 2, "0")
+        )
 
     fn __str__(self) -> String:
         """Convert to string, for str().
