@@ -9,8 +9,6 @@ def test_list_of_strings():
     my_list.append("hello")
     my_list.append("world")
 
-    # TODO: fix this bug
-    a = my_list[0]
     assert_equal(my_list[0], "hello")
     assert_equal(my_list[1], "world")
     assert_equal(len(my_list), 2)

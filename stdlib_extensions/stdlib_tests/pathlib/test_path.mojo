@@ -10,8 +10,7 @@ def test_read_and_write_from_file():
     assert_equal(tmp_file.__fspath__(), "/tmp/test_file.txt")
     tmp_file.write_text("Hello mojo 🔥")
     assert_equal(tmp_file.read_text(), "Hello mojo 🔥")
-    # TODO: fixme, assignment is not needed
-    a = tmp_file.unlink()
+    tmp_file.unlink()
 
 
 def run_tests():
