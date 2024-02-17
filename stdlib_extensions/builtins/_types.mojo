@@ -16,4 +16,4 @@ struct Optional[T: CollectionElement](CollectionElement):
         return not self.has_value
 
     fn value(self) -> T:
-        return self.values.unchecked_get(0)
+        return self.values[0]

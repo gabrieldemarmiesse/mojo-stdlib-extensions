@@ -46,7 +46,7 @@ fn _get_days_before_month() -> list[Int]:
     result.append(-1)  # -1 is a placeholder for indexing purposes.
     var dbm = 0
     for i in range(1, len(_DAYS_IN_MONTH)):
-        var dim = _DAYS_IN_MONTH.unchecked_get(i)
+        var dim = _DAYS_IN_MONTH[i]
         result.append(dbm)
         dbm += dim
     return result
@@ -71,7 +71,7 @@ fn _days_in_month(year: Int, month: Int) -> Int:
     # assert 1 <= month <= 12, month
     if month == 2 and _is_leap(year):
         return 29
-    return _DAYS_IN_MONTH.unchecked_get(month)
+    return _DAYS_IN_MONTH[month]
 
 
 fn _bool_to_int(x: Bool) -> Int:
@@ -85,9 +85,7 @@ fn _bool_to_int(x: Bool) -> Int:
 fn _days_before_month(year: Int, month: Int) -> Int:
     "year, month -> number of days in year preceding first day of month."
     # assert 1 <= month <= 12, 'month must be in 1..12'
-    return _DAYS_BEFORE_MONTH.unchecked_get(month) + _bool_to_int(
-        month > 2 and _is_leap(year)
-    )
+    return _DAYS_BEFORE_MONTH[month] + _bool_to_int(month > 2 and _is_leap(year))
 
 
 fn _ymd2ord(year: Int, month: Int, day: Int) -> Int:
@@ -165,14 +163,10 @@ fn _ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
     var leapyear = n1 == 3 and (n4 != 24 or n100 == 3)
     # assert leapyear == _is_leap(year)
     var month = (n + 50) >> 5
-    var preceding = _DAYS_BEFORE_MONTH.unchecked_get(month) + _bool_to_int(
-        month > 2 and leapyear
-    )
+    var preceding = _DAYS_BEFORE_MONTH[month] + _bool_to_int(month > 2 and leapyear)
     if preceding > n:  # estimate is too large
         month -= 1
-        preceding -= _DAYS_IN_MONTH.unchecked_get(month) + _bool_to_int(
-            month == 2 and leapyear
-        )
+        preceding -= _DAYS_IN_MONTH[month] + _bool_to_int(month == 2 and leapyear)
     n -= preceding
     # assert 0 <= n < _days_in_month(year, month)
     # Now the year and month are correct, and n is the offset from the

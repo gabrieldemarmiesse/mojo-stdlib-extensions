@@ -49,7 +49,7 @@ struct UUID(Stringable):
 
         # TODO: enable erroring when it's allowed to raise at compile time
         # if len(hex) != 32:
-        #     raise Error("badly formed hexadecimal UUID string")
+        #     custom_debug_assert(False, "badly formed hexadecimal UUID string")
         self.__init__(bytes_.fromhex(hex), version, is_safe=is_safe)
 
     fn __init__(
@@ -142,11 +142,7 @@ struct UUID(Stringable):
         var output = bytes_()
 
         for i in range(16):
-            try:
-                output += to_bytes(self.__bytes[i].to_int())
-            except:
-                # cannot be over the limit
-                pass
+            output += to_bytes(self.__bytes[i].to_int())
 
         return output
 
