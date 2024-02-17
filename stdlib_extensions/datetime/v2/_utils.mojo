@@ -53,7 +53,7 @@ fn _get_days_before_month() -> list[Int]:
     # TODO: use the alias instead of the function call when
     # https://github.com/modularml/mojo/issues/1730 is fixed
     for i in range(1, len(_get_days_in_month())):
-        var dim = _get_days_in_month().unchecked_get(i)
+        var dim = _get_days_in_month()[i]
         result.append(dbm)
         dbm += dim
     return result
@@ -80,7 +80,7 @@ fn _days_in_month(year: Int, month: Int) -> Int:
         return 29
     # TODO: use the alias _DAYS_IN_MONTH when
     # https://github.com/modularml/mojo/issues/1730 is fixed
-    return _get_days_in_month().unchecked_get(month)
+    return _get_days_in_month()[month]
 
 
 fn _bool_to_int(x: Bool) -> Int:
@@ -96,9 +96,7 @@ fn _days_before_month(year: Int, month: Int) -> Int:
     # assert 1 <= month <= 12, 'month must be in 1..12'
     # TODO: use the alias _DAYS_BEFORE_MONTH
     # when https://github.com/modularml/mojo/issues/1730 is fixed
-    return _get_days_before_month().unchecked_get(month) + _bool_to_int(
-        month > 2 and _is_leap(year)
-    )
+    return _get_days_before_month()[month] + _bool_to_int(month > 2 and _is_leap(year))
 
 
 fn ymd2ord(year: Int, month: Int, day: Int) -> Int:
@@ -178,16 +176,14 @@ fn ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
     var month = (n + 50) >> 5
     # TODO: use alias when
     # https://github.com/modularml/mojo/issues/1730 is fixed
-    var preceding = _get_days_before_month().unchecked_get(month) + _bool_to_int(
+    var preceding = _get_days_before_month()[month] + _bool_to_int(
         month > 2 and leapyear
     )
     if preceding > n:  # estimate is too large
         month -= 1
         # TODO: use alias when
         # https://github.com/modularml/mojo/issues/1730 is fixed
-        preceding -= _get_days_in_month().unchecked_get(month) + _bool_to_int(
-            month == 2 and leapyear
-        )
+        preceding -= _get_days_in_month()[month] + _bool_to_int(month == 2 and leapyear)
     n -= preceding
     # assert 0 <= n < _days_in_month(year, month)
     # Now the year and month are correct, and n is the offset from the

@@ -176,7 +176,9 @@ struct date(Hashable, Stringable):
         elif letter == "d":
             return rjust(str(self.day), 2, "0")
         else:
-            debug_assert(True, "strptime format string contains unknown format letter")
+            custom_debug_assert(
+                False, "strptime format string contains unknown format letter"
+            )
             return ""
 
     #

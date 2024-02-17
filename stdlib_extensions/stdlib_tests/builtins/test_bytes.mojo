@@ -111,6 +111,8 @@ def test_convert_to_hex():
 
 
 def test_to_bytes():
+    # TODO fix bug here
+    a = bytes.fromhex("03")
     assert_equal(bytes.fromhex("03"), to_bytes(3))
     assert_equal(bytes.fromhex("0003"), to_bytes(3, length=2))
     assert_equal(bytes.fromhex("0300"), to_bytes(3, length=2, byteorder="little"))

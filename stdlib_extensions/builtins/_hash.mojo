@@ -41,7 +41,7 @@ fn hash(x: list[Int]) -> Int:
     let prime = 31
     var hash_value = 0
     for i in range(len(x)):
-        hash_value = prime * hash_value + x.unchecked_get(i)
+        hash_value = prime * hash_value + x[i]
     return hash_value
 
 

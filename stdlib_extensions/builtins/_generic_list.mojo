@@ -1,4 +1,5 @@
 from collections.vector import DynamicVector
+from .._utils import custom_debug_assert
 
 
 struct ListIter[T: CollectionElement]:
@@ -12,7 +13,7 @@ struct ListIter[T: CollectionElement]:
     fn __len__(self) -> Int:
         return len(self.data) - self.idx - 1
 
-    fn __next__(inout self) raises -> T:
+    fn __next__(inout self) -> T:
         self.idx += 1
         return self.data[self.idx]
 
@@ -52,26 +53,27 @@ struct list[T: CollectionElement](Sized, Movable):
 
     fn extend(inout self, other: list[T]):
         for i in range(len(other)):
-            self.append(other.unchecked_get(i))
+            self.append(other[i])
 
-    fn pop(inout self, index: Int = -1) raises -> T:
-        if index >= len(self._internal_vector):
-            raise Error("list index out of range")
+    fn pop(inout self, index: Int = -1) -> T:
+        custom_debug_assert(
+            index < len(self._internal_vector), "list index out of range"
+        )
         let new_index = self._normalize_index(index)
-        let element = self.unchecked_get(new_index)
+        let element = self[new_index]
         for i in range(new_index, len(self) - 1):
             self[i] = self[i + 1]
         self._internal_vector.resize(len(self._internal_vector) - 1, element)
         return element
 
-    fn reverse(inout self) raises:
+    fn reverse(inout self):
         for i in range(len(self) // 2):
             let mirror_i = len(self) - 1 - i
             let tmp = self[i]
             self[i] = self[mirror_i]
             self[mirror_i] = tmp
 
-    fn insert(inout self, key: Int, value: T) raises:
+    fn insert(inout self, key: Int, value: T):
         let index = self._normalize_index(key)
         if index >= len(self):
             self.append(value)
@@ -82,29 +84,24 @@ struct list[T: CollectionElement](Sized, Movable):
             self[i] = self[i - 1]
         self[key] = value
 
-    fn __getitem__(self, index: Int) raises -> T:
-        if index >= len(self._internal_vector):
-            raise Error("list index out of range")
-        return self.unchecked_get(self._normalize_index(index))
+    @always_inline
+    fn __getitem__(self, index: Int) -> T:
+        custom_debug_assert(
+            index < len(self._internal_vector), "list index out of range"
+        )
+        return self._internal_vector[self._normalize_index(index)]
 
-    fn __getitem__(self: Self, limits: slice) raises -> Self:
+    @always_inline
+    fn __getitem__(self: Self, limits: slice) -> Self:
         var new_list: Self = Self()
         for i in range(limits.start, limits.end, limits.step):
             new_list.append(self[i])
         return new_list
 
     @always_inline
-    fn unchecked_get(self, index: Int) -> T:
-        return self._internal_vector[index]
-
-    fn __setitem__(inout self, key: Int, value: T) raises:
-        if key >= len(self._internal_vector):
-            raise Error("list index out of range")
-        self.unchecked_set(self._normalize_index(key), value)
-
-    @always_inline
-    fn unchecked_set(inout self, key: Int, value: T):
-        self._internal_vector[key] = value
+    fn __setitem__(inout self, key: Int, value: T):
+        custom_debug_assert(key < len(self._internal_vector), "list index out of range")
+        self._internal_vector[self._normalize_index(key)] = value
 
     @always_inline
     fn __len__(self) -> Int:
@@ -121,7 +118,7 @@ struct list[T: CollectionElement](Sized, Movable):
         return result
 
 
-fn list_to_str(input_list: list[String]) raises -> String:
+fn list_to_str(input_list: list[String]) -> String:
     var result: String = "["
     for i in range(len(input_list)):
         let repr = "'" + str(input_list[i]) + "'"
@@ -132,7 +129,7 @@ fn list_to_str(input_list: list[String]) raises -> String:
     return result + "]"
 
 
-fn list_to_str(input_list: list[Int]) raises -> String:
+fn list_to_str(input_list: list[Int]) -> String:
     var result: String = "["
     for i in range(len(input_list)):
         let repr = str(input_list.__getitem__(index=i))
@@ -148,9 +145,9 @@ fn _cmp_list(a: list[Int], b: list[Int]) -> Int:
         if i >= len(b):
             return 1
 
-        if a.unchecked_get(i) < b.unchecked_get(i):
+        if a[i] < b[i]:
             return -1
-        elif a.unchecked_get(i) == b.unchecked_get(i):
+        elif a[i] == b[i]:
             continue
         else:
             return 1

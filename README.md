@@ -86,8 +86,7 @@ stdlib_extensions.builtins.hex
 stdlib_extensions.builtins.to_bytes
 stdlib_extensions.builtins.input
 stdlib_extensions.builtins.list
--> append, clear, copy, extend, pop, reverse, insert, __len__, __getitem__, 
-   unchecked_get, unchecked_set (for performance)
+-> append, clear, copy, extend, pop, reverse, insert, __len__, __getitem__, __setitem__
 stdlib_extensions.builtins.list_to_str
 -> for Int and Strings, because Mojo doesn't support multiple traits for the same type yet
 

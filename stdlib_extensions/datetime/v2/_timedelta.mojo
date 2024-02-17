@@ -166,11 +166,7 @@ struct timedelta(CollectionElement, Stringable):
             args.append("microseconds=" + str(self.microseconds))
         if len(args) == 0:
             args.append("0")
-        try:
-            return "datetime.timedelta(" + join(", ", args) + ")"
-        except Error:
-            # can never happen
-            return "datetime.timedelta(BUG REPORT ME)"
+        return "datetime.timedelta(" + join(", ", args) + ")"
 
     fn __str__(self) -> String:
         var mm: Int
@@ -179,20 +175,16 @@ struct timedelta(CollectionElement, Stringable):
         mm, ss = divmod(self.seconds, 60)
         hh, mm = divmod(mm, 60)
         var s = str(hh)
-        try:
-            s += ":" + rjust(str(mm), 2, "0")
-            s += ":" + rjust(str(ss), 2, "0")
-            if self.days:
-                var plural: String = ""
-                if abs(self.days) != 1:
-                    plural = "s"
-                s = str(self.days) + " day" + plural + ", " + s
-            if self.microseconds:
-                s = s + "." + rjust(str(self.microseconds), 6, "0")
-            return s
-        except Error:
-            # can never happen
-            return "timedelta __str__ error, report me."
+        s += ":" + rjust(str(mm), 2, "0")
+        s += ":" + rjust(str(ss), 2, "0")
+        if self.days:
+            var plural: String = ""
+            if abs(self.days) != 1:
+                plural = "s"
+            s = str(self.days) + " day" + plural + ", " + s
+        if self.microseconds:
+            s = s + "." + rjust(str(self.microseconds), 6, "0")
+        return s
 
     fn total_seconds(self) -> Int:
         """Total seconds in the duration."""

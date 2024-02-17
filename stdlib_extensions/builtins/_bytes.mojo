@@ -1,4 +1,5 @@
 from ._generic_list import list
+from .._utils import custom_debug_assert
 
 
 fn get_mapping_byte_to_value() -> list[String]:
@@ -348,11 +349,11 @@ struct bytes(Stringable, Sized, CollectionElement):
         alias mapping = get_mapping_byte_to_value()
         var result_string: String = "b'"
         for i in range(self.__len__()):
-            result_string += mapping.unchecked_get(self._vector[i].to_int())
+            result_string += mapping[self._vector[i].to_int()]
         result_string += "'"
         return result_string
 
-    fn __repr__(self) raises -> String:
+    fn __repr__(self) -> String:
         return self.__str__()
 
     fn hex(self) -> String:
@@ -389,18 +390,18 @@ fn _ascii_char_to_int(char: String) -> Int:
     elif 97 <= ord_value <= 102:
         return ord_value - 87
     else:
-        # TODO: raise error here
+        custom_debug_assert(False, "Invalid character in hex string")
         return 0
 
 
-fn to_bytes(n: Int, length: Int = 1, byteorder: String = "big") raises -> bytes:
+fn to_bytes(n: Int, length: Int = 1, byteorder: String = "big") -> bytes:
     var order = range(0, length, 1)
     if byteorder == "little":
         order = range(0, length, 1)
     elif byteorder == "big":
         order = range(length - 1, -1, -1)
     else:
-        raise Error("byteorder must be either 'little' or 'big'")
+        custom_debug_assert(False, "byteorder must be either 'little' or 'big'")
 
     var result_vector = DynamicVector[UInt8](capacity=length)
 

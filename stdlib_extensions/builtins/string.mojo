@@ -1,4 +1,5 @@
 from ..builtins._generic_list import list
+from .._utils import custom_debug_assert
 
 alias _ALL_WHITESPACES = " \t\n\r\x0b\f"
 
@@ -11,7 +12,7 @@ fn __string__mul__(input_string: String, n: Int) -> String:
 
 
 fn rjust(input_string: String, width: Int, fillchar: String = " ") -> String:
-    debug_assert(
+    custom_debug_assert(
         len(fillchar) == 1, "The fill character must be exactly one character long"
     )
     let extra = width - len(input_string)
@@ -19,7 +20,7 @@ fn rjust(input_string: String, width: Int, fillchar: String = " ") -> String:
 
 
 fn ljust(input_string: String, width: Int, fillchar: String = " ") -> String:
-    debug_assert(
+    custom_debug_assert(
         len(fillchar) == 1, "The fill character must be exactly one character long"
     )
     let extra = width - len(input_string)
@@ -28,13 +29,13 @@ fn ljust(input_string: String, width: Int, fillchar: String = " ") -> String:
 
 fn endswith(
     input_string: String, suffix: String, start: Int = 0, owned end: Int = -1
-) raises -> Bool:
+) -> Bool:
     if end == -1:
         end = len(input_string)
 
-    if end < start:
-        raise Error("The end index must be greater than or equal to the start index")
-
+    custom_debug_assert(
+        start <= end, "The start index must be less than or equal to the end index"
+    )
     if end - start < len(suffix):
         return False
 
@@ -43,12 +44,13 @@ fn endswith(
 
 fn startswith(
     input_string: String, prefix: String, start: Int = 0, owned end: Int = -1
-) raises -> Bool:
+) -> Bool:
     if end == -1:
         end = len(input_string)
 
-    if end < start:
-        raise Error("The end index must be greater than or equal to the start index")
+    custom_debug_assert(
+        start <= end, "The start index must be less than or equal to the end index"
+    )
 
     if end - start < len(prefix):
         return False
@@ -58,7 +60,7 @@ fn startswith(
 
 fn split(
     input_string: String, sep: String = " ", owned maxsplit: Int = -1
-) raises -> list[String]:
+) -> list[String]:
     """The separator can be multiple characters long."""
     var result = list[String]()
     if maxsplit == 0:
@@ -87,7 +89,7 @@ fn split(
     return output
 
 
-fn join(separator: String, iterable: list[String]) raises -> String:
+fn join(separator: String, iterable: list[String]) -> String:
     var result: String = ""
     for i in range(iterable.__len__()):
         result += iterable[i]
@@ -117,13 +119,13 @@ fn replace(input_string: String, old: String, new: String, count: Int = -1) -> S
     return output
 
 
-fn removeprefix(input_string: String, prefix: String) raises -> String:
+fn removeprefix(input_string: String, prefix: String) -> String:
     if startswith(input_string, prefix):
         return input_string[len(prefix) :]
     return input_string
 
 
-fn removesuffix(input_string: String, suffix: String) raises -> String:
+fn removesuffix(input_string: String, suffix: String) -> String:
     if endswith(input_string, suffix):
         return input_string[: -len(suffix)]
     return input_string
