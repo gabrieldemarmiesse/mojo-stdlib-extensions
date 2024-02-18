@@ -52,9 +52,17 @@ def test_ctime():
     assert_equal(date(1821, 1, 10).ctime(), "Wed Jan 10 00:00:00 1821")
 
 
+def test_fromisoformat():
+    """Examples taken from the python documentation."""
+    assert_equal(date.fromisoformat("2019-12-04"), date(2019, 12, 4))
+    assert_equal(date.fromisoformat("20191204"), date(2019, 12, 4))
+    assert_equal(date.fromisoformat("2021-W01-1"), date(2021, 1, 4))
+
+
 def run_tests():
     test_date()
     test_date_hash()
     test_date_strftime()
     test_full_date_strftime()
     test_ctime()
+    test_fromisoformat()

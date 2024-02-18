@@ -15,6 +15,7 @@ import sys
 from ...builtins import Optional, bytes
 from ...builtins._generic_list import _cmp_list
 from ...builtins._hash import hash as custom_hash
+from ...builtins import bool_to_int
 
 
 def _cmp(x, y):
@@ -441,40 +442,35 @@ fn _build_struct_time(
 #            return 8
 #
 #
-# def _parse_isoformat_date(dtstr):
-#    # It is assumed that this is an ASCII-only string of lengths 7, 8 or 10,
-#    # see the comment on Modules/_datetimemodule.c:_find_isoformat_datetime_separator
-#    assert len(dtstr) in (7, 8, 10)
-#    year = int(dtstr[0:4])
-#    has_sep = dtstr[4] == '-'
-#
-#    pos = 4 + has_sep
-#    if dtstr[pos:pos + 1] == "W":
-#        # YYYY-?Www-?D?
-#        pos += 1
-#        weekno = int(dtstr[pos:pos + 2])
-#        pos += 2
-#
-#        dayno = 1
-#        if len(dtstr) > pos:
-#            if (dtstr[pos:pos + 1] == '-') != has_sep:
-#                raise ValueError("Inconsistent use of dash separator")
-#
-#            pos += has_sep
-#
-#            dayno = int(dtstr[pos:pos + 1])
-#
-#        return list(_isoweek_to_gregorian(year, weekno, dayno))
-#    else:
-#        month = int(dtstr[pos:pos + 2])
-#        pos += 2
-#        if (dtstr[pos:pos + 1] == "-") != has_sep:
-#            raise ValueError("Inconsistent use of dash separator")
-#
-#        pos += has_sep
-#        day = int(dtstr[pos:pos + 2])
-#
-#        return [year, month, day]
+fn _parse_isoformat_date(dtstr: String) raises -> Tuple[Int, Int, Int]:
+    # It is assumed that this is an ASCII-only string of lengths 7, 8 or 10,
+    # see the comment on Modules/_datetimemodule.c:_find_isoformat_datetime_separator
+    # assert len(dtstr) in (7, 8, 10)
+    var year = atol(dtstr[0:4])
+    var has_sep = dtstr[4] == "-"
+    var pos = 4 + bool_to_int(has_sep)
+    if dtstr[pos : pos + 1] == "W":
+        # YYYY-?Www-?D?
+        pos += 1
+        var weekno = atol(dtstr[pos : pos + 2])
+        pos += 2
+        var dayno = 1
+        if len(dtstr) > pos:
+            if (dtstr[pos : pos + 1] == "-") != has_sep:
+                raise Error("Inconsistent use of dash separator")
+            pos += bool_to_int(has_sep)
+            dayno = atol(dtstr[pos : pos + 1])
+        return _isoweek_to_gregorian(year, weekno, dayno)
+    else:
+        var month = atol(dtstr[pos : pos + 2])
+        pos += 2
+        if (dtstr[pos : pos + 1] == "-") != has_sep:
+            raise Error("Inconsistent use of dash separator")
+        pos += bool_to_int(has_sep)
+        var day = atol(dtstr[pos : pos + 2])
+        return year, month, day
+
+
 #
 #
 alias _FRACTION_CORRECTION = list[Int].from_values(100000, 10000, 1000, 100, 10)

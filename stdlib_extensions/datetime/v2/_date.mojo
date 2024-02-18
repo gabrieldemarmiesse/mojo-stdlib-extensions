@@ -11,6 +11,7 @@ from ._utils import (
     get_days_short_names,
     get_months_names,
     get_months_short_names,
+    _parse_isoformat_date,
     MAXORDINAL,
 )
 from ._iso_calendar_date import IsoCalendarDate
@@ -91,20 +92,20 @@ struct date(Hashable, Stringable):
         y, m, d = ord2ymd(n)
         return date(y, m, d)
 
-    #    @classmethod
-    #    def fromisoformat(cls, date_string):
-    #        """Construct a date from a string in ISO 8601 format."""
-    #        if not isinstance(date_string, str):
-    #            raise TypeError('fromisoformat: argument must be str')
-    #
-    #        if len(date_string) not in (7, 8, 10):
-    #            raise ValueError(f'Invalid isoformat string: {date_string!r}')
-    #
-    #        try:
-    #            return cls(*_parse_isoformat_date(date_strnig))
-    #        except Exception:
-    #            raise ValueError(f'Invalid isoformat string: {date_string!r}')
-    #
+    @staticmethod
+    fn fromisoformat(date_string: String) raises -> date:
+        """Construct a date from a string in ISO 8601 format."""
+
+        # custom_debug_assert(len(date_string) in (7, 8, 10), "Invalid isoformat string: " + date_string)
+        try:
+            var year: Int
+            var month: Int
+            var day: Int
+            year, month, day = _parse_isoformat_date(date_string)
+            return date(year, month, day)
+        except e:
+            raise Error("Invalid isoformat string:" + date_string + ", " + e)
+
     @staticmethod
     fn fromisocalendar(year: Int, week: Int, day: Int) -> date:
         """Construct a date from the ISO year, week number and weekday.
@@ -118,8 +119,7 @@ struct date(Hashable, Stringable):
         )
         return date(gregorian_year, gregorian_month, gregorian_day)
 
-    #
-    #    # Conversions to string
+    # Conversions to string
     fn __repr__(self) -> String:
         """Convert to formal string, for repr().
 
