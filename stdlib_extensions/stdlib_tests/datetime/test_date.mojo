@@ -47,8 +47,14 @@ def test_full_date_strftime():
     assert_equal(date(2021, 3, 2).strftime(format), expected)
 
 
+def test_ctime():
+    assert_equal(date(2021, 3, 2).ctime(), "Tue Mar  2 00:00:00 2021")
+    assert_equal(date(1821, 1, 10).ctime(), "Wed Jan 10 00:00:00 1821")
+
+
 def run_tests():
     test_date()
     test_date_hash()
     test_date_strftime()
     test_full_date_strftime()
+    test_ctime()

@@ -23,7 +23,7 @@ def _cmp(x, y):
 
 alias MINYEAR = 1
 alias MAXYEAR = 9999
-alias _MAXORDINAL = 3652059  # date.max.toordinal()
+alias MAXORDINAL = 3652059  # date.max.toordinal()
 
 # Utility functions, adapted from Python's Demo/classes/Dates.py, which
 # also assumes the current Gregorian calendar indefinitely extended in

@@ -11,6 +11,7 @@ from ._utils import (
     get_days_short_names,
     get_months_names,
     get_months_short_names,
+    MAXORDINAL,
 )
 from ._iso_calendar_date import IsoCalendarDate
 
@@ -136,20 +137,25 @@ struct date(Hashable, Stringable):
             + ")"
         )
 
-    #    # XXX These shouldn't depend on time.localtime(), because that
-    #    # clips the usable dates to [1970 .. 2038).  At least ctime() is
-    #    # easily done without using strftime() -- that's better too because
-    #    # strftime("%c", ...) is locale specific.
-    #
-    #
-    #    def ctime(self):
-    #        "Return ctime() style string."
-    #        weekday = self.toordinal() % 7 or 7
-    #        return "%s %s %2d 00:00:00 %04d" % (
-    #            _DAYNAMES[weekday],
-    #            _MONTHNAMES[self._month],
-    #            self._day, self._year)
-    #
+    # XXX These shouldn't depend on time.localtime(), because that
+    # clips the usable dates to [1970 .. 2038).  At least ctime() is
+    # easily done without using strftime() -- that's better too because
+    # strftime("%c", ...) is locale specific.
+    fn ctime(self) -> String:
+        "Return ctime() style string."
+        var weekday = self.toordinal() % 7 or 7
+        var standard_week_day = str(get_days_short_names()[weekday])
+        var standard_month_day = str(get_months_short_names()[self.month])
+        var space_padded_day = rjust(str(self.day), 2, " ")
+        return self.strftime(
+            standard_week_day
+            + " "
+            + standard_month_day
+            + " "
+            + space_padded_day
+            + " 00:00:00 %Y"
+        )
+
     fn strftime(self, format: String) -> String:
         """
         Format using strftime().
@@ -328,8 +334,7 @@ struct date(Hashable, Stringable):
     fn __add__(self, other: timedelta) -> date:
         "Add a date to a timedelta."
         var o = self.toordinal() + other.days
-        # if not (0 < o <= _MAXORDINAL):
-        #    raise OverflowError("result out of range")
+        custom_debug_assert(0 < o <= MAXORDINAL, "result out of range")
         return date.fromordinal(o)
 
     fn __sub__(self, other: timedelta) -> date:
