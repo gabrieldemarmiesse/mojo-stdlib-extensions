@@ -179,7 +179,7 @@ struct date(Hashable, Stringable):
         elif letter == "A":
             return get_days_names()[self.isoweekday()]
         elif letter == "w":
-            return str(self.weekday())
+            return str((self.weekday() + 1) % 7)
         elif letter == "d":
             return rjust(str(self.day), 2, "0")
         elif letter == "b":
@@ -189,7 +189,7 @@ struct date(Hashable, Stringable):
         elif letter == "m":
             return rjust(str(self.month), 2, "0")
         elif letter == "y":
-            return rjust(str(self.year)[-2:], 2, "0")
+            return rjust(str(self.year % 100), 2, "0")
         elif letter == "Y":
             return rjust(str(self.year), 4, "0")
         elif letter == "H":
@@ -209,7 +209,7 @@ struct date(Hashable, Stringable):
         elif letter == "Z":
             return ""
         elif letter == "j":
-            return (self - date(self.year, 1, 1)).days + 1
+            return rjust((self - date(self.year, 1, 1)).days + 1, 3, "0")
         elif letter == "U":
             custom_debug_assert(False, "Not implemented yet for %U")
             return ""
@@ -217,11 +217,22 @@ struct date(Hashable, Stringable):
             custom_debug_assert(False, "Not implemented yet for %W")
             return ""
         elif letter == "c":
-            return self.strftime("%a %b %d %H:%M:%S %Y")
+            # the day is padded with a space, weird...
+            var day = rjust(str(self.day), 2, " ")
+            return self.strftime("%a %b " + day + " %H:%M:%S %Y")
         elif letter == "x":
             return self.strftime("%m/%d/%y")
         elif letter == "X":
             return self.strftime("%H:%M:%S")
+        elif letter == "G":
+            custom_debug_assert(False, "Not implemented yet for %G")
+            return ""
+        elif letter == "u":
+            return str(self.isoweekday())
+        elif letter == "V":
+            custom_debug_assert(False, "Not implemented yet for %V")
+            return ""
+        # TODO: add %:z
         else:
             custom_debug_assert(
                 False, "strptime format string contains unknown format letter"
