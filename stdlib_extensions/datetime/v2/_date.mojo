@@ -25,7 +25,7 @@ alias _EPOCH = date(1970, 1, 1)
 
 
 @value
-struct date(Hashable, Stringable):
+struct date(CollectionElement, Stringable, Hashable):
     """Concrete date type.
 
     Constructors:

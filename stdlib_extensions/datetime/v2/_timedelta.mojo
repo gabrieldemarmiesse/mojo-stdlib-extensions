@@ -9,7 +9,7 @@ alias IntOrFloat = Variant[Int, Float64]
 
 
 @value
-struct timedelta(CollectionElement, Stringable):
+struct timedelta(CollectionElement, Stringable, Hashable):
     """Represent the difference between two datetime objects.
 
     Supported operators:
@@ -33,7 +33,7 @@ struct timedelta(CollectionElement, Stringable):
     var days: Int
     var seconds: Int
     var microseconds: Int
-    var _hashcode: Int
+    var _dummy: Int  # remove when https://github.com/modularml/mojo/issues/1705 is fixed
 
     alias min = timedelta(-999999999)
     alias max = timedelta(
@@ -154,7 +154,7 @@ struct timedelta(CollectionElement, Stringable):
         self.days = d
         self.seconds = s
         self.microseconds = us
-        self._hashcode = -1
+        self._dummy = -1
 
     fn __repr__(self) -> String:
         var args = list[String]()
@@ -288,10 +288,8 @@ struct timedelta(CollectionElement, Stringable):
     fn _cmp(self, other: timedelta) -> Int:
         return _cmp_list(self._getstate(), other._getstate())
 
-    fn __hash__(inout self) -> Int:
-        if self._hashcode == -1:
-            self._hashcode = custom_hash(self._getstate())
-        return self._hashcode
+    fn __hash__(self) -> Int:
+        return custom_hash(self._getstate())
 
     fn __bool__(self) -> Bool:
         return self.days != 0 or self.seconds != 0 or self.microseconds != 0

@@ -3,7 +3,7 @@ from ._timedelta import timedelta
 
 
 @value
-struct timezone:
+struct timezone(CollectionElement, Stringable, Hashable):
     var _offset: timedelta
     var _name: Optional[String]
 
@@ -28,8 +28,7 @@ struct timezone:
     fn __eq__(self, other: timezone) -> Bool:
         return self._offset == other._offset
 
-    # TODO: remove inout and make it Hashable
-    fn __hash__(inout self) -> Int:
+    fn __hash__(self) -> Int:
         return self._offset.__hash__()
 
     fn __repr__(self) -> String:
@@ -88,18 +87,14 @@ struct timezone:
         rest = rest % timedelta(minutes=1)
         var seconds = rest.seconds
         var microseconds = rest.microseconds
-        try:
-            var result = "UTC" + sign + rjust(str(hours), 2, "0") + ":" + rjust(
-                str(minutes), 2, "0"
-            )
-            if seconds or microseconds:
-                result += ":" + rjust(str(seconds), 2, "0")
-            if microseconds:
-                result += "." + rjust(str(microseconds), 6, "0")
-            return result
-        except Error:
-            # should never happen
-            return "unknown error in _name_from_offset"
+        var result = "UTC" + sign + rjust(str(hours), 2, "0") + ":" + rjust(
+            str(minutes), 2, "0"
+        )
+        if seconds or microseconds:
+            result += ":" + rjust(str(seconds), 2, "0")
+        if microseconds:
+            result += "." + rjust(str(microseconds), 6, "0")
+        return result
 
 
 alias UTC = timezone.utc
