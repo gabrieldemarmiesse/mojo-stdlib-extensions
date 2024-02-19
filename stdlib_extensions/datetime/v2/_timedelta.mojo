@@ -2,6 +2,8 @@ from ...builtins import divmod, round, abs
 from ...builtins._generic_list import _cmp_list
 from ...builtins._hash import hash as custom_hash
 from utils.variant import Variant
+from ...builtins import list
+from ...builtins.string import ljust, rjust, join
 
 
 # TODO: use this in the timedelta constructor

@@ -1,9 +1,12 @@
-from ...builtins import Optional
+from ...builtins._types import Optional
+from ...builtins.string import rjust
 from ._timedelta import timedelta
+from ._datetime import datetime
+from ._tzinfo import tzinfo
 
 
 @value
-struct timezone(CollectionElement, Stringable, Hashable):
+struct timezone(CollectionElement, Stringable, Hashable, tzinfo):
     var _offset: timedelta
     var _name: Optional[String]
 
@@ -50,25 +53,26 @@ struct timezone(CollectionElement, Stringable, Hashable):
         return result + ")"
 
     fn __str__(self) -> String:
-        return self.tzname(None)
+        return self._tzname_str()
 
-    fn utcoffset(self, dt: Optional[datetime]) -> timedelta:
+    fn utcoffset(self, dt: Optional[datetime]) -> Optional[timedelta]:
         return self._offset
 
-    fn tzname(self, dt: Optional[datetime]) -> String:
+    fn _tzname_str(self) -> String:
         if self._name is None:
             return self._name_from_offset(self._offset)
         else:
             return self._name.value()
 
-    fn dst(self, dt: Optional[datetime]) -> None:
+    fn tzname(self, dt: Optional[datetime]) -> Optional[String]:
+        return self._tzname_str()
+
+    fn dst(self, dt: Optional[datetime]) -> Optional[timedelta]:
         return None
 
-    # fn fromutc(self, dt: datetime) -> datetime:
-    #    #if dt.tzinfo is not self:
-    #    #    raise ValueError("fromutc: dt.tzinfo "
-    #    #                     "is not self")
-    #    return dt + self._offset
+    fn fromutc(self, dt: datetime) -> datetime:
+        # T is Self
+        return dt + self._offset
 
     @staticmethod
     fn _name_from_offset(owned delta: timedelta) -> String:
