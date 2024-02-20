@@ -152,25 +152,19 @@ struct time:
     #        off = self.utcoffset()
     #        return _format_offset(off)
     #
-    #    def __repr__(self):
-    #        """Convert to formal string, for repr()."""
-    #        if self._microsecond != 0:
-    #            s = ", %d, %d" % (self._second, self._microsecond)
-    #        elif self._second != 0:
-    #            s = ", %d" % self._second
-    #        else:
-    #            s = ""
-    #        s= "%s.%s(%d, %d%s)" % (_get_class_module(self),
-    #                                self.__class__.__qualname__,
-    #                                self._hour, self._minute, s)
-    #        if self._tzinfo is not None:
-    #            assert s[-1:] == ")"
-    #            s = s[:-1] + ", tzinfo=%r" % self._tzinfo + ")"
-    #        if self._fold:
-    #            assert s[-1:] == ")"
-    #            s = s[:-1] + ", fold=1)"
-    #        return s
-    #
+    fn __repr__(self) -> String:
+        """Convert to formal string, for repr()."""
+        var result = "timedelta.time(" + str(self.hour) + ", " + str(self.minute)
+        if self.second != 0 or self.microsecond != 0:
+            result += ", " + str(self.second)
+        if self.microsecond != 0:
+            result += ", " + str(self.microsecond)
+        if self.tzinfo is not None:
+            result += ", tzinfo=" + self.tzinfo.value().__repr__()
+        if self.fold:
+            result += ", fold=1"
+        return result + ")"
+
     #    def isoformat(self, timespec='auto'):
     #        """Return the time formatted according to ISO.
     #
