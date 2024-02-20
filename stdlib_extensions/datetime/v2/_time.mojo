@@ -1,8 +1,8 @@
-from ._tzinfo import tzinfo
 from ...builtins import Optional
+from ._timezone import timezone
 
 
-struct time[T: tzinfo]:
+struct time:
     """Time with time zone.
 
     Constructors:
@@ -30,7 +30,7 @@ struct time[T: tzinfo]:
     var minute: Int
     var second: Int
     var microsecond: Int
-    var tzinfo: Optional[T]
+    var tzinfo: Optional[timezone]
     var _hashcode: Int
     var fold: Int
 
@@ -40,7 +40,7 @@ struct time[T: tzinfo]:
         minute: Int = 0,
         second: Int = 0,
         microsecond: Int = 0,
-        tzinfo: Optional[T] = None,
+        tzinfo: Optional[timezone] = None,
         fold: Int = 0,
     ):
         """Constructor.
