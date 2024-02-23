@@ -598,14 +598,6 @@ fn _isoweek_to_gregorian(year: Int, week: Int, day: Int) -> Tuple[Int, Int, Int]
     return ord2ymd(ord_day)
 
 
-#
-#
-## Just raise TypeError if the arg isn't None or a string.
-# def _check_tzname(name):
-#    if name is not None and not isinstance(name, str):
-#        raise TypeError("tzinfo.tzname() must return None or string, "
-#                        "not '%s'" % type(name))
-#
 ## name is the offset-producing method, "utcoffset" or "dst".
 ## offset is what it returned.
 ## If offset isn't None or timedelta, raises TypeError.

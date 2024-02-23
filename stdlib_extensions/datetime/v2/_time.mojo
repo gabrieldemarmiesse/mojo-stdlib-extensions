@@ -228,19 +228,17 @@ struct time:
     #        _check_utc_offset("utcoffset", offset)
     #        return offset
     #
-    #    def tzname(self):
-    #        """Return the timezone name.
-    #
-    #        Note that the name is 100% informational -- there's no requirement that
-    #        it mean anything in particular. For example, "GMT", "UTC", "-500",
-    #        "-5:00", "EDT", "US/Eastern", "America/New York" are all valid replies.
-    #        """
-    #        if self._tzinfo is None:
-    #            return None
-    #        name = self._tzinfo.tzname(None)
-    #        _check_tzname(name)
-    #        return name
-    #
+    fn tzname(self) -> Optional[String]:
+        """Return the timezone name.
+
+        Note that the name is 100% informational -- there's no requirement that
+        it mean anything in particular. For example, "GMT", "UTC", "-500",
+        "-5:00", "EDT", "US/Eastern", "America/New York" are all valid replies.
+        """
+        if self.tzinfo is None:
+            return None
+        return self.tzinfo.value().tzname(None)
+
     #    def dst(self):
     #        """Return 0 if DST is not in effect, or the DST offset (as timedelta
     #        positive eastward) if DST is in effect.

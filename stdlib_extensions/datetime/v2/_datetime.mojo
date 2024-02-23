@@ -429,7 +429,6 @@ struct datetime(CollectionElement):
 #        if self._tzinfo is None:
 #            return None
 #        name = self._tzinfo.tzname(self)
-#        _check_tzname(name)
 #        return name
 #
 #    def dst(self):
