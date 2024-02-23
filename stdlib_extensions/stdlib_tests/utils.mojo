@@ -10,8 +10,6 @@ def assert_equal(a: bytes, b: bytes):
 
 def assert_equal(a: String, b: String):
     if a != b:
-        print("computed", a)
-        print("expected", b)
         raise Error("Expected '" + a + "' to be equal to '" + b + "'")
 
 
@@ -22,7 +20,9 @@ def assert_equal(a: Int, b: Int):
 
 def assert_equal[T: Stringable, U: Stringable](a: T, b: U):
     if str(a) != str(b):
-        raise Error("Expected " + str(a) + " to be equal to " + str(b))
+        raise Error(
+            "Expected both to be equal.\n     got: " + str(a) + "\nExpected: " + str(b)
+        )
 
 
 def assert_true(value: Bool, message: String):
