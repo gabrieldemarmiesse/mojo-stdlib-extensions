@@ -6,6 +6,7 @@ from ..utils import assert_equal
 def test_simple_dict_usage_int():
     some_dict = dict[HashableInt, Int]()
     some_dict[1] = 2
+
     assert_equal(some_dict[1], 2)
     assert_equal(len(some_dict), 1)
 

@@ -16,6 +16,8 @@ from .utils import (
 from ..builtins import list, hash, HashableCollectionElement, Hashable
 from ..builtins.string import rjust, join
 from ..syscalls.clocks import clock_gettime
+from .._utils import custom_debug_assert
+
 
 alias MINYEAR = 1
 alias MAXYEAR = 9999
@@ -25,7 +27,7 @@ alias MINDAY = 1
 alias MAXDAY = 31
 
 
-def _resolution() -> timedelta:
+fn _resolution() -> timedelta:
     return timedelta(microseconds=0)
 
 
@@ -43,7 +45,7 @@ struct timedelta(HashableCollectionElement):
         minutes: Int = 0,
         hours: Int = 0,
         weeks: Int = 0,
-    ) raises:
+    ):
         self._microseconds = _convert_periods_to_microseconds(
             days=days + weeks * 7,
             hours=hours,
@@ -72,12 +74,12 @@ struct timedelta(HashableCollectionElement):
     fn days(self) -> Int:
         return (self._microseconds // DAYS_TO_MICROSECONDS).to_int()
 
-    fn __add__(self, other: timedelta) raises -> timedelta:
+    fn __add__(self, other: timedelta) -> timedelta:
         return timedelta(
             microseconds=(self._microseconds + other._microseconds).to_int()
         )
 
-    fn __sub__(self, other: timedelta) raises -> timedelta:
+    fn __sub__(self, other: timedelta) -> timedelta:
         return timedelta(
             microseconds=(self._microseconds - other._microseconds).to_int()
         )
@@ -88,7 +90,7 @@ struct timedelta(HashableCollectionElement):
             / other._microseconds.cast[DType.float64]()
         )
 
-    fn __repr__(self) raises -> String:
+    fn __repr__(self) -> String:
         if self._microseconds == 0:
             return "datetime.timedelta(0)"
 
@@ -188,28 +190,28 @@ struct datetime(HashableCollectionElement, Stringable):
         minute: Int = 0,
         second: Int = 0,
         microsecond: Int = 0,
-    ) raises:
+    ):
         if not (MINYEAR <= year <= MAXYEAR):
-            raise Error("year must be in the range 1-9999")
+            custom_debug_assert(False, "year must be in the range 1-9999")
 
         if not (MINMONTH <= month <= MAXMONTH):
-            raise Error("month must be in the range 1-12")
+            custom_debug_assert(False, "month must be in the range 1-12")
 
         if not (MINDAY <= day <= MAXDAY):
             # TODO: this check could be better
-            raise Error("day must be in the range 1-31")
+            custom_debug_assert(False, "day must be in the range 1-31")
 
         if not (0 <= hour <= 23):
-            raise Error("hour must be in the range 0-23")
+            custom_debug_assert(False, "hour must be in the range 0-23")
 
         if not (0 <= minute <= 59):
-            raise Error("minute must be in the range 0-59")
+            custom_debug_assert(False, "minute must be in the range 0-59")
 
         if not (0 <= second <= 59):
-            raise Error("second must be in the range 0-59")
+            custom_debug_assert(False, "second must be in the range 0-59")
 
         if not (0 <= microsecond <= 999999):
-            raise Error("microsecond must be in the range 0-999999")
+            custom_debug_assert(False, "microsecond must be in the range 0-999999")
 
         self._microseconds = _convert_periods_to_microseconds(
             _get_numbers_of_days_since_the_start_of_calendar(year, month, day),
@@ -250,28 +252,25 @@ struct datetime(HashableCollectionElement, Stringable):
     fn _total_days(self) -> Int:
         return (self._microseconds // DAYS_TO_MICROSECONDS).to_int()
 
-    fn __add__(self, other: timedelta) raises -> datetime:
+    fn __add__(self, other: timedelta) -> datetime:
         return datetime(_microseconds=self._microseconds + other._microseconds)
 
-    fn __sub__(self, other: datetime) raises -> timedelta:
+    fn __sub__(self, other: datetime) -> timedelta:
         return timedelta(
             microseconds=(self._microseconds - other._microseconds).to_int()
         )
 
     fn __str__(self) -> String:
         var result: String = ""
-        try:
-            result += rjust(String(self.year()), 4, "0")
-            result += "-" + rjust(String(self.month()), 2, "0")
-            result += "-" + rjust(String(self.day()), 2, "0")
-            result += " " + rjust(String(self.hour()), 2, "0")
-            result += ":" + rjust(String(self.minute()), 2, "0")
-            result += ":" + rjust(String(self.second()), 2, "0")
+        result += rjust(String(self.year()), 4, "0")
+        result += "-" + rjust(String(self.month()), 2, "0")
+        result += "-" + rjust(String(self.day()), 2, "0")
+        result += " " + rjust(String(self.hour()), 2, "0")
+        result += ":" + rjust(String(self.minute()), 2, "0")
+        result += ":" + rjust(String(self.second()), 2, "0")
 
-            if self.microsecond() != 0:
-                result += "." + rjust(String(self.microsecond()), 6, "0")
-        except Error:
-            return "Error crafting the string of datetime"
+        if self.microsecond() != 0:
+            result += "." + rjust(String(self.microsecond()), 6, "0")
 
         return result
 
@@ -293,7 +292,7 @@ struct datetime(HashableCollectionElement, Stringable):
         return result + ")"
 
     @staticmethod
-    fn now() raises -> datetime:
+    fn now() -> datetime:
         let ctime_spec = clock_gettime()
         return datetime(1970, 1, 1) + timedelta(
             seconds=ctime_spec.tv_sec.to_int(),
@@ -306,14 +305,14 @@ struct datetime(HashableCollectionElement, Stringable):
         return datetime(_microseconds=0)
 
     @staticmethod
-    fn max() raises -> datetime:
+    fn max() -> datetime:
         """Note that this should be a class property when possible."""
         return datetime(9999, 12, 31, 23, 59, 59, 999999)
 
-    fn date(self) raises -> date:
+    fn date(self) -> date:
         return date(year=self.year(), month=self.month(), day=self.day())
 
-    fn time(self) raises -> time:
+    fn time(self) -> time:
         return time(self.hour(), self.minute(), self.second(), self.microsecond())
 
     fn __hash__(self) -> Int:
@@ -328,16 +327,16 @@ struct date(HashableCollectionElement):
     # TODO: this could be a let, this struct is immutable
     var _days_since_start_of_calendar: Int
 
-    fn __init__(inout self, year: Int, month: Int, day: Int) raises:
+    fn __init__(inout self, year: Int, month: Int, day: Int):
         if not (MINYEAR <= year <= MAXYEAR):
-            raise Error("year must be in the range 1-9999")
+            custom_debug_assert(False, "year must be in the range 1-9999")
 
         if not (MINMONTH <= month <= MAXMONTH):
-            raise Error("month must be in the range 1-12")
+            custom_debug_assert(False, "month must be in the range 1-12")
 
         if not (MINDAY <= day <= MAXDAY):
             # TODO: this check could be better
-            raise Error("day must be in the range 1-31")
+            custom_debug_assert(False, "day must be in the range 1-31")
 
         self._days_since_start_of_calendar = (
             _get_numbers_of_days_since_the_start_of_calendar(year, month, day)
@@ -353,18 +352,18 @@ struct date(HashableCollectionElement):
         return _get_month_and_day(self._days_since_start_of_calendar).get[1, Int]()
 
     @staticmethod
-    fn today() raises -> date:
+    fn today() -> date:
         return datetime.now().date()
 
     @staticmethod
-    fn min() raises -> date:
+    fn min() -> date:
         return date(year=MINYEAR, month=MINMONTH, day=MINDAY)
 
     @staticmethod
-    fn max() raises -> date:
+    fn max() -> date:
         return date(year=MAXYEAR, month=MAXMONTH, day=MAXDAY)
 
-    fn __str__(self) raises -> String:
+    fn __str__(self) -> String:
         var result: String = ""
         result += rjust(String(self.year()), 4, "0")
         result += "-" + rjust(String(self.month()), 2, "0")
@@ -399,33 +398,33 @@ struct time:
         minute: Int = 0,
         second: Int = 0,
         microsecond: Int = 0,
-    ) raises:
+    ):
         if not (0 <= hour <= 23):
-            raise Error("hour must be in the range 0-23")
+            custom_debug_assert(False, "hour must be in the range 0-23")
 
         if not (0 <= minute <= 59):
-            raise Error("minute must be in the range 0-59")
+            custom_debug_assert(False, "minute must be in the range 0-59")
 
         if not (0 <= second <= 59):
-            raise Error("second must be in the range 0-59")
+            custom_debug_assert(False, "second must be in the range 0-59")
 
         if not (0 <= microsecond <= 999999):
-            raise Error("microsecond must be in the range 0-999999")
+            custom_debug_assert(False, "microsecond must be in the range 0-999999")
 
         self._microseconds_since_midnight = _convert_periods_to_microseconds(
             0, hour, minute, second, microsecond
         ).to_int()
 
     @staticmethod
-    fn min() raises -> time:
+    fn min() -> time:
         return time(0, 0, 0, 0)
 
     @staticmethod
-    fn max() raises -> time:
+    fn max() -> time:
         return time(23, 59, 59, 999999)
 
     @staticmethod
-    fn resolution() raises -> timedelta:
+    fn resolution() -> timedelta:
         return _resolution()
 
     fn microsecond(self) -> Int:
@@ -440,7 +439,7 @@ struct time:
     fn hour(self) -> Int:
         return _get_hour(self._microseconds_since_midnight)
 
-    fn __str__(self) raises -> String:
+    fn __str__(self) -> String:
         var result: String = ""
         result += rjust(String(self.hour()), 2, "0") + ":"
         result += rjust(String(self.minute()), 2, "0") + ":"

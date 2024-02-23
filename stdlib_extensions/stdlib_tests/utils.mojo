@@ -10,6 +10,8 @@ def assert_equal(a: bytes, b: bytes):
 
 def assert_equal(a: String, b: String):
     if a != b:
+        print("computed", a)
+        print("expected", b)
         raise Error("Expected '" + a + "' to be equal to '" + b + "'")
 
 

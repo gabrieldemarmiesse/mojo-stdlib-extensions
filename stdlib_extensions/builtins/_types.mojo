@@ -15,5 +15,8 @@ struct Optional[T: CollectionElement](CollectionElement):
     fn __is__(self, other: None) -> Bool:
         return not self.has_value
 
+    fn __isnot__(self, other: None) -> Bool:
+        return self.has_value
+
     fn value(self) -> T:
-        return self.values.unchecked_get(0)
+        return self.values[0]
