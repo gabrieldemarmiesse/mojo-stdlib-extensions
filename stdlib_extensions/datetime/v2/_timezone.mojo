@@ -41,12 +41,14 @@ struct timezone(CollectionElement, Stringable, Hashable):
         >>> repr(tz)
         "datetime.timezone(datetime.timedelta(-1, 68400), 'EST')"
         """
-        if self == timezone.utc:
+        # TODO: enable when https://github.com/modularml/mojo/issues/1787 is fixed
+        # if self == timezone.utc:
+        if self._offset == timedelta(0):
             return "datetime.timezone.utc"
 
         var result: String = "datetime.timezone(" + self._offset.__repr__()
         if self._name is not None:
-            result += ", " + self._name.value()
+            result += ", '" + self._name.value() + "'"
         return result + ")"
 
     fn __str__(self) -> String:
