@@ -1,3 +1,10 @@
+from ._timezone import timezone
+from ._utils import ymd2ord, MAXORDINAL
+from ...builtins import divmod
+from ...builtins._types import Optional
+from ..._utils import custom_debug_assert
+
+
 @value
 struct datetime(CollectionElement):
     #    """datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])
@@ -13,7 +20,9 @@ struct datetime(CollectionElement):
     var minute: Int
     var second: Int
     var microsecond: Int
-    # var tzinfo: Optional[T]
+    # TODO: use the trait tzinfo instead.
+    # traits are too strict right now to do what we want here.
+    var tzinfo: Optional[timezone]
 
     #    def __new__(cls, year, month=None, day=None, hour=0, minute=0, second=0,
     #                microsecond=0, tzinfo=None, *, fold=0):
