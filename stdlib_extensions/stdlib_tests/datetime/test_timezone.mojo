@@ -10,5 +10,22 @@ def test_timezone_utc():
     # assert_equal(timezone.utc, timezone(timedelta(0)))
 
 
+def test_timezone_equality():
+    assert_true(
+        timezone(offset=timedelta(0)) == timezone(timedelta(0)),
+        "timezones should be equal",
+    )
+    assert_true(
+        timezone(offset=timedelta(0), name=String("dodo")) == timezone(timedelta(0)),
+        "timezones should be equal",
+    )
+    assert_true(
+        timezone(offset=timedelta(hours=-4), name=String("dodo"))
+        == timezone(timedelta(hours=-4)),
+        "timezones should be equal",
+    )
+
+
 def run_tests():
     test_timezone_utc()
+    test_timezone_equality()
