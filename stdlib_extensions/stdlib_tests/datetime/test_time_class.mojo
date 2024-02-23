@@ -3,7 +3,7 @@ from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
 from ...builtins._types import Optional
 
 
-def test_date_creation():
+def test_time_creation():
     t = time(12, 30, 0)
     assert_equal(t.hour, 12)
     assert_equal(t.minute, 30)
@@ -14,4 +14,4 @@ def test_date_creation():
 
 
 def run_tests():
-    test_date_creation()
+    test_time_creation()
