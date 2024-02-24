@@ -1,6 +1,7 @@
 from ...builtins import Optional
 from ._timezone import timezone
 from utils.variant import Variant
+from ...builtins._generic_list import _cmp_list
 
 
 struct time:
@@ -97,32 +98,36 @@ struct time:
     #        else:
     #            return NotImplemented
     #
-    #    def _cmp(self, other: time, allow_mixed=False):
-    #        mytz = self._tzinfo
-    #        ottz = other._tzinfo
-    #        myoff = otoff = None
+    # fn _cmp(self, other: time, allow_mixed: Bool = False) -> Int:
+    #    var mytz = self.tzinfo
+    #    var ottz = other.tzinfo
+    #    var myoff: Optional[timedelta] = None
+    #    var otoff: Optional[timedelta] = None
     #
-    #        if mytz is ottz:
-    #            base_compare = True
+    #    var base_compare: Bool
+    #    if mytz is None and ottz is None:
+    #        base_compare = True
+    #    elif mytz is not None and ottz is not None and mytz.value() == ottz.value():
+    #        base_compare = True
+    #    else:
+    #        myoff = self.utcoffset()
+    #        otoff = other.utcoffset()
+    #        base_compare = myoff == otoff
+    #
+    #    if base_compare:
+    #        return _cmp((self._hour, self._minute, self._second,
+    #                    self._microsecond),
+    #                    (other._hour, other._minute, other._second,
+    #                    other._microsecond))
+    #    if myoff is None or otoff is None:
+    #        if allow_mixed:
+    #            return 2 # arbitrary non-zero value
     #        else:
-    #            myoff = self.utcoffset()
-    #            otoff = other.utcoffset()
-    #            base_compare = myoff == otoff
-    #
-    #        if base_compare:
-    #            return _cmp((self._hour, self._minute, self._second,
-    #                         self._microsecond),
-    #                        (other._hour, other._minute, other._second,
-    #                         other._microsecond))
-    #        if myoff is None or otoff is None:
-    #            if allow_mixed:
-    #                return 2 # arbitrary non-zero value
-    #            else:
-    #                raise TypeError("cannot compare naive and aware times")
-    #        myhhmm = self._hour * 60 + self._minute - myoff//timedelta(minutes=1)
-    #        othhmm = other._hour * 60 + other._minute - otoff//timedelta(minutes=1)
-    #        return _cmp((myhhmm, self._second, self._microsecond),
-    #                    (othhmm, other._second, other._microsecond))
+    #            raise TypeError("cannot compare naive and aware times")
+    #    myhhmm = self._hour * 60 + self._minute - myoff//timedelta(minutes=1)
+    #    othhmm = other._hour * 60 + other._minute - otoff//timedelta(minutes=1)
+    #    return _cmp((myhhmm, self._second, self._microsecond),
+    #                (othhmm, other._second, other._microsecond))
     #
     #    def __hash__(self):
     #        """Hash."""
@@ -219,15 +224,16 @@ struct time:
     #        return str(self)
     #
     #    # Timezone functions
-    #
-    #    def utcoffset(self):
-    #        """Return the timezone offset as timedelta, positive east of UTC
-    #         (negative west of UTC)."""
-    #        if self._tzinfo is None:
-    #            return None
-    #        offset = self._tzinfo.utcoffset(None)
-    #        _check_utc_offset("utcoffset", offset)
-    #        return offset
+
+    fn utcoffset(self) -> Optional[timedelta]:
+        """Return the timezone offset as timedelta, positive east of UTC
+        (negative west of UTC)."""
+        if self.tzinfo is None:
+            return None
+        var offset = self.tzinfo.value().utcoffset(None)
+        # _check_utc_offset("utcoffset", offset)
+        return offset
+
     #
     fn tzname(self) -> Optional[String]:
         """Return the timezone name.
