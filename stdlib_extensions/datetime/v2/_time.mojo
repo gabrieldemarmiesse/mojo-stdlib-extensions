@@ -1,5 +1,6 @@
 from ...builtins import Optional
 from ._timezone import timezone
+from utils.variant import Variant
 
 
 struct time:
@@ -253,41 +254,41 @@ struct time:
     #        offset = self._tzinfo.dst(None)
     #        _check_utc_offset("dst", offset)
     #        return offset
-    #
-    # parser is crashing here for some reason
-    # fn replace(
-    #    self,
-    #    owned hour: Optional[Int] = None,
-    #    owned minute: Optional[Int] = None,
-    #    owned second: Optional[Int] = None,
-    #    owned microsecond: Optional[Int] = None,
-    #    # tzinfo=True,
-    #    owned fold: Optional[Int] = None,
-    # ) -> time[T]:
-    #    """Return a new time with new values for the specified fields."""
-    #    if hour is None:
-    #        hour = self.hour
-    #    if minute is None:
-    #        minute = self.minute
-    #    if second is None:
-    #        second = self.second
-    #    if microsecond is None:
-    #        microsecond = self.microsecond
-    #    # if tzinfo is True:
-    #    #    tzinfo = self.tzinfo
-    #    if fold is None:
-    #        fold = self.fold
-    #    return time[T](
-    #        hour=hour.value,
-    #        minute=minute.value,
-    #        second=second.value,
-    #        microsecond=microsecond.value,
-    #        tzinfo=self.tzinfo,
-    #        fold=fold.value,
-    #    )
+
+    fn replace(
+        self,
+        owned hour: Optional[Int] = None,
+        owned minute: Optional[Int] = None,
+        owned second: Optional[Int] = None,
+        owned microsecond: Optional[Int] = None,
+        owned tzinfo: Variant[Optional[timezone], Bool] = Variant[
+            Optional[timezone], Bool
+        ](True),
+        owned fold: Optional[Int] = None,
+    ) -> time:
+        """Return a new time with new values for the specified fields."""
+        if hour is None:
+            hour = self.hour
+        if minute is None:
+            minute = self.minute
+        if second is None:
+            second = self.second
+        if microsecond is None:
+            microsecond = self.microsecond
+        if tzinfo.isa[Bool]() and tzinfo.get[Bool]() == True:
+            tzinfo = self.tzinfo
+        if fold is None:
+            fold = self.fold
+        return time(
+            hour=hour.value(),
+            minute=minute.value(),
+            second=second.value(),
+            microsecond=microsecond.value(),
+            tzinfo=tzinfo.get[Optional[timezone]](),
+            fold=fold.value(),
+        )
 
 
-#
 #    __replace__ = replace
 #
 #    # Pickle support.
