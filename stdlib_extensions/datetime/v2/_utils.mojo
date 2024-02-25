@@ -297,24 +297,8 @@ fn _build_struct_time(
 #    else:
 #        return fmt.format(hh, mm, ss, us)
 #
-# def _format_offset(off, sep=':'):
-#    s = ''
-#    if off is not None:
-#        if off.days < 0:
-#            sign = "-"
-#            off = -off
-#        else:
-#            sign = "+"
-#        hh, mm = divmod(off, timedelta(hours=1))
-#        mm, ss = divmod(mm, timedelta(minutes=1))
-#        s += "%s%02d%s%02d" % (sign, hh, sep, mm)
-#        if ss or ss.microseconds:
-#            s += "%s%02d" % (sep, ss.seconds)
-#
-#            if ss.microseconds:
-#                s += '.%06d' % ss.microseconds
-#    return s
-#
+
+
 ## Correctly substitute for %z and %Z escapes in strftime formats.
 # def _wrap_strftime(object, format, timetuple):
 #    # Don't call utcoffset() or tzname() unless actually needed.

@@ -71,10 +71,9 @@ struct time(CollectionElement, Hashable):
         self._hashcode = -1
         self.fold = fold
 
-    #    # Standard conversions, __hash__ (and helpers)
-    #
-    #    # Comparisons of time objects with other.
-    #
+    # Standard conversions, __hash__ (and helpers)
+    # Comparisons of time objects with other.
+
     fn __eq__(self, other: time) -> Bool:
         return self._cmp(other, allow_mixed=True) == 0
 
@@ -161,12 +160,12 @@ struct time(CollectionElement, Hashable):
                 list[Int].from_values(h_int, minutes_int, self.second, self.microsecond)
             )
 
-    #    # Conversion to string
-    #
-    #    def _tzstr(self):
-    #        """Return formatted timezone offset (+xx:xx) or an empty string."""
-    #        off = self.utcoffset()
-    #        return _format_offset(off)
+    # Conversion to string
+
+    def _tzstr(self) -> String:
+        """Return formatted timezone offset (+xx:xx) or an empty string."""
+        off = self.utcoffset()
+        return _format_optional_offset(off)
 
     fn __repr__(self) -> String:
         """Convert to formal string, for repr()."""
@@ -303,3 +302,30 @@ struct time(CollectionElement, Hashable):
             tzinfo=tzinfo.get[Optional[timezone]](),
             fold=fold.value(),
         )
+
+
+fn _format_optional_offset(off: Optional[timedelta], sep: String = ":") -> String:
+    if off is None:
+        return ""
+    else:
+        return _format_offset(off.value(), sep)
+
+
+fn _format_offset(owned off: timedelta, sep: String = ":") -> String:
+    var s: String = ""
+    var sign: String
+    if off.days < 0:
+        sign = "-"
+        off = -off
+    else:
+        sign = "+"
+    var hh = off // timedelta(hours=1)
+    var mm = off % timedelta(hours=1)
+    var mm_int = (mm // timedelta(minutes=1)).to_int()
+    var ss = mm % timedelta(minutes=1)
+    s += sign + rjust(str(hh), 2, "0") + sep + rjust(str(mm_int), 2, "0")
+    if ss or ss.microseconds:
+        s += sep + rjust(str(ss.seconds), 2, "0")
+        if ss.microseconds:
+            s += "." + rjust(str(ss.microseconds), 6, "0")
+    return s
