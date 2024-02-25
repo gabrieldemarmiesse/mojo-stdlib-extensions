@@ -72,6 +72,9 @@ struct time(CollectionElement):
     fn __eq__(self, other: time) -> Bool:
         return self._cmp(other, allow_mixed=True) == 0
 
+    fn __ne__(self, other: time) -> Bool:
+        return self._cmp(other, allow_mixed=True) != 0
+
     def __le__(self, other: time) -> Bool:
         return self._cmp(other) <= 0
 
