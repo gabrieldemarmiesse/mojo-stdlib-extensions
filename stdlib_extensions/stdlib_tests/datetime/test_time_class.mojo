@@ -109,8 +109,21 @@ def test_comparison_without_timezone():
     )
 
 
+def test_dst():
+    assert_true(time(12, 30, 0).dst() is None, "dst is None")
+    assert_true(
+        time(12, 30, 0, tzinfo=timezone(timedelta(0))).dst() is None,
+        "dst should be None",
+    )
+    assert_true(
+        time(12, 30, 0, tzinfo=timezone(timedelta(hours=-4))).dst() is None,
+        "dst is None",
+    )
+
+
 def run_tests():
     test_time_creation()
     test_time_repr()
     test_utcoffset()
     test_comparison_without_timezone()
+    test_dst()

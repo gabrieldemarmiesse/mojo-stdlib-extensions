@@ -251,20 +251,20 @@ struct time(CollectionElement):
             return None
         return self.tzinfo.value().tzname(None)
 
-    #    def dst(self):
-    #        """Return 0 if DST is not in effect, or the DST offset (as timedelta
-    #        positive eastward) if DST is in effect.
-    #
-    #        This is purely informational; the DST offset has already been added to
-    #        the UTC offset returned by utcoffset() if applicable, so there's no
-    #        need to consult dst() unless you're interested in displaying the DST
-    #        info.
-    #        """
-    #        if self._tzinfo is None:
-    #            return None
-    #        offset = self._tzinfo.dst(None)
-    #        _check_utc_offset("dst", offset)
-    #        return offset
+    fn dst(self) -> Optional[timedelta]:
+        """Return 0 if DST is not in effect, or the DST offset (as timedelta
+        positive eastward) if DST is in effect.
+
+        This is purely informational; the DST offset has already been added to
+        the UTC offset returned by utcoffset() if applicable, so there's no
+        need to consult dst() unless you're interested in displaying the DST
+        info.
+        """
+        if self.tzinfo is None:
+            return None
+        var offset = self.tzinfo.value().dst(None)
+        # _check_utc_offset("dst", offset)
+        return offset
 
     fn replace(
         self,
