@@ -37,6 +37,10 @@ struct time(CollectionElement):
     var _hashcode: Int
     var fold: Int
 
+    alias min = time(0, 0, 0)
+    alias max = time(23, 59, 59, 999999)
+    alias resolution = timedelta(microseconds=1)
+
     fn __init__(
         inout self,
         hour: Int = 0,
@@ -236,7 +240,6 @@ struct time(CollectionElement):
         # _check_utc_offset("utcoffset", offset)
         return offset
 
-    #
     fn tzname(self) -> Optional[String]:
         """Return the timezone name.
 
@@ -295,47 +298,3 @@ struct time(CollectionElement):
             tzinfo=tzinfo.get[Optional[timezone]](),
             fold=fold.value(),
         )
-
-
-#    __replace__ = replace
-#
-#    # Pickle support.
-#
-#    def _getstate(self, protocol=3):
-#        us2, us3 = divmod(self._microsecond, 256)
-#        us1, us2 = divmod(us2, 256)
-#        h = self._hour
-#        if self._fold and protocol > 3:
-#            h += 128
-#        basestate = bytes([h, self._minute, self._second,
-#                           us1, us2, us3])
-#        if self._tzinfo is None:
-#            return (basestate,)
-#        else:
-#            return (basestate, self._tzinfo)
-#
-#    def __setstate(self, string, tzinfo):
-#        if tzinfo is not None and not isinstance(tzinfo, _tzinfo_class):
-#            raise TypeError("bad tzinfo state arg")
-#        h, self._minute, self._second, us1, us2, us3 = string
-#        if h > 127:
-#            self._fold = 1
-#            self._hour = h - 128
-#        else:
-#            self._fold = 0
-#            self._hour = h
-#        self._microsecond = (((us1 << 8) | us2) << 8) | us3
-#        self._tzinfo = tzinfo
-#
-#    def __reduce_ex__(self, protocol):
-#        return (self.__class__, self._getstate(protocol))
-#
-#    def __reduce__(self):
-#        return self.__reduce_ex__(2)
-#
-# _time_class = time  # so functions w/ args named "time" can get at the class
-#
-# time.min = time(0, 0, 0)
-# time.max = time(23, 59, 59, 999999)
-# time.resolution = timedelta(microseconds=1)
-#

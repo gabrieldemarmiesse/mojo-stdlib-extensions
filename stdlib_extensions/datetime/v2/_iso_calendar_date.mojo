@@ -18,11 +18,6 @@ struct IsoCalendarDate:
     fn __len__(self) -> Int:
         return 3
 
-    # def __reduce__(self):
-    #    # This code is intended to pickle the object without making the
-    #    # class public. See https://bugs.python.org/msg352381
-    #    return (tuple, (tuple(self),))
-
     def __repr__(self) -> String:
         return (
             "IsoCalendarDate(year="

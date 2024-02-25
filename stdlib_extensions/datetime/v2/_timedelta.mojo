@@ -294,13 +294,6 @@ struct timedelta(CollectionElement, Stringable, Hashable):
     fn __bool__(self) -> Bool:
         return self.days != 0 or self.seconds != 0 or self.microseconds != 0
 
-    # Pickle support.
-
     @always_inline
     fn _getstate(self) -> list[Int]:
         return list[Int].from_values(self.days, self.seconds, self.microseconds)
-
-
-#    def __reduce__(self):
-#        return (self.__class__, self._getstate())
-#

@@ -46,14 +46,3 @@ trait tzinfo(CollectionElement):
 #            raise ValueError("fromutc(): dt.dst gave inconsistent "
 #                             "results; cannot convert")
 #    return dt + dtdst
-#
-#    # Pickle support.
-#
-#    def __reduce__(self):
-#        getinitargs = getattr(self, "__getinitargs__", None)
-#        if getinitargs:
-#            args = getinitargs()
-#        else:
-#            args = ()
-#        return (self.__class__, args, self.__getstate__())
-#
