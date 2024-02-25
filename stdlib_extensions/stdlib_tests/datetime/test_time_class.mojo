@@ -47,12 +47,14 @@ def test_time_repr():
 def test_utcoffset():
     var t = time(12, 30, 0)
     assert_true(t.utcoffset() is None, "utcoffset is None")
-    var utc = timezone(timedelta(0))
     assert_true(
-        t.replace(tzinfo=utc).utcoffset() is not None, "utcoffset should not be None"
+        time(12, 30, 0, tzinfo=timezone(timedelta(0))).utcoffset() is not None,
+        "utcoffset should not be None",
     )
     assert_true(
-        t.replace(tzinfo=utc).utcoffset().value() == timedelta(0), "utcoffset is 0"
+        time(12, 30, 0, tzinfo=timezone(timedelta(0))).utcoffset().value()
+        == timedelta(0),
+        "utcoffset is 0",
     )
 
 
