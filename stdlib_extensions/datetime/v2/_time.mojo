@@ -329,3 +329,27 @@ fn _format_offset(owned off: timedelta, sep: String = ":") -> String:
         if ss.microseconds:
             s += "." + rjust(str(ss.microseconds), 6, "0")
     return s
+
+
+fn _format_time(
+    hh: Int, mm: Int, ss: Int, owned us: Int, owned timespec: String = "auto"
+) -> String:
+    var specs = {
+        "hours": "{:02d}",
+        "minutes": "{:02d}:{:02d}",
+        "seconds": "{:02d}:{:02d}:{:02d}",
+        "milliseconds": "{:02d}:{:02d}:{:02d}.{:03d}",
+        "microseconds": "{:02d}:{:02d}:{:02d}.{:06d}",
+    }
+
+    if timespec == "auto":
+        # Skip trailing microseconds when us==0.
+        timespec = "microseconds" if us else "seconds"
+    elif timespec == "milliseconds":
+        us //= 1000
+    try:
+        fmt = specs[timespec]
+    except KeyError:
+        raise ValueError("Unknown timespec value")
+    else:
+        return fmt.format(hh, mm, ss, us)
