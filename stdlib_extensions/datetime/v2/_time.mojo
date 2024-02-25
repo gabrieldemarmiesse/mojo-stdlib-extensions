@@ -1,10 +1,11 @@
-from ...builtins import Optional
+from ...builtins import Optional, ___eq__
 from ._timezone import timezone
 from utils.variant import Variant
 from ...builtins._generic_list import _cmp_list
 
 
-struct time:
+@value
+struct time(CollectionElement):
     """Time with time zone.
 
     Constructors:
@@ -68,66 +69,67 @@ struct time:
     #
     #    # Comparisons of time objects with other.
     #
-    #    def __eq__(self, other):
-    #        if isinstance(other, time):
-    #            return self._cmp(other, allow_mixed=True) == 0
-    #        else:
-    #            return NotImplemented
-    #
-    #    def __le__(self, other):
-    #        if isinstance(other, time):
-    #            return self._cmp(other) <= 0
-    #        else:
-    #            return NotImplemented
-    #
-    #    def __lt__(self, other):
-    #        if isinstance(other, time):
-    #            return self._cmp(other) < 0
-    #        else:
-    #            return NotImplemented
-    #
-    #    def __ge__(self, other):
-    #        if isinstance(other, time):
-    #            return self._cmp(other) >= 0
-    #        else:
-    #            return NotImplemented
-    #
-    #    def __gt__(self, other):
-    #        if isinstance(other, time):
-    #            return self._cmp(other) > 0
-    #        else:
-    #            return NotImplemented
-    #
-    # fn _cmp(self, other: time, allow_mixed: Bool = False) -> Int:
-    #    var mytz = self.tzinfo
-    #    var ottz = other.tzinfo
-    #    var myoff: Optional[timedelta] = None
-    #    var otoff: Optional[timedelta] = None
-    #
-    #    var base_compare: Bool
-    #    if mytz is None and ottz is None:
-    #        base_compare = True
-    #    elif mytz is not None and ottz is not None and mytz.value() == ottz.value():
-    #        base_compare = True
-    #    else:
-    #        myoff = self.utcoffset()
-    #        otoff = other.utcoffset()
-    #        base_compare = myoff == otoff
-    #
-    #    if base_compare:
-    #        return _cmp((self._hour, self._minute, self._second,
-    #                    self._microsecond),
-    #                    (other._hour, other._minute, other._second,
-    #                    other._microsecond))
-    #    if myoff is None or otoff is None:
-    #        if allow_mixed:
-    #            return 2 # arbitrary non-zero value
-    #        else:
-    #            raise TypeError("cannot compare naive and aware times")
-    #    myhhmm = self._hour * 60 + self._minute - myoff//timedelta(minutes=1)
-    #    othhmm = other._hour * 60 + other._minute - otoff//timedelta(minutes=1)
-    #    return _cmp((myhhmm, self._second, self._microsecond),
-    #                (othhmm, other._second, other._microsecond))
+    fn __eq__(self, other: time) -> Bool:
+        return self._cmp(other, allow_mixed=True) == 0
+
+    fn __ne__(self, other: time) -> Bool:
+        return self._cmp(other, allow_mixed=True) != 0
+
+    def __le__(self, other: time) -> Bool:
+        return self._cmp(other) <= 0
+
+    def __lt__(self, other: time) -> Bool:
+        return self._cmp(other) < 0
+
+    def __ge__(self, other: time) -> Bool:
+        return self._cmp(other) >= 0
+
+    def __gt__(self, other: time) -> Bool:
+        return self._cmp(other) > 0
+
+    fn _cmp(self, other: time, allow_mixed: Bool = False) -> Int:
+        var mytz = self.tzinfo
+        var ottz = other.tzinfo
+        var myoff: Optional[timedelta] = None
+        var otoff: Optional[timedelta] = None
+        var base_compare: Bool
+        if mytz is None and ottz is None:
+            base_compare = True
+        elif mytz is not None and ottz is not None and mytz.value() == ottz.value():
+            base_compare = True
+        else:
+            myoff = self.utcoffset()
+            otoff = other.utcoffset()
+            base_compare = ___eq__(myoff, otoff)
+
+        if base_compare:
+            return _cmp_list(
+                list[Int].from_values(
+                    self.hour, self.minute, self.second, self.microsecond
+                ),
+                list[Int].from_values(
+                    other.hour, other.minute, other.second, other.microsecond
+                ),
+            )
+        if myoff is None or otoff is None:
+            if allow_mixed:
+                return 2  # arbitrary non-zero value
+            else:
+                custom_debug_assert("cannot compare naive and aware times")
+
+        # is there a bug here? Does that mean that we cannot have a tzinfo with sub-minute resolution?
+        # Anyway, this was in the CPython code, so I'm keeping it for now until someone has the answer.
+        var myhhmm = self.hour * 60 + self.minute - myoff.value() // timedelta(
+            minutes=1
+        )
+        var othhmm = other.hour * 60 + other.minute - otoff.value() // timedelta(
+            minutes=1
+        )
+        return _cmp_list(
+            list[Int].from_values(myhhmm.to_int(), self.second, self.microsecond),
+            list[Int].from_values(othhmm.to_int(), other.second, other.microsecond),
+        )
+
     #
     #    def __hash__(self):
     #        """Hash."""

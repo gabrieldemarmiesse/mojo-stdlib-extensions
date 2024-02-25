@@ -5,6 +5,7 @@ from ._hash import hash, Hashable, HashableCollectionElement, Equalable
 from ._dict import dict, HashableInt, HashableStr
 from ._types import Optional
 from ._math import divmod, round, abs
+from ._custom_equality import ___eq__
 
 
 fn input(prompt: String) -> String:
