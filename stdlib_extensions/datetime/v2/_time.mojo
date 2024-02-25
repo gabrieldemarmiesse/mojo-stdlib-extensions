@@ -2,10 +2,12 @@ from ...builtins import Optional, ___eq__
 from ._timezone import timezone
 from utils.variant import Variant
 from ...builtins._generic_list import _cmp_list
+from ...builtins._hash import hash as custom_hash
+from ...builtins import divmod
 
 
 @value
-struct time(CollectionElement):
+struct time(CollectionElement, Hashable):
     """Time with time zone.
 
     Constructors:
@@ -134,28 +136,31 @@ struct time(CollectionElement):
             list[Int].from_values(othhmm.to_int(), other.second, other.microsecond),
         )
 
-    #
-    #    def __hash__(self):
-    #        """Hash."""
-    #        if self._hashcode == -1:
-    #            if self.fold:
-    #                t = self.replace(fold=0)
-    #            else:
-    #                t = self
-    #            tzoff = t.utcoffset()
-    #            if not tzoff:  # zero or None
-    #                self._hashcode = hash(t._getstate()[0])
-    #            else:
-    #                h, m = divmod(timedelta(hours=self.hour, minutes=self.minute) - tzoff,
-    #                              timedelta(hours=1))
-    #                assert not m % timedelta(minutes=1), "whole minute"
-    #                m //= timedelta(minutes=1)
-    #                if 0 <= h < 24:
-    #                    self._hashcode = hash(time(h, m, self.second, self.microsecond))
-    #                else:
-    #                    self._hashcode = hash((h, m, self.second, self.microsecond))
-    #        return self._hashcode
-    #
+    fn __hash__(self) -> Int:
+        """Hash."""
+        var t: time
+        if self.fold:
+            t = self.replace(fold=0)
+        else:
+            t = self
+        var tzoff = t.utcoffset()
+        if tzoff is None or tzoff.value() == timedelta(0):
+            return custom_hash(
+                list[Int].from_values(t.hour, t.minute, t.second, t.microsecond)
+            )
+        else:
+            var utctime = timedelta(
+                hours=self.hour, minutes=self.minute
+            ) - tzoff.value()
+            var h = utctime // timedelta(hours=1)
+            var m = utctime % timedelta(hours=1)
+            # assert not m % timedelta(minutes=1), "whole minute"
+            var minutes_int = (m // timedelta(minutes=1)).to_int()
+            var h_int = h.to_int()
+            return custom_hash(
+                list[Int].from_values(h_int, minutes_int, self.second, self.microsecond)
+            )
+
     #    # Conversion to string
     #
     #    def _tzstr(self):

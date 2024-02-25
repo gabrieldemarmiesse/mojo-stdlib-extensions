@@ -1,6 +1,6 @@
 from ...datetime.v2 import time, timezone, timedelta
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
-from ...builtins import Optional, ___eq__
+from ...builtins import Optional
 
 
 def test_time_creation():
@@ -121,9 +121,41 @@ def test_dst():
     )
 
 
+def test_hash_time():
+    var t1 = time(12, 30, 0)
+    var t2 = time(12, 30, 0)
+    assert_true(t1 == t2, "the two times are equal")
+    assert_true(hash(t1) == hash(t2), "the two hashes are equal")
+
+
+def test_hash_time_with_timezone():
+    var t1 = time(12, 30, 0, tzinfo=timezone(timedelta(0)))
+    var t2 = time(12, 30, 0, tzinfo=timezone(timedelta(0)))
+    assert_true(t1 == t2, "the two times are equal")
+    assert_true(hash(t1) == hash(t2), "the two hashes are equal")
+
+
+def test_hash_time_with_different_timezones():
+    var t1 = time(12, 30, 0, tzinfo=timezone(timedelta(0)))
+    var t2 = time(12, 30, 0, tzinfo=timezone(timedelta(hours=-4, minutes=-3)))
+    assert_false(t1 == t2, "the two times should not be equal")
+    assert_false(hash(t1) == hash(t2), "the two hashes are not equal")
+
+
+def test_hash_time_with_different_timezones_equal():
+    var t1 = time(12, 30, 0, tzinfo=timezone(timedelta(0)))
+    var t2 = time(8, 40, 0, tzinfo=timezone(timedelta(hours=-4, minutes=10)))
+    assert_true(t1 == t2, "the two times are equal")
+    assert_true(hash(t1) == hash(t2), "the two hashes should be equal")
+
+
 def run_tests():
     test_time_creation()
     test_time_repr()
     test_utcoffset()
     test_comparison_without_timezone()
     test_dst()
+    test_hash_time()
+    test_hash_time_with_timezone()
+    test_hash_time_with_different_timezones()
+    test_hash_time_with_different_timezones_equal()
