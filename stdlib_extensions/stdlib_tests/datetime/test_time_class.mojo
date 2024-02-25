@@ -56,6 +56,11 @@ def test_utcoffset():
         == timedelta(0),
         "utcoffset is 0",
     )
+    assert_true(
+        time(12, 30, 0, tzinfo=timezone(timedelta(hours=-4))).utcoffset().value()
+        == timedelta(hours=-4),
+        "utcoffset is 0",
+    )
 
 
 def run_tests():
