@@ -1,6 +1,6 @@
 from ...datetime.v2 import time, timezone, timedelta
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
-from ...builtins._types import Optional
+from ...builtins import Optional, ___eq__
 
 
 def test_time_creation():
@@ -44,6 +44,19 @@ def test_time_repr():
     )
 
 
+def test_utcoffset():
+    var t = time(12, 30, 0)
+    assert_true(t.utcoffset() is None, "utcoffset is None")
+    var utc = timezone(timedelta(0))
+    assert_true(
+        t.replace(tzinfo=utc).utcoffset() is not None, "utcoffset should not be None"
+    )
+    assert_true(
+        t.replace(tzinfo=utc).utcoffset().value() == timedelta(0), "utcoffset is 0"
+    )
+
+
 def run_tests():
     test_time_creation()
     test_time_repr()
+    test_utcoffset()
