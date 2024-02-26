@@ -7,7 +7,7 @@ from ...builtins import divmod
 
 
 @value
-struct time(CollectionElement, Hashable):
+struct time(CollectionElement, Hashable, Stringable):
     """Time with time zone.
 
     Constructors:

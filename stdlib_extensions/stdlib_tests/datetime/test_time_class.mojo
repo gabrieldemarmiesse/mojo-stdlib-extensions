@@ -179,6 +179,15 @@ def test_isoformat_with_different_timespec():
     assert_equal(t.isoformat("microseconds"), "12:30:08.000108-04:00")
 
 
+def test_str_function_on_time():
+    """Should return isoformat."""
+    assert_equal(
+        str(time(12, 30, 0, 105, tzinfo=timezone(timedelta(hours=-4)), fold=1)),
+        "12:30:00.000105-04:00",
+    )
+    assert_equal(str(time(12, 30, 0)), "12:30:00")
+
+
 def run_tests():
     test_time_creation()
     test_time_repr()
@@ -191,3 +200,4 @@ def run_tests():
     test_hash_time_with_different_timezones_equal()
     test_time_isoformat_default()
     test_isoformat_with_different_timespec()
+    test_str_function_on_time()
