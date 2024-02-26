@@ -149,6 +149,26 @@ def test_hash_time_with_different_timezones_equal():
     assert_true(hash(t1) == hash(t2), "the two hashes should be equal")
 
 
+def test_time_isoformat_default():
+    assert_equal(time(12, 30, 0).isoformat(), "12:30:00")
+    assert_equal(
+        time(12, 30, 0, tzinfo=timezone(timedelta(0))).isoformat(), "12:30:00+00:00"
+    )
+    assert_equal(
+        time(12, 30, 0, tzinfo=timezone(timedelta(hours=-4))).isoformat(),
+        "12:30:00-04:00",
+    )
+    assert_equal(time(12, 30, 0, fold=1).isoformat(), "12:30:00")
+    assert_equal(
+        time(12, 30, 0, tzinfo=timezone(timedelta(0)), fold=1).isoformat(),
+        "12:30:00+00:00",
+    )
+    assert_equal(
+        time(12, 30, 0, 100, tzinfo=timezone(timedelta(hours=-4)), fold=1).isoformat(),
+        "12:30:00.000100-04:00",
+    )
+
+
 def run_tests():
     test_time_creation()
     test_time_repr()
@@ -159,3 +179,4 @@ def run_tests():
     test_hash_time_with_timezone()
     test_hash_time_with_different_timezones()
     test_hash_time_with_different_timezones_equal()
+    test_time_isoformat_default()
