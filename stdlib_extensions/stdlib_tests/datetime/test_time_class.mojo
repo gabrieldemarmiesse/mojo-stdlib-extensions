@@ -215,6 +215,37 @@ def test_time_strftime_simple_time():
     assert_equal(t.strftime(format), expected)
 
 
+def test_time_format_dunder_empty():
+    # empty is the same as isoformat
+    t = time(
+        12,
+        30,
+        0,
+        105,
+        tzinfo=timezone(timedelta(hours=-4, minutes=1, seconds=8, microseconds=33)),
+        fold=1,
+    )
+    assert_equal(t.__format__(""), t.isoformat())
+
+
+def test_time_format_dunder_non_empty():
+    # this should be the same as strftime
+    t = time(
+        1,
+        59,
+        59,
+        999999,
+        tzinfo=timezone(timedelta(hours=4, minutes=1, seconds=8, microseconds=33)),
+        fold=1,
+    )
+    format = "%a|%A|%w|%d|%b|%B|%m|%y|%Y|%H|%I|%p|%M|%S|%f|%z|%Z|%j|%U|%W|%c|%x|%X|%G|%u|%V|%%|%:z"
+    expected = (
+        "Mon|Monday|1|01|Jan|January|01|00|1900|01|01|AM|59|59|999999|+040108.000033|UTC+04:01:08.000033|001|00|01|Mon"
+        " Jan  1 01:59:59 1900|01/01/00|01:59:59|1900|1|01|%|+04:01:08.000033"
+    )
+    assert_equal(t.__format__(format), expected)
+
+
 def run_tests():
     test_time_creation()
     test_time_repr()
@@ -230,3 +261,5 @@ def run_tests():
     test_str_function_on_time()
     test_time_strftime_all_values_filled()
     test_time_strftime_simple_time()
+    test_time_format_dunder_empty()
+    test_time_format_dunder_non_empty()
