@@ -276,29 +276,6 @@ fn _build_struct_time(
     return struct_time((y, m, d, hh, mm, ss, wday, dnum, dstflag))
 
 
-# def _format_time(hh, mm, ss, us, timespec='auto'):
-#    specs = {
-#        'hours': '{:02d}',
-#        'minutes': '{:02d}:{:02d}',
-#        'seconds': '{:02d}:{:02d}:{:02d}',
-#        'milliseconds': '{:02d}:{:02d}:{:02d}.{:03d}',
-#        'microseconds': '{:02d}:{:02d}:{:02d}.{:06d}'
-#    }
-#
-#    if timespec == 'auto':
-#        # Skip trailing microseconds when us==0.
-#        timespec = 'microseconds' if us else 'seconds'
-#    elif timespec == 'milliseconds':
-#        us //= 1000
-#    try:
-#        fmt = specs[timespec]
-#    except KeyError:
-#        raise ValueError('Unknown timespec value')
-#    else:
-#        return fmt.format(hh, mm, ss, us)
-#
-
-
 ## Correctly substitute for %z and %Z escapes in strftime formats.
 # def _wrap_strftime(object, format, timetuple):
 #    # Don't call utcoffset() or tzname() unless actually needed.

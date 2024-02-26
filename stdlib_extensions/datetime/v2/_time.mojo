@@ -7,7 +7,7 @@ from ...builtins import divmod
 
 
 @value
-struct time(CollectionElement, Hashable):
+struct time(CollectionElement, Hashable, Stringable):
     """Time with time zone.
 
     Constructors:
@@ -162,10 +162,9 @@ struct time(CollectionElement, Hashable):
 
     # Conversion to string
 
-    def _tzstr(self) -> String:
+    fn _tzstr(self) -> String:
         """Return formatted timezone offset (+xx:xx) or an empty string."""
-        off = self.utcoffset()
-        return _format_optional_offset(off)
+        return _format_optional_offset(self.utcoffset())
 
     fn __repr__(self) -> String:
         """Convert to formal string, for repr()."""
@@ -180,25 +179,27 @@ struct time(CollectionElement, Hashable):
             result += ", fold=1"
         return result + ")"
 
-    #    def isoformat(self, timespec='auto'):
-    #        """Return the time formatted according to ISO.
-    #
-    #        The full format is 'HH:MM:SS.mmmmmm+zz:zz'. By default, the fractional
-    #        part is omitted if self.microsecond == 0.
-    #
-    #        The optional argument timespec specifies the number of additional
-    #        terms of the time to include. Valid options are 'auto', 'hours',
-    #        'minutes', 'seconds', 'milliseconds' and 'microseconds'.
-    #        """
-    #        s = _format_time(self._hour, self._minute, self._second,
-    #                          self._microsecond, timespec)
-    #        tz = self._tzstr()
-    #        if tz:
-    #            s += tz
-    #        return s
-    #
-    #    __str__ = isoformat
-    #
+    fn isoformat(self, timespec: String = "auto") -> String:
+        """Return the time formatted according to ISO.
+
+        The full format is 'HH:MM:SS.mmmmmm+zz:zz'. By default, the fractional
+        part is omitted if self.microsecond == 0.
+
+        The optional argument timespec specifies the number of additional
+        terms of the time to include. Valid options are 'auto', 'hours',
+        'minutes', 'seconds', 'milliseconds' and 'microseconds'.
+        """
+        var s = _format_time(
+            self.hour, self.minute, self.second, self.microsecond, timespec
+        )
+        var tz = self._tzstr()
+        if tz:
+            s += tz
+        return s
+
+    fn __str__(self) -> String:
+        return self.isoformat()
+
     #    @classmethod
     #    def fromisoformat(cls, time_string):
     #        """Construct a time from a string in one of the ISO 8601 formats."""
@@ -232,9 +233,8 @@ struct time(CollectionElement, Hashable):
     #        if len(fmt) != 0:
     #            return self.strftime(fmt)
     #        return str(self)
-    #
-    #    # Timezone functions
 
+    # Timezone functions
     fn utcoffset(self) -> Optional[timedelta]:
         """Return the timezone offset as timedelta, positive east of UTC
         (negative west of UTC)."""
@@ -329,3 +329,53 @@ fn _format_offset(owned off: timedelta, sep: String = ":") -> String:
         if ss.microseconds:
             s += "." + rjust(str(ss.microseconds), 6, "0")
     return s
+
+
+fn _format_time(
+    hh: Int, mm: Int, ss: Int, owned us: Int, owned timespec: String = "auto"
+) -> String:
+    if timespec == "auto":
+        # Skip trailing microseconds when us==0.
+        timespec = "microseconds" if us else "seconds"
+
+    if timespec == "hours":
+        return format_hours(hh)
+    elif timespec == "minutes":
+        return format_minutes(hh, mm)
+    elif timespec == "seconds":
+        return format_seconds(hh, mm, ss)
+    elif timespec == "milliseconds":
+        return format_milliseconds(hh, mm, ss, us // 1000)
+    elif timespec == "microseconds":
+        return format_microseconds(hh, mm, ss, us)
+    else:
+        custom_debug_assert("Unknown timespec value")
+        return "Wrong timespec value in _format_time()"
+
+
+fn format_hours(hours: Int) -> String:
+    return rjust(str(hours), 2, "0")
+
+
+fn format_minutes(hours: Int, minutes: Int) -> String:
+    return format_hours(hours) + ":" + rjust(str(minutes), 2, "0")
+
+
+fn format_seconds(hours: Int, minutes: Int, seconds: Int) -> String:
+    return format_minutes(hours, minutes) + ":" + rjust(str(seconds), 2, "0")
+
+
+fn format_milliseconds(
+    hours: Int, minutes: Int, seconds: Int, milliseconds: Int
+) -> String:
+    return (
+        format_seconds(hours, minutes, seconds) + "." + rjust(str(milliseconds), 3, "0")
+    )
+
+
+fn format_microseconds(
+    hours: Int, minutes: Int, seconds: Int, microseconds: Int
+) -> String:
+    return (
+        format_seconds(hours, minutes, seconds) + "." + rjust(str(microseconds), 6, "0")
+    )
