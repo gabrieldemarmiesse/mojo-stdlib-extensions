@@ -342,9 +342,14 @@ fn _build_struct_time(
 #    newformat = "".join(newformat)
 #    return _time.strftime(newformat, timetuple)
 #
-## Helpers for parsing the result of isoformat()
-# def _is_ascii_digit(c):
-#    return c in "0123456789"
+fn _is_ascii_digit(c: String) -> Bool:
+    alias my_str: String = "0123456789"
+    for i in range(len(my_str)):
+        if c == my_str[i]:
+            return True
+    return False
+
+
 #
 # def _find_isoformat_datetime_separator(dtstr):
 #    # See the comment in _datetimemodule.c:_find_isoformat_datetime_separator

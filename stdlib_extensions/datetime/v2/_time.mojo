@@ -202,15 +202,20 @@ struct time(CollectionElement, Hashable, Stringable):
         return self.isoformat()
 
     @staticmethod
-    fn fromisoformat(owned time_string: String) -> time:
+    fn fromisoformat(owned time_string: String) raises -> time:
         """Construct a time from a string in one of the ISO 8601 formats."""
 
         # The spec actually requires that time-only ISO 8601 strings start with
         # T, but the extended format allows this to be omitted as long as there
         # is no ambiguity with date strings.
         time_string = removeprefix(time_string, "T")
-
-        return time(*_parse_isoformat_time(time_string))
+        var h: Int
+        var m: Int
+        var s: Int
+        var us: Int
+        var tzi: Optional[timezone]
+        h, m, s, us, tzi = _parse_isoformat_time(time_string)
+        return time(h, m, s, us, tzi)
 
     fn strftime(self, owned format: String) -> String:
         """
@@ -471,7 +476,7 @@ fn _parse_isoformat_time(
     # This is equivalent to re.search('[+-Z]', tstr), but faster
     var tz_pos = (tstr.find("-") + 1 or tstr.find("+") + 1 or tstr.find("Z") + 1)
     var timestr = tstr[: tz_pos - 1] if tz_pos > 0 else tstr
-    var time_comps = _parse_hh_mm_ss_ff(timestr)
+    var time_components = _parse_hh_mm_ss_ff(timestr)
     var tzi: Optional[timezone] = None
     if tz_pos == len_str and tstr[-1] == "Z":
         tzi = timezone.utc
@@ -488,19 +493,24 @@ fn _parse_isoformat_time(
         if len(tzstr) == 0 or len(tzstr) == 1 or len(tzstr) == 3:
             raise Error("Malformed time zone string")
         var tz_comps = _parse_hh_mm_ss_ff(tzstr)
-        if all(x == 0 for x in tz_comps):
-            tzi = timezone.utc
+        if is_all_zeros(tz_comps):
+            tzi = timezone(timedelta(0))
         else:
-            tzsign = -1 if tstr[tz_pos - 1] == "-" else 1
-            td = timedelta(
+            var tzsign = -1 if tstr[tz_pos - 1] == "-" else 1
+            var td = timedelta(
                 hours=tz_comps[0],
                 minutes=tz_comps[1],
                 seconds=tz_comps[2],
                 microseconds=tz_comps[3],
             )
-            tzi = timezone(tzsign * td)
-    time_comps.append(tzi)
-    return time_comps
+            tzi = timezone(td * tzsign)
+    return (
+        time_components[0],
+        time_components[1],
+        time_components[2],
+        time_components[3],
+        tzi,
+    )
 
 
 fn _parse_hh_mm_ss_ff(tstr: String) raises -> list[Int]:
@@ -575,3 +585,10 @@ fn _is_ascii_digit(c: String) -> Bool:
         if c == my_str[i]:
             return True
     return False
+
+
+fn is_all_zeros(input_list: list[Int]) -> Bool:
+    for i in range(len(input_list)):
+        if input_list[i] != 0:
+            return False
+    return True
