@@ -162,9 +162,9 @@ struct time(CollectionElement, Hashable, Stringable):
 
     # Conversion to string
 
-    fn _tzstr(self) -> String:
+    fn _tzstr(self, sep: String = ":") -> String:
         """Return formatted timezone offset (+xx:xx) or an empty string."""
-        return _format_optional_offset(self.utcoffset())
+        return _format_optional_offset(self.utcoffset(), sep=sep)
 
     fn __repr__(self) -> String:
         """Convert to formal string, for repr()."""
@@ -216,23 +216,107 @@ struct time(CollectionElement, Hashable, Stringable):
     #        except Exception:
     #            raise ValueError(f'Invalid isoformat string: {time_string!r}')
     #
-    #    def strftime(self, format):
-    #        """Format using strftime().  The date part of the timestamp passed
-    #        to underlying strftime should not be used.
-    #        """
-    #        # The year must be >= 1000 else Python's strftime implementation
-    #        # can raise a bogus exception.
-    #        timetuple = (1900, 1, 1,
-    #                     self._hour, self._minute, self._second,
-    #                     0, 1, -1)
-    #        return _wrap_strftime(self, format, timetuple)
-    #
-    #    def __format__(self, fmt):
-    #        if not isinstance(fmt, str):
-    #            raise TypeError("must be str, not %s" % type(fmt).__name__)
-    #        if len(fmt) != 0:
-    #            return self.strftime(fmt)
-    #        return str(self)
+    fn strftime(self, owned format: String) -> String:
+        """
+        Format using strftime().
+
+        Example: "%d/%m/%Y, %H:%M:%S"
+        """
+        # this letter F is unused
+        # if there are performance issues, there might be a way to avoid the replace()
+        # but this solution is much easier to understand and read.
+        format = format.replace("%:z", "%F")
+        var result: String = ""
+        var previous_was_percent = False
+        for i in range(len(format)):
+            var letter = format[i]
+            if previous_was_percent:
+                result += self._get_from_letter(letter)
+                previous_was_percent = False
+            elif letter == "%":
+                previous_was_percent = True
+            else:
+                result += letter
+        return result
+
+    fn _get_from_letter(self, letter: String) -> String:
+        """See https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes
+        """
+        if letter == "%":
+            return "%"
+        elif letter == "a":
+            return "Mon"
+        elif letter == "A":
+            return "Monday"
+        elif letter == "w":
+            return "1"
+        elif letter == "d":
+            return "01"
+        elif letter == "b":
+            return "Jan"
+        elif letter == "B":
+            return "January"
+        elif letter == "m":
+            return "01"
+        elif letter == "y":
+            return "00"
+        elif letter == "Y":
+            return "1900"
+        elif letter == "H":
+            return rjust(str(self.hour), 2, "0")
+        elif letter == "I":
+            var modulo = self.hour % 12
+            if modulo == 0:
+                return "12"
+            else:
+                return rjust(str(modulo), 2, "0")
+        elif letter == "p":
+            if self.hour < 12:
+                return "AM"
+            else:
+                return "PM"
+        elif letter == "M":
+            return rjust(str(self.minute), 2, "0")
+        elif letter == "S":
+            return rjust(str(self.second), 2, "0")
+        elif letter == "f":
+            return rjust(str(self.microsecond), 6, "0")
+        elif letter == "z":
+            return self._tzstr(sep="")
+        elif letter == "Z":
+            if self.tzinfo is None:
+                return ""
+            return self.tzinfo.value().tzname(None)
+        elif letter == "j":
+            return "001"
+        elif letter == "U":
+            return "00"
+        elif letter == "W":
+            return "01"
+        elif letter == "c":
+            return self.strftime("Mon Jan  1 %H:%M:%S 1900")
+        elif letter == "x":
+            return "01/01/00"
+        elif letter == "X":
+            return self.strftime("%H:%M:%S")
+        elif letter == "G":
+            return "1900"
+        elif letter == "u":
+            return "1"
+        elif letter == "V":
+            return "01"
+        elif letter == "F":
+            return self._tzstr(sep=":")
+        else:
+            custom_debug_assert(
+                False, "strftime format string contains unknown format letter"
+            )
+            return ""
+
+    def __format__(self, fmt: String) -> String:
+        if len(fmt) != 0:
+            return self.strftime(fmt)
+        return str(self)
 
     # Timezone functions
     fn utcoffset(self) -> Optional[timedelta]:
@@ -304,14 +388,14 @@ struct time(CollectionElement, Hashable, Stringable):
         )
 
 
-fn _format_optional_offset(off: Optional[timedelta], sep: String = ":") -> String:
+fn _format_optional_offset(off: Optional[timedelta], sep: String) -> String:
     if off is None:
         return ""
     else:
         return _format_offset(off.value(), sep)
 
 
-fn _format_offset(owned off: timedelta, sep: String = ":") -> String:
+fn _format_offset(owned off: timedelta, sep: String) -> String:
     var s: String = ""
     var sign: String
     if off.days < 0:
