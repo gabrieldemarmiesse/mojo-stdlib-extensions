@@ -188,6 +188,33 @@ def test_str_function_on_time():
     assert_equal(str(time(12, 30, 0)), "12:30:00")
 
 
+def test_time_strftime_all_values_filled():
+    t = time(
+        12,
+        30,
+        0,
+        105,
+        tzinfo=timezone(timedelta(hours=-4, minutes=1, seconds=8, microseconds=33)),
+        fold=1,
+    )
+    format = "%a|%A|%w|%d|%b|%B|%m|%y|%Y|%H|%I|%p|%M|%S|%f|%z|%Z|%j|%U|%W|%c|%x|%X|%G|%u|%V|%%|%:z"
+    expected = (
+        "Mon|Monday|1|01|Jan|January|01|00|1900|12|12|PM|30|00|000105|-035851.999967|UTC-03:58:51.999967|001|00|01|Mon"
+        " Jan  1 12:30:00 1900|01/01/00|12:30:00|1900|1|01|%|-03:58:51.999967"
+    )
+    assert_equal(t.strftime(format), expected)
+
+
+def test_time_strftime_simple_time():
+    t = time(1, 3)
+    format = "%a|%A|%w|%d|%b|%B|%m|%y|%Y|%H|%I|%p|%M|%S|%f|%z|%Z|%j|%U|%W|%c|%x|%X|%G|%u|%V|%%|%:z"
+    expected = (
+        "Mon|Monday|1|01|Jan|January|01|00|1900|01|01|AM|03|00|000000|||001|00|01|Mon"
+        " Jan  1 01:03:00 1900|01/01/00|01:03:00|1900|1|01|%|"
+    )
+    assert_equal(t.strftime(format), expected)
+
+
 def run_tests():
     test_time_creation()
     test_time_repr()
@@ -201,3 +228,5 @@ def run_tests():
     test_time_isoformat_default()
     test_isoformat_with_different_timespec()
     test_str_function_on_time()
+    test_time_strftime_all_values_filled()
+    test_time_strftime_simple_time()

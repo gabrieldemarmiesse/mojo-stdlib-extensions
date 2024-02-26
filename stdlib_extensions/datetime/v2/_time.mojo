@@ -265,7 +265,11 @@ struct time(CollectionElement, Hashable, Stringable):
         elif letter == "H":
             return rjust(str(self.hour), 2, "0")
         elif letter == "I":
-            return rjust(str((self.hour % 12) + 1), 2, "0")
+            var modulo = self.hour % 12
+            if modulo == 0:
+                return "12"
+            else:
+                return rjust(str(modulo), 2, "0")
         elif letter == "p":
             if self.hour < 12:
                 return "AM"
