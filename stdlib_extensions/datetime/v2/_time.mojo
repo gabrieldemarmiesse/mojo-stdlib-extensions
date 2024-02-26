@@ -3,7 +3,8 @@ from ._timezone import timezone
 from utils.variant import Variant
 from ...builtins._generic_list import _cmp_list
 from ...builtins._hash import hash as custom_hash
-from ...builtins import divmod
+from ...builtins import divmod, bool_to_int
+from ...builtins.string import rjust, removeprefix
 
 
 @value
@@ -200,22 +201,17 @@ struct time(CollectionElement, Hashable, Stringable):
     fn __str__(self) -> String:
         return self.isoformat()
 
-    #    @classmethod
-    #    def fromisoformat(cls, time_string):
-    #        """Construct a time from a string in one of the ISO 8601 formats."""
-    #        if not isinstance(time_string, str):
-    #            raise TypeError('fromisoformat: argument must be str')
-    #
-    #        # The spec actually requires that time-only ISO 8601 strings start with
-    #        # T, but the extended format allows this to be omitted as long as there
-    #        # is no ambiguity with date strings.
-    #        time_string = time_string.removeprefix('T')
-    #
-    #        try:
-    #            return cls(*_parse_isoformat_time(time_string))
-    #        except Exception:
-    #            raise ValueError(f'Invalid isoformat string: {time_string!r}')
-    #
+    @staticmethod
+    fn fromisoformat(owned time_string: String) -> time:
+        """Construct a time from a string in one of the ISO 8601 formats."""
+
+        # The spec actually requires that time-only ISO 8601 strings start with
+        # T, but the extended format allows this to be omitted as long as there
+        # is no ambiguity with date strings.
+        time_string = removeprefix(time_string, "T")
+
+        return time(*_parse_isoformat_time(time_string))
+
     fn strftime(self, owned format: String) -> String:
         """
         Format using strftime().
@@ -463,3 +459,119 @@ fn format_microseconds(
     return (
         format_seconds(hours, minutes, seconds) + "." + rjust(str(microseconds), 6, "0")
     )
+
+
+fn _parse_isoformat_time(
+    tstr: String,
+) raises -> Tuple[Int, Int, Int, Int, Optional[timezone]]:
+    # Format supported is HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]
+    var len_str = len(tstr)
+    if len_str < 2:
+        raise Error("Isoformat time too short")
+    # This is equivalent to re.search('[+-Z]', tstr), but faster
+    var tz_pos = (tstr.find("-") + 1 or tstr.find("+") + 1 or tstr.find("Z") + 1)
+    var timestr = tstr[: tz_pos - 1] if tz_pos > 0 else tstr
+    var time_comps = _parse_hh_mm_ss_ff(timestr)
+    var tzi: Optional[timezone] = None
+    if tz_pos == len_str and tstr[-1] == "Z":
+        tzi = timezone.utc
+    elif tz_pos > 0:
+        var tzstr = tstr[tz_pos:]
+        # Valid time zone strings are:
+        # HH                  len: 2
+        # HHMM                len: 4
+        # HH:MM               len: 5
+        # HHMMSS              len: 6
+        # HHMMSS.f+           len: 7+
+        # HH:MM:SS            len: 8
+        # HH:MM:SS.f+         len: 10+
+        if len(tzstr) == 0 or len(tzstr) == 1 or len(tzstr) == 3:
+            raise Error("Malformed time zone string")
+        var tz_comps = _parse_hh_mm_ss_ff(tzstr)
+        if all(x == 0 for x in tz_comps):
+            tzi = timezone.utc
+        else:
+            tzsign = -1 if tstr[tz_pos - 1] == "-" else 1
+            td = timedelta(
+                hours=tz_comps[0],
+                minutes=tz_comps[1],
+                seconds=tz_comps[2],
+                microseconds=tz_comps[3],
+            )
+            tzi = timezone(tzsign * td)
+    time_comps.append(tzi)
+    return time_comps
+
+
+fn _parse_hh_mm_ss_ff(tstr: String) raises -> list[Int]:
+    # Parses things of the form HH[:?MM[:?SS[{.,}fff[fff]]]]
+    var time_comps = list[Int].from_values(0, 0, 0, 0)
+    var pos = 0
+    var has_sep = False
+    var next_char: String
+    for comp in range(0, 3):
+        if (len(tstr) - pos) < 2:
+            raise Error("Incomplete time component")
+
+        time_comps[comp] = atol(tstr[pos : pos + 2])
+
+        pos += 2
+        next_char = tstr[pos]
+
+        if comp == 0:
+            has_sep = next_char == ":"
+
+        if not next_char or comp >= 2:
+            break
+
+        if has_sep and next_char != ":":
+            raise Error("Invalid time separator: " + next_char)
+
+        pos += bool_to_int(has_sep)
+
+    if pos < len(tstr):
+        if tstr[pos] == "." or tstr[pos] == ",":
+            raise Error("Invalid microsecond component")
+        else:
+            pos += 1
+
+            var len_remainder = len(tstr) - pos
+            var to_parse: Int
+            if len_remainder >= 6:
+                to_parse = 6
+            else:
+                to_parse = len_remainder
+
+            time_comps[3] = atol(tstr[pos : (pos + to_parse)])
+            if to_parse < 6:
+                time_comps[3] *= list[Int].from_values(100000, 10000, 1000, 100, 10)[
+                    to_parse - 1
+                ]
+            if len_remainder > to_parse and not all(
+                map_input_str(_is_ascii_digit, tstr[(pos + to_parse) :])
+            ):
+                raise Error("Non-digit values in unparsed fraction")
+
+    return time_comps
+
+
+fn all(iterable: list[Bool]) -> Bool:
+    for element in iterable:
+        if not element:
+            return False
+    return True
+
+
+fn map_input_str(funct: fn (String) -> Bool, s: String) -> list[Bool]:
+    var result = list[Bool]()
+    for i in range(len(s)):
+        result.append(funct(s[i]))
+    return result
+
+
+fn _is_ascii_digit(c: String) -> Bool:
+    alias my_str: String = "0123456789"
+    for i in range(len(my_str)):
+        if c == my_str[i]:
+            return True
+    return False
