@@ -42,8 +42,8 @@ def test_date_strftime():
 def test_full_date_strftime():
     # all codes
     # TODO: Add U, W, G, V and :z
-    var format: String = "%a|%A|%w|%d|%b|%B|%m|%y|%Y|%H|%I|%p|%M|%S|%f|%z|%Z|%j|%c|%x|%X|%%|%u"
-    var expected: String = "Tue|Tuesday|2|02|Mar|March|03|21|2021|00|12|AM|00|00|000000|||061|Tue Mar  2 00:00:00 2021|03/02/21|00:00:00|%|2"
+    var format: String = "%a|%A|%w|%d|%b|%B|%m|%y|%Y|%H|%I|%p|%M|%S|%f|%z|%Z|%j|%c|%x|%X|%%|%u|%:z"
+    var expected: String = "Tue|Tuesday|2|02|Mar|March|03|21|2021|00|12|AM|00|00|000000|||061|Tue Mar  2 00:00:00 2021|03/02/21|00:00:00|%|2|"
     assert_equal(date(2021, 3, 2).strftime(format), expected)
 
 

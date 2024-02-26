@@ -158,12 +158,16 @@ struct date(CollectionElement, Stringable, Hashable):
             + " 00:00:00 %Y"
         )
 
-    fn strftime(self, format: String) -> String:
+    fn strftime(self, owned format: String) -> String:
         """
         Format using strftime().
 
         Example: "%d/%m/%Y, %H:%M:%S"
         """
+        # this letter F is unused
+        # if there are performance issues, there might be a way to avoid the replace()
+        # but this solution is much easier to understand and read.
+        format = format.replace("%:z", "%F")
         var result: String = ""
         var previous_was_percent = False
         for i in range(len(format)):
@@ -240,12 +244,13 @@ struct date(CollectionElement, Stringable, Hashable):
         elif letter == "V":
             custom_debug_assert(False, "Not implemented yet for %V")
             return ""
-        # TODO: add %:z
+        elif letter == "F":
+            return ""
         else:
             custom_debug_assert(
-                False, "strptime format string contains unknown format letter"
+                False, "strftime format string contains unknown format letter"
             )
-            return ""
+            return "error in strftime"
 
     def __format__(self, fmt: String) -> String:
         if len(fmt) != 0:
