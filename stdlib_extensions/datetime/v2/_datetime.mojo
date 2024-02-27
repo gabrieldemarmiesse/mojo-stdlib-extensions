@@ -47,7 +47,7 @@ struct datetime(CollectionElement):
         fold: Int = 0,
     ):
         # _check_date_fields(year, month, day)
-        # _check_time_fields(hour, minute, second, microsecond, fold)
+        _check_time_fields(hour, minute, second, microsecond, fold)
         self.year = year
         self.month = month
         self.day = day
