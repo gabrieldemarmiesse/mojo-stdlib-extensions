@@ -272,6 +272,9 @@ struct timedelta(CollectionElement, Stringable, Hashable):
             and self.seconds == other.seconds
             and self.microseconds == other.microseconds
         )
+    
+    fn __ne__(self, other: timedelta) -> Bool:
+        return not(self == other)
 
     fn __le__(self, other: timedelta) -> Bool:
         return self._cmp(other) <= 0

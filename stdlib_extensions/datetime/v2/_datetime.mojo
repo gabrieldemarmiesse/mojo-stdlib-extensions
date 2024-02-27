@@ -3,6 +3,8 @@ from ._utils import ymd2ord, MAXORDINAL, _check_date_fields, _check_time_fields
 from ...builtins import divmod
 from ...builtins._types import Optional
 from ..._utils import custom_debug_assert
+from ._utils import _check_utc_offset, _check_time_fields, _build_struct_time
+from ...time import struct_time
 
 # TODO: time methods must be transferred to datetime
 
@@ -167,18 +169,19 @@ struct datetime(CollectionElement):
     #
     #        return cls(*(date_components + time_components))
     #
-    #    def timetuple(self):
-    #        "Return local time tuple compatible with time.localtime()."
-    #        dst = self.dst()
-    #        if dst is None:
-    #            dst = -1
-    #        elif dst:
-    #            dst = 1
-    #        else:
-    #            dst = 0
-    #        return _build_struct_time(self.year, self.month, self.day,
-    #                                  self.hour, self.minute, self.second,
-    #                                  dst)
+    fn timetuple(self) -> struct_time:
+        "Return local time tuple compatible with time.localtime()."
+        var dst = self.dst()
+        var dst_as_int: Int
+        if dst is None:
+            dst_as_int = -1
+        elif dst.value() != timedelta(0):
+            dst_as_int = 1
+        else:
+            dst_as_int = 0
+        return _build_struct_time(self.year, self.month, self.day,
+                                      self.hour, self.minute, self.second,
+                                      dst_as_int)
     #
     #    def _mktime(self):
     #        """Return integer POSIX timestamp."""
@@ -412,21 +415,21 @@ struct datetime(CollectionElement):
 #        name = self._tzinfo.tzname(self)
 #        return name
 #
-#    def dst(self):
-#        """Return 0 if DST is not in effect, or the DST offset (as timedelta
-#        positive eastward) if DST is in effect.
-#
-#        This is purely informational; the DST offset has already been added to
-#        the UTC offset returned by utcoffset() if applicable, so there's no
-#        need to consult dst() unless you're interested in displaying the DST
-#        info.
-#        """
-#        if self._tzinfo is None:
-#            return None
-#        offset = self._tzinfo.dst(self)
-#        _check_utc_offset("dst", offset)
-#        return offset
-#
+    fn dst(self) -> Optional[timedelta]:
+        """Return 0 if DST is not in effect, or the DST offset (as timedelta
+        positive eastward) if DST is in effect.
+
+        This is purely informational; the DST offset has already been added to
+        the UTC offset returned by utcoffset() if applicable, so there's no
+        need to consult dst() unless you're interested in displaying the DST
+        info.
+        """
+        if self.tzinfo is None:
+            return None
+        var offset = self.tzinfo.value().dst(self)
+        _check_utc_offset("dst", offset)
+        return offset
+
 #    # Comparisons of datetime objects with other.
 #
 #    def __eq__(self, other):

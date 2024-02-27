@@ -37,7 +37,24 @@ def test_constructor_all_values():
     assert_equal(a.fold, 1)
 
 
+def test_datetime_get_timetuple():
+    a = datetime(2020, 3, 4, 5, 6, 7, 8, tzinfo=timezone(timedelta(hours=-1)), fold=1)
+    timestruct = a.timetuple()
+    assert_equal(timestruct.tm_year, 2020)
+    assert_equal(timestruct.tm_mon, 3)
+    assert_equal(timestruct.tm_mday, 4)
+    assert_equal(timestruct.tm_hour, 5)
+    assert_equal(timestruct.tm_min, 6)
+    assert_equal(timestruct.tm_sec, 7)
+    assert_equal(timestruct.tm_wday, 2)
+    assert_equal(timestruct.tm_yday, 64)
+    assert_equal(timestruct.tm_isdst, -1)
+
+
+
+
 def run_tests():
     test_aliases()
     test_constructor_default()
     test_constructor_all_values()
+    test_datetime_get_timetuple()
