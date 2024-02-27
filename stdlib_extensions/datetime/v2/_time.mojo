@@ -484,7 +484,7 @@ fn _parse_isoformat_time(
     var time_components = _parse_hh_mm_ss_ff(timestr)
     var tzi: Optional[timezone] = None
     if tz_pos == len_str and tstr[-1] == "Z":
-        tzi = timezone.utc
+        tzi = timezone(timedelta(0))
     elif tz_pos > 0:
         var tzstr = tstr[tz_pos:]
         # Valid time zone strings are:
