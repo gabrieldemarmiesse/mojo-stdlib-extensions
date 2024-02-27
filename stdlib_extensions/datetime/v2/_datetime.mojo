@@ -1,8 +1,10 @@
 from ._timezone import timezone
-from ._utils import ymd2ord, MAXORDINAL
+from ._utils import ymd2ord, MAXORDINAL, _check_date_fields, _check_time_fields
 from ...builtins import divmod
 from ...builtins._types import Optional
 from ..._utils import custom_debug_assert
+
+# TODO: time methods must be transferred to datetime
 
 
 @value
@@ -12,7 +14,6 @@ struct datetime(CollectionElement):
     #    The year, month and day arguments are required. tzinfo may be None, or an
     #    instance of a tzinfo subclass. The remaining arguments may be ints.
     #    """
-    #    __slots__ = time.__slots__
     var year: Int
     var month: Int
     var day: Int
@@ -23,71 +24,42 @@ struct datetime(CollectionElement):
     # TODO: use the trait tzinfo instead.
     # traits are too strict right now to do what we want here.
     var tzinfo: Optional[timezone]
+    var fold: Int
 
-    #    def __new__(cls, year, month=None, day=None, hour=0, minute=0, second=0,
-    #                microsecond=0, tzinfo=None, *, fold=0):
-    #        if (isinstance(year, (bytes, str)) and len(year) == 10 and
-    #            1 <= ord(year[2:3])&0x7F <= 12):
-    #            # Pickle support
-    #            if isinstance(year, str):
-    #                try:
-    #                    year = bytes(year, 'latin1')
-    #                except UnicodeEncodeError:
-    #                    # More informative error message.
-    #                    raise ValueError(
-    #                        "Failed to encode latin1 string when unpickling "
-    #                        "a datetime object. "
-    #                        "pickle.load(data, encoding='latin1') is assumed.")
-    #            self = object.__new__(cls)
-    #            self.__setstate(year, month)
-    #            self._hashcode = -1
-    #            return self
-    #        year, month, day = _check_date_fields(year, month, day)
-    #        hour, minute, second, microsecond, fold = _check_time_fields(
-    #            hour, minute, second, microsecond, fold)
-    #        self = object.__new__(cls)
-    #        self._year = year
-    #        self._month = month
-    #        self._day = day
-    #        self._hour = hour
-    #        self._minute = minute
-    #        self._second = second
-    #        self._microsecond = microsecond
-    #        self._tzinfo = tzinfo
-    #        self._hashcode = -1
-    #        self._fold = fold
-    #        return self
-    #
-    #    # Read-only field accessors
-    #    @property
-    #    def hour(self):
-    #        """hour (0-23)"""
-    #        return self._hour
-    #
-    #    @property
-    #    def minute(self):
-    #        """minute (0-59)"""
-    #        return self._minute
-    #
-    #    @property
-    #    def second(self):
-    #        """second (0-59)"""
-    #        return self._second
-    #
-    #    @property
-    #    def microsecond(self):
-    #        """microsecond (0-999999)"""
-    #        return self._microsecond
-    #
-    #    @property
-    #    def tzinfo(self):
-    #        """timezone info object"""
-    #        return self._tzinfo
-    #
-    #    @property
-    #    def fold(self):
-    #        return self._fold
-    #
+    # this is to avoid conflicting with the @value constructor
+    # TODO: remove when https://github.com/modularml/mojo/issues/1705 is fixed
+    var _dummy: Int
+
+    alias min = datetime(1, 1, 1)
+    alias max = datetime(9999, 12, 31, 23, 59, 59, 999999)
+    alias resolution = timedelta(microseconds=1)
+
+    fn __init__(
+        inout self,
+        year: Int,
+        month: Int,
+        day: Int,
+        hour: Int = 0,
+        minute: Int = 0,
+        second: Int = 0,
+        microsecond: Int = 0,
+        tzinfo: Optional[timezone] = None,
+        fold: Int = 0,
+    ):
+        # _check_date_fields(year, month, day)
+        _check_time_fields(hour, minute, second, microsecond, fold)
+        self.year = year
+        self.month = month
+        self.day = day
+        self.hour = hour
+        self.minute = minute
+        self.second = second
+        self.microsecond = microsecond
+        self.tzinfo = tzinfo
+        self.fold = fold
+        # TODO: remove when https://github.com/modularml/mojo/issues/1705 is fixed
+        self._dummy = 0
+
     #    @classmethod
     #    def _fromtimestamp(cls, t, utc, tz):
     #        """Construct a datetime from a POSIX timestamp (like time.time()).
@@ -585,13 +557,3 @@ struct datetime(CollectionElement):
 #                self._hashcode = hash(timedelta(days, seconds, self.microsecond) - tzoff)
 #        return self._hashcode
 #
-#    def __reduce_ex__(self, protocol):
-#        return (self.__class__, self._getstate(protocol))
-#
-#    def __reduce__(self):
-#        return self.__reduce_ex__(2)
-#
-#
-# datetime.min = datetime(1, 1, 1)
-# datetime.max = datetime(9999, 12, 31, 23, 59, 59, 999999)
-# datetime.resolution = timedelta(microseconds=1)

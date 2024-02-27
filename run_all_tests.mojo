@@ -11,6 +11,7 @@ from stdlib_extensions.stdlib_tests.datetime import (
     test_date,
     test_time_class,
     test_timezone,
+    test_datetime,
 )
 from stdlib_extensions.stdlib_tests.pathlib import test_path
 from stdlib_extensions.stdlib_tests.os import test_process
@@ -36,6 +37,7 @@ def run_each_module():
     test_time_class.run_tests()
     test_date.run_tests()
     test_timezone.run_tests()
+    test_datetime.run_tests()
 
 
 def main():

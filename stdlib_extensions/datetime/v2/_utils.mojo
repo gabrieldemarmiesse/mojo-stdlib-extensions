@@ -16,6 +16,7 @@ from ...builtins import Optional, bytes
 from ...builtins._generic_list import _cmp_list
 from ...builtins._hash import hash as custom_hash
 from ...builtins import bool_to_int
+from ..._utils import custom_debug_assert
 
 
 def _cmp(x, y):
@@ -468,50 +469,39 @@ fn _isoweek_to_gregorian(year: Int, week: Int, day: Int) -> Tuple[Int, Int, Int]
 ## If offset is None, returns None.
 ## Else offset is checked for being in range.
 ## If it is, its integer value is returned.  Else ValueError is raised.
-# def _check_utc_offset(name, offset):
-#    assert name in ("utcoffset", "dst")
-#    if offset is None:
-#        return
-#    if not isinstance(offset, timedelta):
-#        raise TypeError("tzinfo.%s() must return None "
-#                        "or timedelta, not '%s'" % (name, type(offset)))
-#    if not -timedelta(1) < offset < timedelta(1):
-#        raise ValueError("%s()=%s, must be strictly between "
-#                         "-timedelta(hours=24) and timedelta(hours=24)" %
-#                         (name, offset))
-#
-# def _check_date_fields(year, month, day):
-#    year = _index(year)
-#    month = _index(month)
-#    day = _index(day)
-#    if not MINYEAR <= year <= MAXYEAR:
-#        raise ValueError('year must be in %d..%d' % (MINYEAR, MAXYEAR), year)
-#    if not 1 <= month <= 12:
-#        raise ValueError('month must be in 1..12', month)
-#    dim = _days_in_month(year, month)
-#    if not 1 <= day <= dim:
-#        raise ValueError('day must be in 1..%d' % dim, day)
-#    return year, month, day
-#
-# def _check_time_fields(hour, minute, second, microsecond, fold):
-#    hour = _index(hour)
-#    minute = _index(minute)
-#    second = _index(second)
-#    microsecond = _index(microsecond)
-#    if not 0 <= hour <= 23:
-#        raise ValueError('hour must be in 0..23', hour)
-#    if not 0 <= minute <= 59:
-#        raise ValueError('minute must be in 0..59', minute)
-#    if not 0 <= second <= 59:
-#        raise ValueError('second must be in 0..59', second)
-#    if not 0 <= microsecond <= 999999:
-#        raise ValueError('microsecond must be in 0..999999', microsecond)
-#    if fold not in (0, 1):
-#        raise ValueError('fold must be either 0 or 1', fold)
-#    return hour, minute, second, microsecond, fold
-#
-#
-#
+fn _check_utc_offset(name: String, offset: Optional[timedelta]):
+    custom_debug_assert(
+        name == "utcoffset" or name == "dst", "name must be 'utcoffset' or 'dst'"
+    )
+    if offset is None:
+        return
+    custom_debug_assert(
+        -timedelta(1) < offset.value() < timedelta(1),
+        name
+        + "()="
+        + offset.value()
+        + ", must be strictly between -timedelta(hours=24) and timedelta(hours=24)",
+    )
+
+
+fn _check_date_fields(year: Int, month: Int, day: Int):
+    # TODO: remove this and use the alias when we don't get "no expansion found" errors
+    custom_debug_assert(
+        MINYEAR <= year <= MAXYEAR, "year must be in the range 1 to 9999"
+    )
+    custom_debug_assert(1 <= month <= 12, "month must be in 1..12")
+    var dim = _days_in_month(year, month)
+    custom_debug_assert(1 <= day <= dim, "day must be in 1.." + str(dim))
+
+
+fn _check_time_fields(hour: Int, minute: Int, second: Int, microsecond: Int, fold: Int):
+    custom_debug_assert(0 <= hour <= 23, "hour must be in 0..23")
+    custom_debug_assert(0 <= minute <= 59, "minute must be in 0..59")
+    custom_debug_assert(0 <= second <= 59, "second must be in 0..59")
+    custom_debug_assert(0 <= microsecond <= 999999, "microsecond must be in 0..999999")
+    custom_debug_assert(0 <= fold <= 1, "fold must be in 0 or 1")
+
+
 # def _divide_and_round(a, b):
 #    """divide a by b and round result to the nearest integer
 #
