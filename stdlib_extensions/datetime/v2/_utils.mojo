@@ -545,6 +545,3 @@ fn isoweek1monday(year: Int) -> Int:
     if firstweekday > THURSDAY:
         week1monday += 7
     return week1monday
-
-
-# _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)

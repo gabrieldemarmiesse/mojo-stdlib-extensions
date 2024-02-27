@@ -6,6 +6,8 @@ from ..._utils import custom_debug_assert
 
 # TODO: time methods must be transferred to datetime
 
+alias _EPOCH = datetime(1970, 1, 1, tzinfo=timezone(timedelta(0)))
+
 
 @value
 struct datetime(CollectionElement):
@@ -119,132 +121,139 @@ struct datetime(CollectionElement):
     #        t = _time.time()
     #        return cls.fromtimestamp(t, tz)
     #
-    # @staticmethod
-    # fn combine[T: _tzinfo_trait](date: date, time: time[T]) -> datetime[T]:
-    #    "Construct a datetime from a given date and a given time."
-    #    return datetime(
-    #        date.year,
-    #        date.month,
-    #        date.day,
-    #        time.hour,
-    #        time.minute,
-    #        time.second,
-    #        time.microsecond,
-    #        time.tzinfo,
-    #        fold=time.fold,
-    #    )
+    @staticmethod
+    fn combine(date: date, time: time) -> datetime:
+        "Construct a datetime from a given date and a given time."
+        return datetime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+            time.second,
+            time.microsecond,
+            time.tzinfo,
+            fold=time.fold,
+        )
+
+    #    @classmethod
+    #    def fromisoformat(cls, date_string):
+    #        """Construct a datetime from a string in one of the ISO 8601 formats."""
+    #        if not isinstance(date_string, str):
+    #            raise TypeError('fromisoformat: argument must be str')
+    #
+    #        if len(date_string) < 7:
+    #            raise ValueError(f'Invalid isoformat string: {date_string!r}')
+    #
+    #        # Split this at the separator
+    #        try:
+    #            separator_location = _find_isoformat_datetime_separator(date_string)
+    #            dstr = date_string[0:separator_location]
+    #            tstr = date_string[(separator_location+1):]
+    #
+    #            date_components = _parse_isoformat_date(dstr)
+    #        except ValueError:
+    #            raise ValueError(
+    #                f'Invalid isoformat string: {date_string!r}') from None
+    #
+    #        if tstr:
+    #            try:
+    #                time_components = _parse_isoformat_time(tstr)
+    #            except ValueError:
+    #                raise ValueError(
+    #                    f'Invalid isoformat string: {date_string!r}') from None
+    #        else:
+    #            time_components = [0, 0, 0, 0, None]
+    #
+    #        return cls(*(date_components + time_components))
+    #
+    #    def timetuple(self):
+    #        "Return local time tuple compatible with time.localtime()."
+    #        dst = self.dst()
+    #        if dst is None:
+    #            dst = -1
+    #        elif dst:
+    #            dst = 1
+    #        else:
+    #            dst = 0
+    #        return _build_struct_time(self.year, self.month, self.day,
+    #                                  self.hour, self.minute, self.second,
+    #                                  dst)
+    #
+    #    def _mktime(self):
+    #        """Return integer POSIX timestamp."""
+    #        epoch = datetime(1970, 1, 1)
+    #        max_fold_seconds = 24 * 3600
+    #        t = (self - epoch) // timedelta(0, 1)
+    #        def local(u):
+    #            y, m, d, hh, mm, ss = _time.localtime(u)[:6]
+    #            return (datetime(y, m, d, hh, mm, ss) - epoch) // timedelta(0, 1)
+    #
+    #        # Our goal is to solve t = local(u) for u.
+    #        a = local(t) - t
+    #        u1 = t - a
+    #        t1 = local(u1)
+    #        if t1 == t:
+    #            # We found one solution, but it may not be the one we need.
+    #            # Look for an earlier solution (if `fold` is 0), or a
+    #            # later one (if `fold` is 1).
+    #            u2 = u1 + (-max_fold_seconds, max_fold_seconds)[self.fold]
+    #            b = local(u2) - u2
+    #            if a == b:
+    #                return u1
+    #        else:
+    #            b = t1 - u1
+    #            assert a != b
+    #        u2 = t - b
+    #        t2 = local(u2)
+    #        if t2 == t:
+    #            return u2
+    #        if t1 == t:
+    #            return u1
+    #        # We have found both offsets a and b, but neither t - a nor t - b is
+    #        # a solution.  This means t is in the gap.
+    #        return (max, min)[self.fold](u1, u2)
+    #
+    #
+    #    def timestamp(self):
+    #        "Return POSIX timestamp as float"
+    #        if self._tzinfo is None:
+    #            s = self._mktime()
+    #            return s + self.microsecond / 1e6
+    #        else:
+    #            return (self - _EPOCH).total_seconds()
+    #
+    #    def utctimetuple(self):
+    #        "Return UTC time tuple compatible with time.gmtime()."
+    #        offset = self.utcoffset()
+    #        if offset:
+    #            self -= offset
+    #        y, m, d = self.year, self.month, self.day
+    #        hh, mm, ss = self.hour, self.minute, self.second
+    #        return _build_struct_time(y, m, d, hh, mm, ss, 0)
+    #
+    fn date(self) -> date:
+        "Return the date part."
+        return date(self.year, self.month, self.day)
+
+    fn time(self) -> time:
+        "Return the time part, with tzinfo None."
+        return time(
+            self.hour, self.minute, self.second, self.microsecond, fold=self.fold
+        )
+
+    fn timetz(self) -> time:
+        "Return the time part, with same tzinfo."
+        return time(
+            self.hour,
+            self.minute,
+            self.second,
+            self.microsecond,
+            self.tzinfo,
+            fold=self.fold,
+        )
 
 
-#
-#    @classmethod
-#    def fromisoformat(cls, date_string):
-#        """Construct a datetime from a string in one of the ISO 8601 formats."""
-#        if not isinstance(date_string, str):
-#            raise TypeError('fromisoformat: argument must be str')
-#
-#        if len(date_string) < 7:
-#            raise ValueError(f'Invalid isoformat string: {date_string!r}')
-#
-#        # Split this at the separator
-#        try:
-#            separator_location = _find_isoformat_datetime_separator(date_string)
-#            dstr = date_string[0:separator_location]
-#            tstr = date_string[(separator_location+1):]
-#
-#            date_components = _parse_isoformat_date(dstr)
-#        except ValueError:
-#            raise ValueError(
-#                f'Invalid isoformat string: {date_string!r}') from None
-#
-#        if tstr:
-#            try:
-#                time_components = _parse_isoformat_time(tstr)
-#            except ValueError:
-#                raise ValueError(
-#                    f'Invalid isoformat string: {date_string!r}') from None
-#        else:
-#            time_components = [0, 0, 0, 0, None]
-#
-#        return cls(*(date_components + time_components))
-#
-#    def timetuple(self):
-#        "Return local time tuple compatible with time.localtime()."
-#        dst = self.dst()
-#        if dst is None:
-#            dst = -1
-#        elif dst:
-#            dst = 1
-#        else:
-#            dst = 0
-#        return _build_struct_time(self.year, self.month, self.day,
-#                                  self.hour, self.minute, self.second,
-#                                  dst)
-#
-#    def _mktime(self):
-#        """Return integer POSIX timestamp."""
-#        epoch = datetime(1970, 1, 1)
-#        max_fold_seconds = 24 * 3600
-#        t = (self - epoch) // timedelta(0, 1)
-#        def local(u):
-#            y, m, d, hh, mm, ss = _time.localtime(u)[:6]
-#            return (datetime(y, m, d, hh, mm, ss) - epoch) // timedelta(0, 1)
-#
-#        # Our goal is to solve t = local(u) for u.
-#        a = local(t) - t
-#        u1 = t - a
-#        t1 = local(u1)
-#        if t1 == t:
-#            # We found one solution, but it may not be the one we need.
-#            # Look for an earlier solution (if `fold` is 0), or a
-#            # later one (if `fold` is 1).
-#            u2 = u1 + (-max_fold_seconds, max_fold_seconds)[self.fold]
-#            b = local(u2) - u2
-#            if a == b:
-#                return u1
-#        else:
-#            b = t1 - u1
-#            assert a != b
-#        u2 = t - b
-#        t2 = local(u2)
-#        if t2 == t:
-#            return u2
-#        if t1 == t:
-#            return u1
-#        # We have found both offsets a and b, but neither t - a nor t - b is
-#        # a solution.  This means t is in the gap.
-#        return (max, min)[self.fold](u1, u2)
-#
-#
-#    def timestamp(self):
-#        "Return POSIX timestamp as float"
-#        if self._tzinfo is None:
-#            s = self._mktime()
-#            return s + self.microsecond / 1e6
-#        else:
-#            return (self - _EPOCH).total_seconds()
-#
-#    def utctimetuple(self):
-#        "Return UTC time tuple compatible with time.gmtime()."
-#        offset = self.utcoffset()
-#        if offset:
-#            self -= offset
-#        y, m, d = self.year, self.month, self.day
-#        hh, mm, ss = self.hour, self.minute, self.second
-#        return _build_struct_time(y, m, d, hh, mm, ss, 0)
-#
-#    def date(self):
-#        "Return the date part."
-#        return date(self._year, self._month, self._day)
-#
-#    def time(self):
-#        "Return the time part, with tzinfo None."
-#        return time(self.hour, self.minute, self.second, self.microsecond, fold=self.fold)
-#
-#    def timetz(self):
-#        "Return the time part, with same tzinfo."
-#        return time(self.hour, self.minute, self.second, self.microsecond,
-#                    self._tzinfo, fold=self.fold)
-#
 #    def replace(self, year=None, month=None, day=None, hour=None,
 #                minute=None, second=None, microsecond=None, tzinfo=True,
 #                *, fold=None):
