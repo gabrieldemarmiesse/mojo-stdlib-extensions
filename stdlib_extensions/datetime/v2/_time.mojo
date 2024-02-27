@@ -63,8 +63,7 @@ struct time(CollectionElement, Hashable, Stringable):
         tzinfo (default to None)
         fold (keyword only, default to zero)
         """
-        # TODO: enable this
-        # _check_time_fields( hour, minute, second, microsecond, fold)
+        _check_time_fields(hour, minute, second, microsecond, fold)
         self.hour = hour
         self.minute = minute
         self.second = second
