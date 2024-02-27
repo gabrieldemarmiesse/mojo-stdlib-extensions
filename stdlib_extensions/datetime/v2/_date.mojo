@@ -13,6 +13,7 @@ from ._utils import (
     get_months_short_names,
     _parse_isoformat_date,
     MAXORDINAL,
+    _check_date_fields,
 )
 from ._iso_calendar_date import IsoCalendarDate
 
@@ -63,6 +64,17 @@ struct date(CollectionElement, Stringable, Hashable):
     var year: Int
     var month: Int
     var day: Int
+    # this is to avoid conflicting with the @value constructor
+    # TODO: remove when https://github.com/modularml/mojo/issues/1705 is fixed
+    var _dummy: Int
+
+    fn __init__(inout self, year: Int, month: Int, day: Int) -> None:
+        # TODO: enable this
+        # _check_date_fields(year, month, day)
+        self.year = year
+        self.month = month
+        self.day = day
+        self._dummy = 0
 
     # Additional constructors
     @staticmethod

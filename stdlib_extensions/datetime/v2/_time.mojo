@@ -5,6 +5,7 @@ from ...builtins._generic_list import _cmp_list
 from ...builtins._hash import hash as custom_hash
 from ...builtins import divmod, bool_to_int
 from ...builtins.string import rjust, removeprefix
+from ._utils import _check_utc_offset, _check_time_fields
 
 
 @value
@@ -62,8 +63,8 @@ struct time(CollectionElement, Hashable, Stringable):
         tzinfo (default to None)
         fold (keyword only, default to zero)
         """
-        # hour, minute, second, microsecond, fold = _check_time_fields(
-        #    hour, minute, second, microsecond, fold)
+        # TODO: enable this
+        # _check_time_fields( hour, minute, second, microsecond, fold)
         self.hour = hour
         self.minute = minute
         self.second = second
@@ -321,7 +322,7 @@ struct time(CollectionElement, Hashable, Stringable):
         if self.tzinfo is None:
             return None
         var offset = self.tzinfo.value().utcoffset(None)
-        # _check_utc_offset("utcoffset", offset)
+        _check_utc_offset("utcoffset", offset)
         return offset
 
     fn tzname(self) -> Optional[String]:
@@ -347,7 +348,7 @@ struct time(CollectionElement, Hashable, Stringable):
         if self.tzinfo is None:
             return None
         var offset = self.tzinfo.value().dst(None)
-        # _check_utc_offset("dst", offset)
+        _check_utc_offset("dst", offset)
         return offset
 
     fn replace(
