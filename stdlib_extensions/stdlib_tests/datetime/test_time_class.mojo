@@ -248,24 +248,57 @@ def test_time_format_dunder_non_empty():
 
 def test_time_fromisoformat():
     assert_equal(time.fromisoformat("12:30:00"), time(12, 30, 0))
-    print("dodo")
     assert_equal(
         time.fromisoformat("12:30:00+00:00"),
         time(12, 30, 0, tzinfo=timezone(timedelta(0))),
     )
-    print("didi")
-
     assert_equal(
         time.fromisoformat("12:30:00-04:00"),
         time(12, 30, 0, tzinfo=timezone(timedelta(hours=-4))),
     )
-    print("dudu")
 
     assert_equal(
         time.fromisoformat("12:30:00.000100-04:00"),
         time(12, 30, 0, 100, tzinfo=timezone(timedelta(hours=-4))),
     )
-    print("dada")
+    assert_equal(
+        time.fromisoformat("12:30:00.000100+04:00:08.000003"),
+        time(
+            12,
+            30,
+            0,
+            100,
+            tzinfo=timezone(timedelta(hours=4, seconds=8, microseconds=3)),
+        ),
+    )
+    assert_equal(
+        time.fromisoformat("123000.000100+040008.000003"),
+        time(
+            12,
+            30,
+            0,
+            100,
+            tzinfo=timezone(timedelta(hours=4, seconds=8, microseconds=3)),
+        ),
+    )
+
+    # those examples come from the Python docs:
+    assert_equal(time.fromisoformat("04:23:01"), time(4, 23, 1))
+    assert_equal(time.fromisoformat("T04:23:01"), time(4, 23, 1))
+    assert_equal(time.fromisoformat("T042301"), time(4, 23, 1))
+    assert_equal(time.fromisoformat("04:23:01.000384"), time(4, 23, 1, 384))
+    assert_equal(time.fromisoformat("04:23:01,000384"), time(4, 23, 1, 384))
+    assert_equal(
+        time.fromisoformat("04:23:01+04:00"),
+        time(4, 23, 1, tzinfo=timezone(timedelta(seconds=14400))),
+    )
+    assert_equal(
+        time.fromisoformat("04:23:01Z"), time(4, 23, 1, tzinfo=timezone(timedelta(0)))
+    )
+    assert_equal(
+        time.fromisoformat("04:23:01+00:00"),
+        time(4, 23, 1, tzinfo=timezone(timedelta(0))),
+    )
 
 
 def run_tests():

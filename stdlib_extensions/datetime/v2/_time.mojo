@@ -483,10 +483,11 @@ fn _parse_isoformat_time(
     var timestr = tstr[: tz_pos - 1] if tz_pos > 0 else tstr
     var time_components = _parse_hh_mm_ss_ff(timestr)
     var tzi: Optional[timezone] = None
-    if tz_pos == len_str and tstr[-1] == "Z":
+    # TODO: simplify to -1 when https://github.com/modularml/mojo/issues/1760 is fixed
+    if tz_pos == len_str and tstr[len(tstr) - 1] == "Z":
         tzi = timezone(timedelta(0))
     elif tz_pos > 0:
-        var tzstr = tstr[tz_pos:]
+        var tzstr = get_slice_checked(tstr, tz_pos)
         # Valid time zone strings are:
         # HH                  len: 2
         # HHMM                len: 4
@@ -518,11 +519,24 @@ fn _parse_isoformat_time(
     )
 
 
+# TODO: remove this when https://github.com/modularml/mojo/issues/1760 is fixed
+fn get_slice_checked(string: String, owned start: Int, owned end: Int) -> String:
+    if start >= len(string):
+        return ""
+    return string[start:end]
+
+
+fn get_slice_checked(string: String, owned start: Int) -> String:
+    if start >= len(string):
+        return ""
+    return string[start:]
+
+
 fn _parse_hh_mm_ss_ff(tstr: String) raises -> list[Int]:
     # Parses things of the form HH[:?MM[:?SS[{.,}fff[fff]]]]
     var time_comps = list[Int].from_values(0, 0, 0, 0)
     var pos = 0
-    var has_sep = False
+    var has_sep: Bool = False
     var next_char: String
     for comp in range(0, 3):
         if (len(tstr) - pos) < 2:
@@ -531,7 +545,7 @@ fn _parse_hh_mm_ss_ff(tstr: String) raises -> list[Int]:
         time_comps[comp] = atol(tstr[pos : pos + 2])
 
         pos += 2
-        next_char = tstr[pos]
+        next_char = get_slice_checked(tstr, pos, pos + 1)
 
         if comp == 0:
             has_sep = next_char == ":"
@@ -545,7 +559,7 @@ fn _parse_hh_mm_ss_ff(tstr: String) raises -> list[Int]:
         pos += bool_to_int(has_sep)
 
     if pos < len(tstr):
-        if tstr[pos] == "." or tstr[pos] == ",":
+        if not (tstr[pos] == "." or tstr[pos] == ","):
             raise Error("Invalid microsecond component")
         else:
             pos += 1
