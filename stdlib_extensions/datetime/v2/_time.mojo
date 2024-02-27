@@ -209,13 +209,8 @@ struct time(CollectionElement, Hashable, Stringable):
         # T, but the extended format allows this to be omitted as long as there
         # is no ambiguity with date strings.
         time_string = removeprefix(time_string, "T")
-        var h: Int
-        var m: Int
-        var s: Int
-        var us: Int
-        var tzi: Optional[timezone]
-        h, m, s, us, tzi = _parse_isoformat_time(time_string)
-        return time(h, m, s, us, tzi)
+        var r = _parse_isoformat_time(time_string)
+        return time(r.hour, r.minute, r.second, r.microsecond, r.tzinfo)
 
     fn strftime(self, owned format: String) -> String:
         """
@@ -466,9 +461,19 @@ fn format_microseconds(
     )
 
 
+# TODO: use Tuple when https://github.com/modularml/mojo/issues/1817 is fixed
+@value
+struct IsoformatTimeResult:
+    var hour: Int
+    var minute: Int
+    var second: Int
+    var microsecond: Int
+    var tzinfo: Optional[timezone]
+
+
 fn _parse_isoformat_time(
     tstr: String,
-) raises -> Tuple[Int, Int, Int, Int, Optional[timezone]]:
+) raises -> IsoformatTimeResult:
     # Format supported is HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]
     var len_str = len(tstr)
     if len_str < 2:
@@ -504,7 +509,7 @@ fn _parse_isoformat_time(
                 microseconds=tz_comps[3],
             )
             tzi = timezone(td * tzsign)
-    return (
+    return IsoformatTimeResult(
         time_components[0],
         time_components[1],
         time_components[2],
