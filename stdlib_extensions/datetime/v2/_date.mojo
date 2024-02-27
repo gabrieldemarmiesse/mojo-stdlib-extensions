@@ -24,7 +24,7 @@ from ...builtins import list
 from ...builtins.string import ljust, rjust, join
 from ..._utils import custom_debug_assert
 
-alias _EPOCH = date(1970, 1, 1)
+alias _EPOCH_DATE = date(1970, 1, 1)
 
 
 @value
@@ -80,18 +80,18 @@ struct date(CollectionElement, Stringable, Hashable):
     @staticmethod
     def fromtimestamp(t: Int) -> date:
         "Construct a date from a POSIX timestamp (like time.time())."
-        return _EPOCH + timedelta(seconds=t)
+        return _EPOCH_DATE + timedelta(seconds=t)
 
     @staticmethod
     def fromtimestamp(t: Float64) -> date:
         "Construct a date from a POSIX timestamp (like time.time())."
-        return _EPOCH + timedelta(seconds=int(t))
+        return _EPOCH_DATE + timedelta(seconds=int(t))
 
     @staticmethod
     fn today() -> date:
         "Construct a date from time.time()."
         var t = time_ns()
-        return _EPOCH + timedelta(microseconds=(t / 1_000).to_int())
+        return _EPOCH_DATE + timedelta(microseconds=(t / 1_000).to_int())
 
     @staticmethod
     fn fromordinal(n: Int) -> date:
