@@ -94,9 +94,17 @@ def test_datetime_replace():
     assert_equal(a.fold, 0)
 
 
+def test_datetime_repr():
+    a = datetime(2020, 3, 4, 5, 6, 7, 8, tzinfo=timezone(timedelta(hours=-1)), fold=1)
+    assert_equal(a.__repr__(), "datetime.datetime(2020, 3, 4, 5, 6, 7, 8, tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=82800)), fold=1)")
+
+    a = datetime(2020, 3, 4)
+    assert_equal(a.__repr__(), "datetime.datetime(2020, 3, 4, 0, 0)")
+
 def run_tests():
     test_aliases()
     test_constructor_default()
     test_constructor_all_values()
     test_datetime_get_timetuple()
     test_datetime_replace()
+    test_datetime_repr()
