@@ -51,6 +51,49 @@ def test_datetime_get_timetuple():
     assert_equal(timestruct.tm_isdst, -1)
 
 
+def test_datetime_replace():
+    a = datetime(2020, 3, 4, 5, 6, 7, 8, tzinfo=timezone(timedelta(hours=-1)), fold=1)
+    a = a.replace(year=2021)
+    assert_equal(a.year, 2021)
+    assert_equal(a.month, 3)
+    assert_equal(a.day, 4)
+
+    a = a.replace(month=9)
+    assert_equal(a.year, 2021)
+    assert_equal(a.month, 9)
+
+    a = a.replace(day=15)
+    assert_equal(a.year, 2021)
+    assert_equal(a.month, 9)
+    assert_equal(a.day, 15)
+
+    a = a.replace(hour=20)
+    assert_equal(a.year, 2021)
+    assert_equal(a.month, 9)
+    assert_equal(a.day, 15)
+    assert_equal(a.hour, 20)
+    assert_equal(a.minute, 6)
+
+    a = a.replace(minute=30)
+    assert_equal(a.minute, 30)
+
+    a = a.replace(second=1)
+    assert_equal(a.second, 1)
+    
+    a = a.replace(microsecond=2)
+    assert_equal(a.microsecond, 2)
+
+    a = a.replace(tzinfo=None)
+    assert_true(a.tzinfo is None, "tzinfo should be None")
+
+    a = a.replace(tzinfo=timezone(timedelta(hours=-1)))
+    assert_true(a.tzinfo is not None, "tzinfo should not be None")
+    assert_equal(a.tzinfo.value(), timezone(timedelta(hours=-1)))
+
+    a = a.replace(fold=0)
+    assert_equal(a.fold, 0)
+
+
 
 
 def run_tests():
@@ -58,3 +101,4 @@ def run_tests():
     test_constructor_default()
     test_constructor_all_values()
     test_datetime_get_timetuple()
+    test_datetime_replace()

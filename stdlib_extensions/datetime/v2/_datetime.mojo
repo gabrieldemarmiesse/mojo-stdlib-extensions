@@ -5,6 +5,7 @@ from ...builtins._types import Optional
 from ..._utils import custom_debug_assert
 from ._utils import _check_utc_offset, _check_time_fields, _build_struct_time
 from ...time import struct_time
+from utils.variant import Variant
 
 # TODO: time methods must be transferred to datetime
 
@@ -179,9 +180,16 @@ struct datetime(CollectionElement):
             dst_as_int = 1
         else:
             dst_as_int = 0
-        return _build_struct_time(self.year, self.month, self.day,
-                                      self.hour, self.minute, self.second,
-                                      dst_as_int)
+        return _build_struct_time(
+            self.year,
+            self.month,
+            self.day,
+            self.hour,
+            self.minute,
+            self.second,
+            dst_as_int,
+        )
+
     #
     #    def _mktime(self):
     #        """Return integer POSIX timestamp."""
@@ -256,165 +264,179 @@ struct datetime(CollectionElement):
             fold=self.fold,
         )
 
+    fn replace(
+        self,
+        owned year: Optional[Int] = None,
+        owned month: Optional[Int] = None,
+        owned day: Optional[Int] = None,
+        owned hour: Optional[Int] = None,
+        owned minute: Optional[Int] = None,
+        owned second: Optional[Int] = None,
+        owned microsecond: Optional[Int] = None,
+        owned tzinfo: TzinfoReplacement = True,
+        owned fold: Optional[Int] = None,
+    ) -> datetime:
+        """Return a new datetime with new values for the specified fields."""
+        if year is None:
+            year = self.year
+        if month is None:
+            month = self.month
+        if day is None:
+            day = self.day
+        if hour is None:
+            hour = self.hour
+        if minute is None:
+            minute = self.minute
+        if second is None:
+            second = self.second
+        if microsecond is None:
+            microsecond = self.microsecond
+        var _tzinfo: Optional[timezone]
+        if tzinfo.is_bool():
+            _tzinfo = self.tzinfo
+        else:
+            _tzinfo = tzinfo.get_tzinfo()
+        if fold is None:
+            fold = self.fold
+        return datetime(
+            year.value(), month.value(), day.value(), hour.value(), minute.value(), second.value(), microsecond.value(), 
+            _tzinfo, fold.value()
+        )
 
-#    def replace(self, year=None, month=None, day=None, hour=None,
-#                minute=None, second=None, microsecond=None, tzinfo=True,
-#                *, fold=None):
-#        """Return a new datetime with new values for the specified fields."""
-#        if year is None:
-#            year = self.year
-#        if month is None:
-#            month = self.month
-#        if day is None:
-#            day = self.day
-#        if hour is None:
-#            hour = self.hour
-#        if minute is None:
-#            minute = self.minute
-#        if second is None:
-#            second = self.second
-#        if microsecond is None:
-#            microsecond = self.microsecond
-#        if tzinfo is True:
-#            tzinfo = self.tzinfo
-#        if fold is None:
-#            fold = self.fold
-#        return type(self)(year, month, day, hour, minute, second,
-#                          microsecond, tzinfo, fold=fold)
-#
-#    __replace__ = replace
-#
-#    def _local_timezone(self):
-#        if self.tzinfo is None:
-#            ts = self._mktime()
-#            # Detect gap
-#            ts2 = self.replace(fold=1-self.fold)._mktime()
-#            if ts2 != ts: # This happens in a gap or a fold
-#                if (ts2 > ts) == self.fold:
-#                    ts = ts2
-#        else:
-#            ts = (self - _EPOCH) // timedelta(seconds=1)
-#        localtm = _time.localtime(ts)
-#        local = datetime(*localtm[:6])
-#        # Extract TZ data
-#        gmtoff = localtm.tm_gmtoff
-#        zone = localtm.tm_zone
-#        return timezone(timedelta(seconds=gmtoff), zone)
-#
-#    def astimezone(self, tz=None):
-#        if tz is None:
-#            tz = self._local_timezone()
-#        elif not isinstance(tz, tzinfo):
-#            raise TypeError("tz argument must be an instance of tzinfo")
-#
-#        mytz = self.tzinfo
-#        if mytz is None:
-#            mytz = self._local_timezone()
-#            myoffset = mytz.utcoffset(self)
-#        else:
-#            myoffset = mytz.utcoffset(self)
-#            if myoffset is None:
-#                mytz = self.replace(tzinfo=None)._local_timezone()
-#                myoffset = mytz.utcoffset(self)
-#
-#        if tz is mytz:
-#            return self
-#
-#        # Convert self to UTC, and attach the new time zone object.
-#        utc = (self - myoffset).replace(tzinfo=tz)
-#
-#        # Convert from UTC to tz's local time.
-#        return tz.fromutc(utc)
-#
-#    # Ways to produce a string.
-#
-#    def ctime(self):
-#        "Return ctime() style string."
-#        weekday = self.toordinal() % 7 or 7
-#        return "%s %s %2d %02d:%02d:%02d %04d" % (
-#            _DAYNAMES[weekday],
-#            _MONTHNAMES[self._month],
-#            self._day,
-#            self._hour, self._minute, self._second,
-#            self._year)
-#
-#    def isoformat(self, sep='T', timespec='auto'):
-#        """Return the time formatted according to ISO.
-#
-#        The full format looks like 'YYYY-MM-DD HH:MM:SS.mmmmmm'.
-#        By default, the fractional part is omitted if self.microsecond == 0.
-#
-#        If self.tzinfo is not None, the UTC offset is also attached, giving
-#        giving a full format of 'YYYY-MM-DD HH:MM:SS.mmmmmm+HH:MM'.
-#
-#        Optional argument sep specifies the separator between date and
-#        time, default 'T'.
-#
-#        The optional argument timespec specifies the number of additional
-#        terms of the time to include. Valid options are 'auto', 'hours',
-#        'minutes', 'seconds', 'milliseconds' and 'microseconds'.
-#        """
-#        s = ("%04d-%02d-%02d%c" % (self._year, self._month, self._day, sep) +
-#             _format_time(self._hour, self._minute, self._second,
-#                          self._microsecond, timespec))
-#
-#        off = self.utcoffset()
-#        tz = _format_offset(off)
-#        if tz:
-#            s += tz
-#
-#        return s
-#
-#    def __repr__(self):
-#        """Convert to formal string, for repr()."""
-#        L = [self._year, self._month, self._day,  # These are never zero
-#             self._hour, self._minute, self._second, self._microsecond]
-#        if L[-1] == 0:
-#            del L[-1]
-#        if L[-1] == 0:
-#            del L[-1]
-#        s = "%s.%s(%s)" % (_get_class_module(self),
-#                           self.__class__.__qualname__,
-#                           ", ".join(map(str, L)))
-#        if self._tzinfo is not None:
-#            assert s[-1:] == ")"
-#            s = s[:-1] + ", tzinfo=%r" % self._tzinfo + ")"
-#        if self._fold:
-#            assert s[-1:] == ")"
-#            s = s[:-1] + ", fold=1)"
-#        return s
-#
-#    def __str__(self):
-#        "Convert to string, for str()."
-#        return self.isoformat(sep=' ')
-#
-#    @classmethod
-#    def strptime(cls, date_string, format):
-#        'string, format -> new datetime parsed from a string (like time.strptime()).'
-#        import _strptime
-#        return _strptime._strptime_datetime(cls, date_string, format)
-#
-#    def utcoffset(self):
-#        """Return the timezone offset as timedelta positive east of UTC (negative west of
-#        UTC)."""
-#        if self._tzinfo is None:
-#            return None
-#        offset = self._tzinfo.utcoffset(self)
-#        _check_utc_offset("utcoffset", offset)
-#        return offset
-#
-#    def tzname(self):
-#        """Return the timezone name.
-#
-#        Note that the name is 100% informational -- there's no requirement that
-#        it mean anything in particular. For example, "GMT", "UTC", "-500",
-#        "-5:00", "EDT", "US/Eastern", "America/New York" are all valid replies.
-#        """
-#        if self._tzinfo is None:
-#            return None
-#        name = self._tzinfo.tzname(self)
-#        return name
-#
+
+    #    __replace__ = replace
+    #
+    #    def _local_timezone(self):
+    #        if self.tzinfo is None:
+    #            ts = self._mktime()
+    #            # Detect gap
+    #            ts2 = self.replace(fold=1-self.fold)._mktime()
+    #            if ts2 != ts: # This happens in a gap or a fold
+    #                if (ts2 > ts) == self.fold:
+    #                    ts = ts2
+    #        else:
+    #            ts = (self - _EPOCH) // timedelta(seconds=1)
+    #        localtm = _time.localtime(ts)
+    #        local = datetime(*localtm[:6])
+    #        # Extract TZ data
+    #        gmtoff = localtm.tm_gmtoff
+    #        zone = localtm.tm_zone
+    #        return timezone(timedelta(seconds=gmtoff), zone)
+    #
+    #    def astimezone(self, tz=None):
+    #        if tz is None:
+    #            tz = self._local_timezone()
+    #        elif not isinstance(tz, tzinfo):
+    #            raise TypeError("tz argument must be an instance of tzinfo")
+    #
+    #        mytz = self.tzinfo
+    #        if mytz is None:
+    #            mytz = self._local_timezone()
+    #            myoffset = mytz.utcoffset(self)
+    #        else:
+    #            myoffset = mytz.utcoffset(self)
+    #            if myoffset is None:
+    #                mytz = self.replace(tzinfo=None)._local_timezone()
+    #                myoffset = mytz.utcoffset(self)
+    #
+    #        if tz is mytz:
+    #            return self
+    #
+    #        # Convert self to UTC, and attach the new time zone object.
+    #        utc = (self - myoffset).replace(tzinfo=tz)
+    #
+    #        # Convert from UTC to tz's local time.
+    #        return tz.fromutc(utc)
+    #
+    #    # Ways to produce a string.
+    #
+    #    def ctime(self):
+    #        "Return ctime() style string."
+    #        weekday = self.toordinal() % 7 or 7
+    #        return "%s %s %2d %02d:%02d:%02d %04d" % (
+    #            _DAYNAMES[weekday],
+    #            _MONTHNAMES[self._month],
+    #            self._day,
+    #            self._hour, self._minute, self._second,
+    #            self._year)
+    #
+    #    def isoformat(self, sep='T', timespec='auto'):
+    #        """Return the time formatted according to ISO.
+    #
+    #        The full format looks like 'YYYY-MM-DD HH:MM:SS.mmmmmm'.
+    #        By default, the fractional part is omitted if self.microsecond == 0.
+    #
+    #        If self.tzinfo is not None, the UTC offset is also attached, giving
+    #        giving a full format of 'YYYY-MM-DD HH:MM:SS.mmmmmm+HH:MM'.
+    #
+    #        Optional argument sep specifies the separator between date and
+    #        time, default 'T'.
+    #
+    #        The optional argument timespec specifies the number of additional
+    #        terms of the time to include. Valid options are 'auto', 'hours',
+    #        'minutes', 'seconds', 'milliseconds' and 'microseconds'.
+    #        """
+    #        s = ("%04d-%02d-%02d%c" % (self._year, self._month, self._day, sep) +
+    #             _format_time(self._hour, self._minute, self._second,
+    #                          self._microsecond, timespec))
+    #
+    #        off = self.utcoffset()
+    #        tz = _format_offset(off)
+    #        if tz:
+    #            s += tz
+    #
+    #        return s
+    #
+    #    def __repr__(self):
+    #        """Convert to formal string, for repr()."""
+    #        L = [self._year, self._month, self._day,  # These are never zero
+    #             self._hour, self._minute, self._second, self._microsecond]
+    #        if L[-1] == 0:
+    #            del L[-1]
+    #        if L[-1] == 0:
+    #            del L[-1]
+    #        s = "%s.%s(%s)" % (_get_class_module(self),
+    #                           self.__class__.__qualname__,
+    #                           ", ".join(map(str, L)))
+    #        if self._tzinfo is not None:
+    #            assert s[-1:] == ")"
+    #            s = s[:-1] + ", tzinfo=%r" % self._tzinfo + ")"
+    #        if self._fold:
+    #            assert s[-1:] == ")"
+    #            s = s[:-1] + ", fold=1)"
+    #        return s
+    #
+    #    def __str__(self):
+    #        "Convert to string, for str()."
+    #        return self.isoformat(sep=' ')
+    #
+    #    @classmethod
+    #    def strptime(cls, date_string, format):
+    #        'string, format -> new datetime parsed from a string (like time.strptime()).'
+    #        import _strptime
+    #        return _strptime._strptime_datetime(cls, date_string, format)
+    #
+    #    def utcoffset(self):
+    #        """Return the timezone offset as timedelta positive east of UTC (negative west of
+    #        UTC)."""
+    #        if self._tzinfo is None:
+    #            return None
+    #        offset = self._tzinfo.utcoffset(self)
+    #        _check_utc_offset("utcoffset", offset)
+    #        return offset
+    #
+    #    def tzname(self):
+    #        """Return the timezone name.
+    #
+    #        Note that the name is 100% informational -- there's no requirement that
+    #        it mean anything in particular. For example, "GMT", "UTC", "-500",
+    #        "-5:00", "EDT", "US/Eastern", "America/New York" are all valid replies.
+    #        """
+    #        if self._tzinfo is None:
+    #            return None
+    #        name = self._tzinfo.tzname(self)
+    #        return name
+    #
     fn dst(self) -> Optional[timedelta]:
         """Return 0 if DST is not in effect, or the DST offset (as timedelta
         positive eastward) if DST is in effect.
@@ -429,6 +451,7 @@ struct datetime(CollectionElement):
         var offset = self.tzinfo.value().dst(self)
         _check_utc_offset("dst", offset)
         return offset
+
 
 #    # Comparisons of datetime objects with other.
 #
@@ -569,3 +592,23 @@ struct datetime(CollectionElement):
 #                self._hashcode = hash(timedelta(days, seconds, self.microsecond) - tzoff)
 #        return self._hashcode
 #
+
+
+@value
+struct TzinfoReplacement:
+    var _value: Variant[Optional[timezone], Bool]
+
+    fn __init__(inout self, value: Bool):
+        self._value = value
+    
+    fn __init__(inout self, value: None):
+        self._value = Optional[timezone](value)
+
+    fn __init__(inout self, value: timezone):
+        self._value = Optional[timezone](value)
+
+    fn get_tzinfo(self) -> Optional[timezone]:
+        return self._value.get[Optional[timezone]]()
+
+    fn is_bool(self) -> Bool:
+        return self._value.isa[Bool]()
