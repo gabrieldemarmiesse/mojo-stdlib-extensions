@@ -299,10 +299,16 @@ struct datetime(CollectionElement):
         if fold is None:
             fold = self.fold
         return datetime(
-            year.value(), month.value(), day.value(), hour.value(), minute.value(), second.value(), microsecond.value(), 
-            _tzinfo, fold.value()
+            year.value(),
+            month.value(),
+            day.value(),
+            hour.value(),
+            minute.value(),
+            second.value(),
+            microsecond.value(),
+            _tzinfo,
+            fold.value(),
         )
-
 
     #    __replace__ = replace
     #
@@ -425,18 +431,17 @@ struct datetime(CollectionElement):
     #        _check_utc_offset("utcoffset", offset)
     #        return offset
     #
-    #    def tzname(self):
-    #        """Return the timezone name.
-    #
-    #        Note that the name is 100% informational -- there's no requirement that
-    #        it mean anything in particular. For example, "GMT", "UTC", "-500",
-    #        "-5:00", "EDT", "US/Eastern", "America/New York" are all valid replies.
-    #        """
-    #        if self._tzinfo is None:
-    #            return None
-    #        name = self._tzinfo.tzname(self)
-    #        return name
-    #
+    fn tzname(self) -> Optional[String]:
+        """Return the timezone name.
+
+        Note that the name is 100% informational -- there's no requirement that
+        it mean anything in particular. For example, "GMT", "UTC", "-500",
+        "-5:00", "EDT", "US/Eastern", "America/New York" are all valid replies.
+        """
+        if self.tzinfo is None:
+            return None
+        return self.tzinfo.value().tzname(self)
+
     fn dst(self) -> Optional[timedelta]:
         """Return 0 if DST is not in effect, or the DST offset (as timedelta
         positive eastward) if DST is in effect.
@@ -600,7 +605,7 @@ struct TzinfoReplacement:
 
     fn __init__(inout self, value: Bool):
         self._value = value
-    
+
     fn __init__(inout self, value: None):
         self._value = Optional[timezone](value)
 

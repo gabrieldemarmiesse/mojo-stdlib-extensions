@@ -79,7 +79,7 @@ def test_datetime_replace():
 
     a = a.replace(second=1)
     assert_equal(a.second, 1)
-    
+
     a = a.replace(microsecond=2)
     assert_equal(a.microsecond, 2)
 
@@ -92,8 +92,6 @@ def test_datetime_replace():
 
     a = a.replace(fold=0)
     assert_equal(a.fold, 0)
-
-
 
 
 def run_tests():
