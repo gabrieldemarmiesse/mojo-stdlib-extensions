@@ -414,24 +414,26 @@ struct datetime(CollectionElement):
     fn __repr__(self) -> String:
         """Convert to formal string, for repr()."""
         var result: String = "datetime.datetime("
-        var components = list[String].from_values(str(self.year), str(self.month), 
-        str(self.day), str(self.hour),
-        str(self.minute), str(self.second), str(self.microsecond))
+        var components = list[String].from_values(
+            str(self.year),
+            str(self.month),
+            str(self.day),
+            str(self.hour),
+            str(self.minute),
+            str(self.second),
+            str(self.microsecond),
+        )
         for _ in range(2):
             if components[-1] == "0":
                 components.pop()
-        result += join(
-            ", ", 
-            components
-        )
+        result += join(", ", components)
         if self.tzinfo is not None:
             result += ", tzinfo=" + self.tzinfo.value().__repr__()
-        
+
         if self.fold:
             result += ", fold=1"
         result += ")"
         return result
-
 
     #
     #    def __str__(self):
