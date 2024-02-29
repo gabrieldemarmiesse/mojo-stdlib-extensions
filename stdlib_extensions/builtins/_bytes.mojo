@@ -1,5 +1,6 @@
 from ._generic_list import list
 from .._utils import custom_debug_assert
+from .string import rjust
 
 
 fn get_mapping_byte_to_value() -> list[String]:
@@ -359,7 +360,8 @@ struct bytes(Stringable, Sized, CollectionElement):
     fn hex(self) -> String:
         var result: String = ""
         for i in range(self.__len__()):
-            result += hex(self.__getitem__(i))[2:]
+            var as_hex = hex(self.__getitem__(i))[2:]
+            result += rjust(as_hex, 2, "0")
         return result
 
     fn __hash__(self) -> Int:
