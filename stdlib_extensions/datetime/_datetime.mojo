@@ -1,4 +1,4 @@
-from ._timezone import timezone
+from .. import datetime as dt
 from ._utils import ymd2ord, MAXORDINAL, _check_date_fields, _check_time_fields
 from ..builtins import divmod, list
 from ..builtins._types import Optional
@@ -16,7 +16,7 @@ from ..syscalls.clocks import clock_gettime
 
 # TODO: time methods must be transferred to datetime
 
-alias _EPOCH = datetime(1970, 1, 1, tzinfo=timezone(timedelta(0)))
+alias _EPOCH = datetime(1970, 1, 1, tzinfo=dt.timezone(dt.timedelta(0)))
 
 
 @value
@@ -35,7 +35,7 @@ struct datetime(CollectionElement, Stringable):
     var microsecond: Int
     # TODO: use the trait tzinfo instead.
     # traits are too strict right now to do what we want here.
-    var tzinfo: Optional[timezone]
+    var tzinfo: Optional[dt.timezone]
     var fold: Int
 
     # this is to avoid conflicting with the @value constructor
@@ -44,7 +44,7 @@ struct datetime(CollectionElement, Stringable):
 
     alias min = datetime(1, 1, 1)
     alias max = datetime(9999, 12, 31, 23, 59, 59, 999999)
-    alias resolution = timedelta(microseconds=1)
+    alias resolution = dt.timedelta(microseconds=1)
 
     fn __init__(
         inout self,
@@ -55,7 +55,7 @@ struct datetime(CollectionElement, Stringable):
         minute: Int = 0,
         second: Int = 0,
         microsecond: Int = 0,
-        tzinfo: Optional[timezone] = None,
+        tzinfo: Optional[dt.timezone] = None,
         fold: Int = 0,
     ):
         # _check_date_fields(year, month, day)
@@ -76,7 +76,7 @@ struct datetime(CollectionElement, Stringable):
     #    def fromtimestamp(cls, timestamp, tz=None):
     #        """Construct a datetime from a POSIX timestamp (like time.time()).
     #
-    #        A timezone info object may be passed in as well.
+    #        A dt.timezone info object may be passed in as well.
     #        """
     #        return cls._fromtimestamp(timestamp, tz is not None, tz)
     #        var t = timestamp
@@ -109,9 +109,9 @@ struct datetime(CollectionElement, Stringable):
     #
     #            y, m, d, hh, mm, ss = converter(t - max_fold_seconds)[:6]
     #            probe1 = cls(y, m, d, hh, mm, ss, us, tz)
-    #            trans = result - probe1 - timedelta(0, max_fold_seconds)
+    #            trans = result - probe1 - dt.timedelta(0, max_fold_seconds)
     #            if trans.days < 0:
-    #                y, m, d, hh, mm, ss = converter(t + trans // timedelta(0, 1))[:6]
+    #                y, m, d, hh, mm, ss = converter(t + trans // dt.timedelta(0, 1))[:6]
     #                probe2 = cls(y, m, d, hh, mm, ss, us, tz)
     #                if probe2 == result:
     #                    result._fold = 1
@@ -122,14 +122,14 @@ struct datetime(CollectionElement, Stringable):
     @staticmethod
     fn now() -> datetime:
         var ctime_spec = clock_gettime()
-        return datetime(1970, 1, 1) + timedelta(
+        return datetime(1970, 1, 1) + dt.timedelta(
             seconds=ctime_spec.tv_sec.to_int(),
             microseconds=(ctime_spec.tv_nsec // 1_000).to_int(),
         )
 
     fn to_python(self) raises -> PythonObject:
         var python_datetime_module = Python.import_module("datetime")
-        # timezone not suppoted yet
+        # dt.timezone not suppoted yet
         custom_debug_assert(
             self.tzinfo is None,
             "converting to python is not yet support if tzinfo is not None",
@@ -199,7 +199,7 @@ struct datetime(CollectionElement, Stringable):
         var dst_as_int: Int
         if dst is None:
             dst_as_int = -1
-        elif dst.value() != timedelta(0):
+        elif dst.value() != dt.timedelta(0):
             dst_as_int = 1
         else:
             dst_as_int = 0
@@ -218,10 +218,10 @@ struct datetime(CollectionElement, Stringable):
     #        """Return integer POSIX timestamp."""
     #        epoch = datetime(1970, 1, 1)
     #        max_fold_seconds = 24 * 3600
-    #        t = (self - epoch) // timedelta(0, 1)
+    #        t = (self - epoch) // dt.timedelta(0, 1)
     #        def local(u):
     #            y, m, d, hh, mm, ss = _time.localtime(u)[:6]
-    #            return (datetime(y, m, d, hh, mm, ss) - epoch) // timedelta(0, 1)
+    #            return (datetime(y, m, d, hh, mm, ss) - epoch) // dt.timedelta(0, 1)
     #
     #        # Our goal is to solve t = local(u) for u.
     #        a = local(t) - t
@@ -314,7 +314,7 @@ struct datetime(CollectionElement, Stringable):
             second = self.second
         if microsecond is None:
             microsecond = self.microsecond
-        var _tzinfo: Optional[timezone]
+        var _tzinfo: Optional[dt.timezone]
         if tzinfo.is_bool():
             _tzinfo = self.tzinfo
         else:
@@ -344,13 +344,13 @@ struct datetime(CollectionElement, Stringable):
     #                if (ts2 > ts) == self.fold:
     #                    ts = ts2
     #        else:
-    #            ts = (self - _EPOCH) // timedelta(seconds=1)
+    #            ts = (self - _EPOCH) // dt.timedelta(seconds=1)
     #        localtm = _time.localtime(ts)
     #        local = datetime(*localtm[:6])
     #        # Extract TZ data
     #        gmtoff = localtm.tm_gmtoff
     #        zone = localtm.tm_zone
-    #        return timezone(timedelta(seconds=gmtoff), zone)
+    #        return dt.timezone(dt.timedelta(seconds=gmtoff), zone)
     #
     #    def astimezone(self, tz=None):
     #        if tz is None:
@@ -441,8 +441,8 @@ struct datetime(CollectionElement, Stringable):
     #        import _strptime
     #        return _strptime._strptime_datetime(cls, date_string, format)
 
-    fn utcoffset(self) -> Optional[timedelta]:
-        """Return the timezone offset as timedelta positive east of UTC (negative west of
+    fn utcoffset(self) -> Optional[dt.timedelta]:
+        """Return the timezone offset as dt.timedelta positive east of UTC (negative west of
         UTC)."""
         if self.tzinfo is None:
             return None
@@ -461,8 +461,8 @@ struct datetime(CollectionElement, Stringable):
             return None
         return self.tzinfo.value().tzname(self)
 
-    fn dst(self) -> Optional[timedelta]:
-        """Return 0 if DST is not in effect, or the DST offset (as timedelta
+    fn dst(self) -> Optional[dt.timedelta]:
+        """Return 0 if DST is not in effect, or the DST offset (as dt.timedelta
         positive eastward) if DST is in effect.
 
         This is purely informational; the DST offset has already been added to
@@ -555,9 +555,9 @@ struct datetime(CollectionElement, Stringable):
     #            return -1
     #        return diff and 1 or 0
     #
-    fn __add__(self, other: timedelta) -> datetime:
-        "Add a datetime and a timedelta."
-        var delta = timedelta(
+    fn __add__(self, other: dt.timedelta) -> datetime:
+        "Add a datetime and a dt.timedelta."
+        var delta = dt.timedelta(
             self.toordinal(),
             hours=self.hour,
             minutes=self.minute,
@@ -588,15 +588,15 @@ struct datetime(CollectionElement, Stringable):
     #   mojo doesn't support __radd__ yet
     #    __radd__ = __add__
 
-    fn __sub__(self, other: timedelta) -> datetime:
+    fn __sub__(self, other: dt.timedelta) -> datetime:
         return self + (-other)
 
-    fn __sub__(self, other: datetime) -> timedelta:
+    fn __sub__(self, other: datetime) -> dt.timedelta:
         var days1 = self.toordinal()
         var days2 = other.toordinal()
         var secs1 = self.second + self.minute * 60 + self.hour * 3600
         var secs2 = other.second + other.minute * 60 + other.hour * 3600
-        var base = timedelta(
+        var base = dt.timedelta(
             days1 - days2, secs1 - secs2, self.microsecond - other.microsecond
         )
         if self.tzinfo is None and other.tzinfo is None:
@@ -622,32 +622,34 @@ struct datetime(CollectionElement, Stringable):
 #            else:
 #                days = _ymd2ord(self.year, self.month, self.day)
 #                seconds = self.hour * 3600 + self.minute * 60 + self.second
-#                self._hashcode = hash(timedelta(days, seconds, self.microsecond) - tzoff)
+#                self._hashcode = hash(dt.timedelta(days, seconds, self.microsecond) - tzoff)
 #        return self._hashcode
 #
 
 
 @value
 struct TzinfoReplacement:
-    var _value: Variant[Optional[timezone], Bool]
+    var _value: Variant[Optional[dt.timezone], Bool]
 
     fn __init__(inout self, value: Bool):
         self._value = value
 
     fn __init__(inout self, value: None):
-        self._value = Optional[timezone](value)
+        self._value = Optional[dt.timezone](value)
 
-    fn __init__(inout self, value: timezone):
-        self._value = Optional[timezone](value)
+    fn __init__(inout self, value: dt.timezone):
+        self._value = Optional[dt.timezone](value)
 
-    fn get_tzinfo(self) -> Optional[timezone]:
-        return self._value.get[Optional[timezone]]()[]
+    fn get_tzinfo(self) -> Optional[dt.timezone]:
+        return self._value.get[Optional[dt.timezone]]()[]
 
     fn is_bool(self) -> Bool:
         return self._value.isa[Bool]()
 
 
-fn optional_equal_timedelta(a: Optional[timedelta], b: Optional[timedelta]) -> Bool:
+fn optional_equal_timedelta(
+    a: Optional[dt.timedelta], b: Optional[dt.timedelta]
+) -> Bool:
     # remove this when Optional supports __eq__
     if a is None:
         return b is None

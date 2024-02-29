@@ -1,5 +1,5 @@
 from ..builtins import Optional, ___eq__, list
-from ._timezone import timezone
+from .. import datetime as dt
 from utils.variant import Variant
 from ..builtins._generic_list import _cmp_list
 from ..builtins._hash import hash as custom_hash
