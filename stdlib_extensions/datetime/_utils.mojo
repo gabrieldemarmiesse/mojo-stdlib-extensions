@@ -7,16 +7,16 @@ This file is taken from https://github.com/python/cpython/blob/main/Lib/_pydatet
 It's just been converted to Mojo manually.
 """
 
-from ...builtins import list, divmod, round, abs
-from ...builtins.string import join
-from ...time import struct_time
+from ..builtins import list, divmod, round, abs
+from ..builtins.string import join
+from ..time import struct_time
 import math as _math
 import sys
-from ...builtins import Optional, bytes
-from ...builtins._generic_list import _cmp_list
-from ...builtins._hash import hash as custom_hash
-from ...builtins import bool_to_int
-from ..._utils import custom_debug_assert
+from ..builtins import Optional, bytes
+from ..builtins._generic_list import _cmp_list
+from ..builtins._hash import hash as custom_hash
+from ..builtins import bool_to_int
+from .._utils import custom_debug_assert
 
 
 def _cmp(x, y):

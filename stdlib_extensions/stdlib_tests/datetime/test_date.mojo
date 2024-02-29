@@ -1,4 +1,4 @@
-from ...datetime.v2._date import date
+from ...datetime import date
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
 from python import Python
 

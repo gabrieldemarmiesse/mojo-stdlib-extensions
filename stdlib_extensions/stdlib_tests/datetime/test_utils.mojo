@@ -1,5 +1,5 @@
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
-from ...datetime.v2._utils import (
+from ...datetime._utils import (
     _is_leap,
     _days_before_year,
     _days_in_month,
