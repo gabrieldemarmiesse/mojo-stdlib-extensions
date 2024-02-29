@@ -73,11 +73,14 @@ struct datetime(CollectionElement, Stringable):
         self._dummy = 0
 
     #    @classmethod
-    #    def _fromtimestamp(cls, t, utc, tz):
+    #    def fromtimestamp(cls, timestamp, tz=None):
     #        """Construct a datetime from a POSIX timestamp (like time.time()).
     #
     #        A timezone info object may be passed in as well.
     #        """
+    #        return cls._fromtimestamp(timestamp, tz is not None, tz)
+    #        var t = timestamp
+    #        var utc = tz is not None
     #        frac, t = _math.modf(t)
     #        us = round(frac * 1e6)
     #        if us >= 1000000:
@@ -115,14 +118,6 @@ struct datetime(CollectionElement, Stringable):
     #        elif tz is not None:
     #            result = tz.fromutc(result)
     #        return result
-    #
-    #    @classmethod
-    #    def fromtimestamp(cls, timestamp, tz=None):
-    #        """Construct a datetime from a POSIX timestamp (like time.time()).
-    #
-    #        A timezone info object may be passed in as well.
-    #        """
-    #        return cls._fromtimestamp(timestamp, tz is not None, tz)
 
     @staticmethod
     fn now() -> datetime:
