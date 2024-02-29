@@ -7,12 +7,16 @@ from ._utils import (
     _check_utc_offset,
     _check_time_fields,
     _build_struct_time,
+    get_days_short_names,
+    get_days_short_names,
 )
 from ..time import struct_time
 from ..builtins.string import join
 from utils.variant import Variant
 from python import Python
 from ..syscalls.clocks import clock_gettime
+from ..builtins._hash import hash as custom_hash
+
 
 # TODO: time methods must be transferred to datetime
 
@@ -20,7 +24,7 @@ alias _EPOCH = datetime(1970, 1, 1, tzinfo=dt.timezone(dt.timedelta(0)))
 
 
 @value
-struct datetime(CollectionElement, Stringable):
+struct datetime(CollectionElement, Stringable, Hashable):
     #    """datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])
     #
     #    The year, month and day arguments are required. tzinfo may be None, or an
@@ -389,6 +393,7 @@ struct datetime(CollectionElement, Stringable):
     #            self._hour, self._minute, self._second,
     #            self._year)
     #
+
     fn isoformat(self, sep: String = "T", timespec: String = "auto") -> String:
         """Return the time formatted according to ISO.
 
@@ -609,22 +614,23 @@ struct datetime(CollectionElement, Stringable):
             custom_debug_assert("cannot mix naive and timezone-aware time")
         return base + otoff.value() - myoff.value()
 
-
-#    def __hash__(self):
-#        if self._hashcode == -1:
-#            if self.fold:
-#                t = self.replace(fold=0)
-#            else:
-#                t = self
-#            tzoff = t.utcoffset()
-#            if tzoff is None:
-#                self._hashcode = hash(t._getstate()[0])
-#            else:
-#                days = _ymd2ord(self.year, self.month, self.day)
-#                seconds = self.hour * 3600 + self.minute * 60 + self.second
-#                self._hashcode = hash(dt.timedelta(days, seconds, self.microsecond) - tzoff)
-#        return self._hashcode
-#
+    fn __hash__(self) -> Int:
+        var t: datetime
+        if self.fold:
+            t = self.replace(fold=0)
+        else:
+            t = self
+        var tzoff = t.utcoffset()
+        if tzoff is None:
+            return custom_hash(
+                list[Int].from_values(
+                    t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
+                )
+            )
+        else:
+            var days = ymd2ord(self.year, self.month, self.day)
+            var seconds = self.hour * 3600 + self.minute * 60 + self.second
+            return hash(dt.timedelta(days, seconds, self.microsecond) - tzoff.value())
 
 
 @value
