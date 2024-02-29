@@ -446,15 +446,15 @@ struct datetime(CollectionElement):
     #        import _strptime
     #        return _strptime._strptime_datetime(cls, date_string, format)
     #
-    #    def utcoffset(self):
-    #        """Return the timezone offset as timedelta positive east of UTC (negative west of
-    #        UTC)."""
-    #        if self._tzinfo is None:
-    #            return None
-    #        offset = self._tzinfo.utcoffset(self)
-    #        _check_utc_offset("utcoffset", offset)
-    #        return offset
-    #
+    fn utcoffset(self) -> Optional[timedelta]:
+        """Return the timezone offset as timedelta positive east of UTC (negative west of
+        UTC)."""
+        if self.tzinfo is None:
+            return None
+        var offset = self.tzinfo.value().utcoffset(self)
+        _check_utc_offset("utcoffset", offset)
+        return offset
+
     fn tzname(self) -> Optional[String]:
         """Return the timezone name.
 
@@ -590,34 +590,31 @@ struct datetime(CollectionElement):
         """
         return ymd2ord(self.year, self.month, self.day)
 
+    #   mojo doesn't support __radd__ yet
+    #    __radd__ = __add__
 
-#
-#    __radd__ = __add__
-#
-#    def __sub__(self, other):
-#        "Subtract two datetimes, or a datetime and a timedelta."
-#        if not isinstance(other, datetime):
-#            if isinstance(other, timedelta):
-#                return self + -other
-#            return NotImplemented
-#
-#        days1 = self.toordinal()
-#        days2 = other.toordinal()
-#        secs1 = self._second + self._minute * 60 + self._hour * 3600
-#        secs2 = other._second + other._minute * 60 + other._hour * 3600
-#        base = timedelta(days1 - days2,
-#                         secs1 - secs2,
-#                         self._microsecond - other._microsecond)
-#        if self._tzinfo is other._tzinfo:
-#            return base
-#        myoff = self.utcoffset()
-#        otoff = other.utcoffset()
-#        if myoff == otoff:
-#            return base
-#        if myoff is None or otoff is None:
-#            raise TypeError("cannot mix naive and timezone-aware time")
-#        return base + otoff - myoff
-#
+    fn __sub__(self, other: timedelta) -> datetime:
+        return self + (-other)
+
+    fn __sub__(self, other: datetime) -> timedelta:
+        var days1 = self.toordinal()
+        var days2 = other.toordinal()
+        var secs1 = self.second + self.minute * 60 + self.hour * 3600
+        var secs2 = other.second + other.minute * 60 + other.hour * 3600
+        var base = timedelta(
+            days1 - days2, secs1 - secs2, self.microsecond - other.microsecond
+        )
+        if self.tzinfo is None and other.tzinfo is None:
+            return base
+        var myoff = self.utcoffset()
+        var otoff = other.utcoffset()
+        if optional_equal_timedelta(myoff, otoff):
+            return base
+        if myoff is None or otoff is None:
+            custom_debug_assert("cannot mix naive and timezone-aware time")
+        return base + otoff.value() - myoff.value()
+
+
 #    def __hash__(self):
 #        if self._hashcode == -1:
 #            if self.fold:
@@ -653,3 +650,12 @@ struct TzinfoReplacement:
 
     fn is_bool(self) -> Bool:
         return self._value.isa[Bool]()
+
+
+fn optional_equal_timedelta(a: Optional[timedelta], b: Optional[timedelta]) -> Bool:
+    # remove this when Optional supports __eq__
+    if a is None:
+        return b is None
+    if b is None:
+        return False
+    return a.value() == b.value()
