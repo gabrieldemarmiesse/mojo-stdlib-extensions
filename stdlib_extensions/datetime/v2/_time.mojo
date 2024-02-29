@@ -370,7 +370,7 @@ struct time(CollectionElement, Hashable, Stringable):
             second = self.second
         if microsecond is None:
             microsecond = self.microsecond
-        if tzinfo.isa[Bool]() and tzinfo.get[Bool]() == True:
+        if tzinfo.isa[Bool]() and tzinfo.get[Bool]()[] == True:
             tzinfo = self.tzinfo
         if fold is None:
             fold = self.fold
@@ -379,7 +379,7 @@ struct time(CollectionElement, Hashable, Stringable):
             minute=minute.value(),
             second=second.value(),
             microsecond=microsecond.value(),
-            tzinfo=tzinfo.get[Optional[timezone]](),
+            tzinfo=tzinfo.get[Optional[timezone]]()[],
             fold=fold.value(),
         )
 

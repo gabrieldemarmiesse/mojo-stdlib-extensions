@@ -59,8 +59,8 @@ struct list[T: CollectionElement](Sized, Movable):
         custom_debug_assert(
             index < len(self._internal_vector), "list index out of range"
         )
-        let new_index = self._normalize_index(index)
-        let element = self[new_index]
+        var new_index = self._normalize_index(index)
+        var element = self[new_index]
         for i in range(new_index, len(self) - 1):
             self[i] = self[i + 1]
         self._internal_vector.resize(len(self._internal_vector) - 1, element)
@@ -68,13 +68,13 @@ struct list[T: CollectionElement](Sized, Movable):
 
     fn reverse(inout self):
         for i in range(len(self) // 2):
-            let mirror_i = len(self) - 1 - i
-            let tmp = self[i]
+            var mirror_i = len(self) - 1 - i
+            var tmp = self[i]
             self[i] = self[mirror_i]
             self[mirror_i] = tmp
 
     fn insert(inout self, key: Int, value: T):
-        let index = self._normalize_index(key)
+        var index = self._normalize_index(key)
         if index >= len(self):
             self.append(value)
             return
@@ -92,7 +92,7 @@ struct list[T: CollectionElement](Sized, Movable):
         return self._internal_vector[self._normalize_index(index)]
 
     @always_inline
-    fn __getitem__(self: Self, limits: slice) -> Self:
+    fn __getitem__(self: Self, limits: Slice) -> Self:
         var new_list: Self = Self()
         for i in range(limits.start, limits.end, limits.step):
             new_list.append(self[i])
@@ -121,7 +121,7 @@ struct list[T: CollectionElement](Sized, Movable):
 fn list_to_str(input_list: list[String]) -> String:
     var result: String = "["
     for i in range(len(input_list)):
-        let repr = "'" + str(input_list[i]) + "'"
+        var repr = "'" + str(input_list[i]) + "'"
         if i != len(input_list) - 1:
             result += repr + ", "
         else:
@@ -132,7 +132,7 @@ fn list_to_str(input_list: list[String]) -> String:
 fn list_to_str(input_list: list[Int]) -> String:
     var result: String = "["
     for i in range(len(input_list)):
-        let repr = str(input_list.__getitem__(index=i))
+        var repr = str(input_list.__getitem__(index=i))
         if i != len(input_list) - 1:
             result += repr + ", "
         else:

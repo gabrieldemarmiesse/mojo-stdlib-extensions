@@ -4,7 +4,7 @@ from .._utils import custom_debug_assert
 
 fn rmdir(pathname: String):
     with c.Str(pathname) as pathname_as_c_str:
-        let output = external_call["rmdir", c.int, c.char_pointer](
+        var output = external_call["rmdir", c.int, c.char_pointer](
             pathname_as_c_str.vector.data
         )
         if output == c.SUCCESS:
@@ -71,7 +71,7 @@ fn rmdir(pathname: String):
 
 fn unlink(pathname: String):
     with c.Str(pathname) as pathname_as_c_str:
-        let output = external_call["unlink", c.int, c.char_pointer](
+        var output = external_call["unlink", c.int, c.char_pointer](
             pathname_as_c_str.vector.data
         )
         if output == c.SUCCESS:
@@ -119,9 +119,9 @@ fn unlink(pathname: String):
 
 fn read_string_from_fd(file_descriptor: c.int) -> String:
     alias buffer_size: Int = 2**13
-    let buffer: c.Str
+    var buffer: c.Str
     with c.Str(size=buffer_size) as buffer:
-        let read_count: c.ssize_t = external_call[
+        var read_count: c.ssize_t = external_call[
             "read", c.ssize_t, c.int, c.char_pointer, c.size_t
         ](file_descriptor, buffer.vector.data, buffer_size)
         if read_count == -1:

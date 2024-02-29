@@ -18,9 +18,9 @@ fn clock_gettime() -> _CTimeSpec:
     """Low-level call to the clock_gettime libc function."""
 
     var ts = _CTimeSpec()
-    let ts_pointer = Pointer[_CTimeSpec].address_of(ts)
+    var ts_pointer = Pointer[_CTimeSpec].address_of(ts)
 
-    let clockid_si32: c.int = _CLOCK_REALTIME
+    var clockid_si32: c.int = _CLOCK_REALTIME
 
     external_call["clock_gettime", NoneType, c.int, Pointer[_CTimeSpec]](
         clockid_si32, ts_pointer

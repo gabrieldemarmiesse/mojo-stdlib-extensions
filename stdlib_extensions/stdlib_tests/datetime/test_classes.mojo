@@ -21,7 +21,7 @@ def py_date() -> PythonObject:
 
 
 def test_datetime_now():
-    let now = datetime.now()
+    var now = datetime.now()
     now.__str__()
     str(now)
     now.__repr__()
@@ -32,16 +32,16 @@ def test_datetime_now():
     now.second()
     now.microsecond()
 
-    let time_elapsed = datetime.now() - now
+    var time_elapsed = datetime.now() - now
 
     assert_equal(time_elapsed.total_seconds(), 0)  # gotta go fast
 
 
 def test_datetime_hash():
-    let some_time = datetime(2020, 1, 1, 12, 30, 0)
-    let some_time2 = datetime(2020, 1, 1, 12, 30, 0)
+    var some_time = datetime(2020, 1, 1, 12, 30, 0)
+    var some_time2 = datetime(2020, 1, 1, 12, 30, 0)
 
-    let some_other_time = datetime(2020, 1, 1, 12, 30, 2)
+    var some_other_time = datetime(2020, 1, 1, 12, 30, 2)
 
     assert_equal(hash(some_time), hash(some_time2))
     assert_true(hash(some_time) != hash(some_other_time), "incorrect hash")
@@ -68,7 +68,7 @@ def test_datetime_timedelta_interaction():
 
 
 def test_time():
-    let simple_time = time(12, 30, 0)
+    var simple_time = time(12, 30, 0)
     assert_equal(simple_time.hour(), 12)
     assert_equal(simple_time.minute(), 30)
     assert_equal(simple_time.second(), 0)
@@ -85,7 +85,7 @@ def test_time():
 
 
 def test_time_with_microseconds():
-    let simple_time = time(12, 30, 0, 123456)
+    var simple_time = time(12, 30, 0, 123456)
     assert_equal(simple_time.microsecond(), 123456)
     assert_equal(simple_time.__str__(), "12:30:00.123456")
     assert_equal(simple_time.__repr__(), "datetime.time(12, 30, 0, 123456)")

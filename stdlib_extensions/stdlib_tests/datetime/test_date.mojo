@@ -4,7 +4,7 @@ from python import Python
 
 
 def test_date():
-    let simple_date = date(2020, 1, 1)
+    var simple_date = date(2020, 1, 1)
     assert_equal(simple_date.year, 2020)
     assert_equal(simple_date.month, 1)
     assert_equal(simple_date.day, 1)
@@ -24,10 +24,10 @@ def test_date():
 
 
 def test_date_hash():
-    let some_time = date(2020, 1, 1)
-    let some_time2 = date(2020, 1, 1)
+    var some_time = date(2020, 1, 1)
+    var some_time2 = date(2020, 1, 1)
 
-    let some_other_time = date(2020, 1, 2)
+    var some_other_time = date(2020, 1, 2)
 
     assert_equal(hash(some_time), hash(some_time2))
     assert_true(hash(some_time) != hash(some_other_time), "incorrect hash")
