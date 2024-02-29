@@ -15,7 +15,7 @@ from stdlib_extensions.stdlib_tests.datetime import (
 )
 from stdlib_extensions.stdlib_tests.pathlib import test_path
 from stdlib_extensions.stdlib_tests.os import test_process
-from stdlib_extensions import datetime as dt
+from stdlib_extensions.datetime import v2 as dt
 from stdlib_extensions.stdlib_tests.time import test_time
 from stdlib_extensions.stdlib_tests.uuid import test_uuid_class
 from stdlib_extensions.stdlib_tests.builtins import test_dict
@@ -63,6 +63,6 @@ def main():
 
     print(
         "All tests passed in "
-        + (test_suite_end_time - test_suite_start_time).__repr__()
+        + str(test_suite_end_time - test_suite_start_time)
         + "! 🔥🎉🔥"
     )
