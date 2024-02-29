@@ -1,6 +1,6 @@
 from ._timedelta import timedelta
-from ...builtins import Optional, bytes
-from ...builtins import divmod
+from ..builtins import Optional, bytes
+from ..builtins import divmod
 from ._utils import (
     ord2ymd,
     isoweek1monday,
@@ -17,12 +17,12 @@ from ._utils import (
 )
 from ._iso_calendar_date import IsoCalendarDate
 
-from ...builtins._generic_list import _cmp_list
-from ...builtins._hash import hash as custom_hash
-from ...time import time, time_ns, struct_time
-from ...builtins import list
-from ...builtins.string import ljust, rjust, join
-from ..._utils import custom_debug_assert
+from ..builtins._generic_list import _cmp_list
+from ..builtins._hash import hash as custom_hash
+from ..time import time, time_ns, struct_time
+from ..builtins import list
+from ..builtins.string import ljust, rjust, join
+from .._utils import custom_debug_assert
 
 alias _EPOCH_DATE = date(1970, 1, 1)
 

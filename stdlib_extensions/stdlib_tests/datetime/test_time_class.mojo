@@ -1,4 +1,4 @@
-from ...datetime.v2 import time, timezone, timedelta
+from ...datetime import time, timezone, timedelta
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
 from ...builtins import Optional
 

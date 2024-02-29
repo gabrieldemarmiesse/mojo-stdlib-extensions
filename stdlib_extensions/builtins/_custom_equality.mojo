@@ -1,4 +1,4 @@
-from ..datetime.v2 import time, timedelta
+from ..datetime import time, timedelta
 
 # TODO: move those to __eq__ of the corresponding type when we have conditional traits
 

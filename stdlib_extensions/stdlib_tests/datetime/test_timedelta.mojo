@@ -1,5 +1,5 @@
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
-from ...datetime.v2._timedelta import timedelta
+from ...datetime import timedelta
 
 
 def test_timedelta():

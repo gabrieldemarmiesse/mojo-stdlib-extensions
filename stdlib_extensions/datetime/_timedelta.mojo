@@ -1,6 +1,7 @@
-from ...builtins import divmod, round, abs
-from ...builtins._generic_list import _cmp_list
-from ...builtins._hash import hash as custom_hash
+from ..builtins import divmod, round, abs, list
+from ..builtins.string import rjust, join
+from ..builtins._generic_list import _cmp_list
+from ..builtins._hash import hash as custom_hash
 from utils.variant import Variant
 
 
