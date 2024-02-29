@@ -1,4 +1,4 @@
-from ._timedelta import timedelta
+from .. import datetime as dt
 from ..builtins import Optional, bytes
 from ..builtins import divmod
 from ._utils import (
@@ -42,7 +42,7 @@ struct date(CollectionElement, Stringable, Hashable):
 
     __repr__, __str__
     __eq__, __le__, __lt__, __ge__, __gt__, __hash__
-    __add__, __radd__, __sub__ (add/radd only with timedelta arg)
+    __add__, __radd__, __sub__ (add/radd only with dt.timedelta arg)
 
     Methods:
 
@@ -59,7 +59,7 @@ struct date(CollectionElement, Stringable, Hashable):
 
     alias min = date(1, 1, 1)
     alias max = date(9999, 12, 31)
-    alias resolution = timedelta(days=1)
+    alias resolution = dt.timedelta(days=1)
 
     var year: Int
     var month: Int
@@ -80,18 +80,18 @@ struct date(CollectionElement, Stringable, Hashable):
     @staticmethod
     def fromtimestamp(t: Int) -> date:
         "Construct a date from a POSIX timestamp (like time.time())."
-        return _EPOCH_DATE + timedelta(seconds=t)
+        return _EPOCH_DATE + dt.timedelta(seconds=t)
 
     @staticmethod
     def fromtimestamp(t: Float64) -> date:
         "Construct a date from a POSIX timestamp (like time.time())."
-        return _EPOCH_DATE + timedelta(seconds=int(t))
+        return _EPOCH_DATE + dt.timedelta(seconds=int(t))
 
     @staticmethod
     fn today() -> date:
         "Construct a date from time.time()."
         var t = time_ns()
-        return _EPOCH_DATE + timedelta(microseconds=(t / 1_000).to_int())
+        return _EPOCH_DATE + dt.timedelta(microseconds=(t / 1_000).to_int())
 
     @staticmethod
     fn fromordinal(n: Int) -> date:
@@ -350,20 +350,20 @@ struct date(CollectionElement, Stringable, Hashable):
         return custom_hash(str(self.year) + str(self.month) + str(self.day))
 
     # Computations
-    fn __add__(self, other: timedelta) -> date:
-        "Add a date to a timedelta."
+    fn __add__(self, other: dt.timedelta) -> date:
+        "Add a date to a dt.timedelta."
         var o = self.toordinal() + other.days
         custom_debug_assert(0 < o <= MAXORDINAL, "result out of range")
         return date.fromordinal(o)
 
-    fn __sub__(self, other: timedelta) -> date:
-        """Subtract two dates, or a date and a timedelta."""
-        return self + timedelta(-other.days)
+    fn __sub__(self, other: dt.timedelta) -> date:
+        """Subtract two dates, or a date and a dt.timedelta."""
+        return self + dt.timedelta(-other.days)
 
-    fn __sub__(self, other: date) -> timedelta:
+    fn __sub__(self, other: date) -> dt.timedelta:
         var days1 = self.toordinal()
         var days2 = other.toordinal()
-        return timedelta(days1 - days2)
+        return dt.timedelta(days1 - days2)
 
     fn weekday(self) -> Int:
         "Return day of the week, where Monday == 0 ... Sunday == 6."

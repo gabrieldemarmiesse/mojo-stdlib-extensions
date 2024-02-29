@@ -1,5 +1,5 @@
 from ..builtins import Optional
-from ._timedelta import timedelta
+from .. import datetime as dt
 from ..builtins.string import rjust
 
 
