@@ -3,7 +3,12 @@ from ._utils import ymd2ord, MAXORDINAL, _check_date_fields, _check_time_fields
 from ..builtins import divmod, list
 from ..builtins._types import Optional
 from .._utils import custom_debug_assert
-from ._utils import _check_utc_offset, _check_time_fields, _build_struct_time
+from ._utils import (
+    _check_utc_offset,
+    _check_time_fields,
+    _build_struct_time,
+    _format_time,
+)
 from ..time import struct_time
 from ..builtins.string import join
 from utils.variant import Variant
@@ -390,33 +395,24 @@ struct datetime(CollectionElement):
     #            self._hour, self._minute, self._second,
     #            self._year)
     #
-    #    def isoformat(self, sep='T', timespec='auto'):
-    #        """Return the time formatted according to ISO.
-    #
-    #        The full format looks like 'YYYY-MM-DD HH:MM:SS.mmmmmm'.
-    #        By default, the fractional part is omitted if self.microsecond == 0.
-    #
-    #        If self.tzinfo is not None, the UTC offset is also attached, giving
-    #        giving a full format of 'YYYY-MM-DD HH:MM:SS.mmmmmm+HH:MM'.
-    #
-    #        Optional argument sep specifies the separator between date and
-    #        time, default 'T'.
-    #
-    #        The optional argument timespec specifies the number of additional
-    #        terms of the time to include. Valid options are 'auto', 'hours',
-    #        'minutes', 'seconds', 'milliseconds' and 'microseconds'.
-    #        """
-    #        s = ("%04d-%02d-%02d%c" % (self._year, self._month, self._day, sep) +
-    #             _format_time(self._hour, self._minute, self._second,
-    #                          self._microsecond, timespec))
-    #
-    #        off = self.utcoffset()
-    #        tz = _format_offset(off)
-    #        if tz:
-    #            s += tz
-    #
-    #        return s
-    #
+    fn isoformat(self, sep: String = "T", timespec: String = "auto") -> String:
+        """Return the time formatted according to ISO.
+
+        The full format looks like 'YYYY-MM-DD HH:MM:SS.mmmmmm'.
+        By default, the fractional part is omitted if self.microsecond == 0.
+
+        If self.tzinfo is not None, the UTC offset is also attached, giving
+        giving a full format of 'YYYY-MM-DD HH:MM:SS.mmmmmm+HH:MM'.
+
+        Optional argument sep specifies the separator between date and
+        time, default 'T'.
+
+        The optional argument timespec specifies the number of additional
+        terms of the time to include. Valid options are 'auto', 'hours',
+        'minutes', 'seconds', 'milliseconds' and 'microseconds'.
+        """
+        return self.date().isoformat() + sep + self.time().isoformat(timespec)
+
     fn __repr__(self) -> String:
         """Convert to formal string, for repr()."""
         var result: String = "datetime.datetime("
