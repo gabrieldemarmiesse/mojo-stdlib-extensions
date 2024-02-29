@@ -109,6 +109,41 @@ def test_datetime_repr():
     assert_equal(a.__repr__(), "datetime.datetime(2020, 3, 4, 0, 0)")
 
 
+def test_datetime_add():
+    # This could be refactored using str(datetime)
+    a = datetime(2020, 3, 4, 5, 6, 7, 8, tzinfo=timezone(timedelta(hours=-1)), fold=1)
+    b = timedelta(days=1)
+    c = a + b
+    assert_equal(c.year, 2020)
+    assert_equal(c.month, 3)
+    assert_equal(c.day, 5)
+    assert_equal(c.hour, 5)
+    assert_equal(c.minute, 6)
+    assert_equal(c.second, 7)
+    assert_equal(c.microsecond, 8)
+    assert_equal(c.tzinfo.value(), timezone(timedelta(hours=-1)))
+    assert_equal(c.fold, 0)
+
+    a = datetime(2021, 2, 3)
+    b = timedelta(days=365)
+    c = a + b
+    assert_equal(c.year, 2022)
+    assert_equal(c.month, 2)
+    assert_equal(c.day, 3)
+
+    a = datetime(2020, 3, 4, 5, 6, 7, 8)
+    b = timedelta(days=1, minutes=120, seconds=3602)
+    c = a + b
+    assert_equal(c.year, 2020)
+    assert_equal(c.month, 3)
+    assert_equal(c.day, 5)
+    assert_equal(c.hour, 8)
+    assert_equal(c.minute, 6)
+    assert_equal(c.second, 9)
+    assert_equal(c.microsecond, 8)
+    assert_true(c.tzinfo is None, "tzinfo is None")
+
+
 def run_tests():
     test_aliases()
     test_constructor_default()
@@ -116,3 +151,4 @@ def run_tests():
     test_datetime_get_timetuple()
     test_datetime_replace()
     test_datetime_repr()
+    test_datetime_add()

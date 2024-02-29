@@ -481,104 +481,116 @@ struct datetime(CollectionElement):
         _check_utc_offset("dst", offset)
         return offset
 
+    #    # Comparisons of datetime objects with other.
+    #
+    #    def __eq__(self, other):
+    #        if isinstance(other, datetime):
+    #            return self._cmp(other, allow_mixed=True) == 0
+    #        elif not isinstance(other, date):
+    #            return NotImplemented
+    #        else:
+    #            return False
+    #
+    #    def __le__(self, other):
+    #        if isinstance(other, datetime):
+    #            return self._cmp(other) <= 0
+    #        elif not isinstance(other, date):
+    #            return NotImplemented
+    #        else:
+    #            _cmperror(self, other)
+    #
+    #    def __lt__(self, other):
+    #        if isinstance(other, datetime):
+    #            return self._cmp(other) < 0
+    #        elif not isinstance(other, date):
+    #            return NotImplemented
+    #        else:
+    #            _cmperror(self, other)
+    #
+    #    def __ge__(self, other):
+    #        if isinstance(other, datetime):
+    #            return self._cmp(other) >= 0
+    #        elif not isinstance(other, date):
+    #            return NotImplemented
+    #        else:
+    #            _cmperror(self, other)
+    #
+    #    def __gt__(self, other):
+    #        if isinstance(other, datetime):
+    #            return self._cmp(other) > 0
+    #        elif not isinstance(other, date):
+    #            return NotImplemented
+    #        else:
+    #            _cmperror(self, other)
+    #
+    #    def _cmp(self, other, allow_mixed=False):
+    #        assert isinstance(other, datetime)
+    #        mytz = self._tzinfo
+    #        ottz = other._tzinfo
+    #        myoff = otoff = None
+    #
+    #        if mytz is ottz:
+    #            base_compare = True
+    #        else:
+    #            myoff = self.utcoffset()
+    #            otoff = other.utcoffset()
+    #            # Assume that allow_mixed means that we are called from __eq__
+    #            if allow_mixed:
+    #                if myoff != self.replace(fold=not self.fold).utcoffset():
+    #                    return 2
+    #                if otoff != other.replace(fold=not other.fold).utcoffset():
+    #                    return 2
+    #            base_compare = myoff == otoff
+    #
+    #        if base_compare:
+    #            return _cmp((self._year, self._month, self._day,
+    #                         self._hour, self._minute, self._second,
+    #                         self._microsecond),
+    #                        (other._year, other._month, other._day,
+    #                         other._hour, other._minute, other._second,
+    #                         other._microsecond))
+    #        if myoff is None or otoff is None:
+    #            if allow_mixed:
+    #                return 2 # arbitrary non-zero value
+    #            else:
+    #                raise TypeError("cannot compare naive and aware datetimes")
+    #        # XXX What follows could be done more efficiently...
+    #        diff = self - other     # this will take offsets into account
+    #        if diff.days < 0:
+    #            return -1
+    #        return diff and 1 or 0
+    #
+    fn __add__(self, other: timedelta) -> datetime:
+        "Add a datetime and a timedelta."
+        var delta = timedelta(
+            self.toordinal(),
+            hours=self.hour,
+            minutes=self.minute,
+            seconds=self.second,
+            microseconds=self.microsecond,
+        )
+        delta = delta + other
+        var hour: Int
+        var rem: Int
+        var minute: Int
+        var second: Int
+        hour, rem = divmod(delta.seconds, 3600)
+        minute, second = divmod(rem, 60)
+        custom_debug_assert(0 < delta.days <= MAXORDINAL, "result out of range")
+        return datetime.combine(
+            date.fromordinal(delta.days),
+            time(hour, minute, second, delta.microseconds, tzinfo=self.tzinfo),
+        )
 
-#    # Comparisons of datetime objects with other.
-#
-#    def __eq__(self, other):
-#        if isinstance(other, datetime):
-#            return self._cmp(other, allow_mixed=True) == 0
-#        elif not isinstance(other, date):
-#            return NotImplemented
-#        else:
-#            return False
-#
-#    def __le__(self, other):
-#        if isinstance(other, datetime):
-#            return self._cmp(other) <= 0
-#        elif not isinstance(other, date):
-#            return NotImplemented
-#        else:
-#            _cmperror(self, other)
-#
-#    def __lt__(self, other):
-#        if isinstance(other, datetime):
-#            return self._cmp(other) < 0
-#        elif not isinstance(other, date):
-#            return NotImplemented
-#        else:
-#            _cmperror(self, other)
-#
-#    def __ge__(self, other):
-#        if isinstance(other, datetime):
-#            return self._cmp(other) >= 0
-#        elif not isinstance(other, date):
-#            return NotImplemented
-#        else:
-#            _cmperror(self, other)
-#
-#    def __gt__(self, other):
-#        if isinstance(other, datetime):
-#            return self._cmp(other) > 0
-#        elif not isinstance(other, date):
-#            return NotImplemented
-#        else:
-#            _cmperror(self, other)
-#
-#    def _cmp(self, other, allow_mixed=False):
-#        assert isinstance(other, datetime)
-#        mytz = self._tzinfo
-#        ottz = other._tzinfo
-#        myoff = otoff = None
-#
-#        if mytz is ottz:
-#            base_compare = True
-#        else:
-#            myoff = self.utcoffset()
-#            otoff = other.utcoffset()
-#            # Assume that allow_mixed means that we are called from __eq__
-#            if allow_mixed:
-#                if myoff != self.replace(fold=not self.fold).utcoffset():
-#                    return 2
-#                if otoff != other.replace(fold=not other.fold).utcoffset():
-#                    return 2
-#            base_compare = myoff == otoff
-#
-#        if base_compare:
-#            return _cmp((self._year, self._month, self._day,
-#                         self._hour, self._minute, self._second,
-#                         self._microsecond),
-#                        (other._year, other._month, other._day,
-#                         other._hour, other._minute, other._second,
-#                         other._microsecond))
-#        if myoff is None or otoff is None:
-#            if allow_mixed:
-#                return 2 # arbitrary non-zero value
-#            else:
-#                raise TypeError("cannot compare naive and aware datetimes")
-#        # XXX What follows could be done more efficiently...
-#        diff = self - other     # this will take offsets into account
-#        if diff.days < 0:
-#            return -1
-#        return diff and 1 or 0
-#
-#    def __add__(self, other):
-#        "Add a datetime and a timedelta."
-#        if not isinstance(other, timedelta):
-#            return NotImplemented
-#        delta = timedelta(self.toordinal(),
-#                          hours=self._hour,
-#                          minutes=self._minute,
-#                          seconds=self._second,
-#                          microseconds=self._microsecond)
-#        delta += other
-#        hour, rem = divmod(delta.seconds, 3600)
-#        minute, second = divmod(rem, 60)
-#        if 0 < delta.days <= _MAXORDINAL:
-#            return type(self).combine(date.fromordinal(delta.days),
-#                                      time(hour, minute, second,
-#                                           delta.microseconds,
-#                                           tzinfo=self._tzinfo))
-#        raise OverflowError("result out of range")
+    fn toordinal(self) -> Int:
+        """Return proleptic Gregorian ordinal for the year, month and day.
+
+        January 1 of year 1 is day 1.  Only the year, month and day values
+        contribute to the result.
+        """
+        return ymd2ord(self.year, self.month, self.day)
+
+
 #
 #    __radd__ = __add__
 #
