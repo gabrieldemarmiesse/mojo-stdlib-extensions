@@ -1,5 +1,6 @@
 from ...datetime.v2 import datetime, timezone, timedelta
 from ...stdlib_tests.utils import assert_true, assert_false, assert_equal
+from python import Python
 
 
 def test_aliases():
@@ -165,7 +166,6 @@ def test_datetime_sub():
     assert_equal(c.year, 2020)
     assert_equal(c.month, 2)
     assert_equal(c.day, 4)
-    print("bisextile done")
     a = datetime(2020, 3, 4, 5, 6, 7, 8)
     b = timedelta(days=1, minutes=120, seconds=3602)
     c = a - b
@@ -179,6 +179,22 @@ def test_datetime_sub():
     assert_true(c.tzinfo is None, "tzinfo is None")
 
 
+def test_datetime_now():
+    var python_datetime_module = Python.import_module("datetime")
+    var now1 = python_datetime_module.datetime.now()
+    var now2 = datetime.now()
+    var now3 = python_datetime_module.datetime.now()
+
+    var now2_as_py = now2.to_python()
+
+    assert_true(
+        str(now1 <= now2_as_py) == "True", "datetimes should be in order, 1 <= 2"
+    )
+    assert_true(
+        str(now2_as_py <= now3) == "True", "datetimes should be in order, 2 <= 3"
+    )
+
+
 def run_tests():
     test_aliases()
     test_constructor_default()
@@ -188,3 +204,4 @@ def run_tests():
     test_datetime_repr()
     test_datetime_add()
     test_datetime_sub()
+    test_datetime_now()
