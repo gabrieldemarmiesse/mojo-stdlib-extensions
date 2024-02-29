@@ -7,7 +7,6 @@ from ._utils import (
     _check_utc_offset,
     _check_time_fields,
     _build_struct_time,
-    _format_time,
 )
 from ..time import struct_time
 from ..builtins.string import join
@@ -411,7 +410,7 @@ struct datetime(CollectionElement):
         terms of the time to include. Valid options are 'auto', 'hours',
         'minutes', 'seconds', 'milliseconds' and 'microseconds'.
         """
-        return self.date().isoformat() + sep + self.time().isoformat(timespec)
+        return self.date().isoformat() + sep + self.timetz().isoformat(timespec)
 
     fn __repr__(self) -> String:
         """Convert to formal string, for repr()."""
