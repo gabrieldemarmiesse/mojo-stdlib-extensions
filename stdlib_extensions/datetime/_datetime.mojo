@@ -20,7 +20,7 @@ alias _EPOCH = datetime(1970, 1, 1, tzinfo=timezone(timedelta(0)))
 
 
 @value
-struct datetime(CollectionElement):
+struct datetime(CollectionElement, Stringable):
     #    """datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])
     #
     #    The year, month and day arguments are required. tzinfo may be None, or an
@@ -436,17 +436,16 @@ struct datetime(CollectionElement):
         result += ")"
         return result
 
-    #
-    #    def __str__(self):
-    #        "Convert to string, for str()."
-    #        return self.isoformat(sep=' ')
-    #
+    fn __str__(self) -> String:
+        "Convert to string, for str()."
+        return self.isoformat(sep=" ")
+
     #    @classmethod
     #    def strptime(cls, date_string, format):
     #        'string, format -> new datetime parsed from a string (like time.strptime()).'
     #        import _strptime
     #        return _strptime._strptime_datetime(cls, date_string, format)
-    #
+
     fn utcoffset(self) -> Optional[timedelta]:
         """Return the timezone offset as timedelta positive east of UTC (negative west of
         UTC)."""

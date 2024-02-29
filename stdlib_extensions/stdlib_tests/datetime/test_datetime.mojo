@@ -219,6 +219,21 @@ def test_datetime_isoformat():
     assert_equal(a.isoformat(), "2022-03-04T00:00:00")
 
 
+def test_datetime_str():
+    a = datetime(
+        2020,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        tzinfo=timezone(timedelta(hours=-1, minutes=8, seconds=-9)),
+        fold=1,
+    )
+    assert_equal(str(a), "2020-03-04 05:06:07.000008-00:52:09")
+
+
 def run_tests():
     test_aliases()
     test_constructor_default()
@@ -230,3 +245,4 @@ def run_tests():
     test_datetime_sub()
     test_datetime_now()
     test_datetime_isoformat()
+    test_datetime_str()
