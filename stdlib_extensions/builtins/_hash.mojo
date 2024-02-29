@@ -29,7 +29,7 @@ fn hash(x: Int64) -> Int:
 
 fn hash(x: String) -> Int:
     """Very simple hash function."""
-    let prime = 31
+    var prime = 31
     var hash_value = 0
     for i in range(len(x)):
         hash_value = prime * hash_value + ord(x[i])
@@ -38,7 +38,7 @@ fn hash(x: String) -> Int:
 
 fn hash(x: list[Int]) -> Int:
     """Very simple hash function."""
-    let prime = 31
+    var prime = 31
     var hash_value = 0
     for i in range(len(x)):
         hash_value = prime * hash_value + x[i]

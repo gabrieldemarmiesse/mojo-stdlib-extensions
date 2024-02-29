@@ -56,10 +56,10 @@ fn days_in_this_year(year: Int) -> Int:
 
 fn get_number_of_days_since_start_of_calendar(nb_years: Int) -> Int:
     # Years before the current year
-    let years_before = nb_years - 1
+    var years_before = nb_years - 1
 
     # Compute number of leap years before the given year
-    let leap_years = (years_before // 4) - (years_before // 100) + (years_before // 400)
+    var leap_years = (years_before // 4) - (years_before // 100) + (years_before // 400)
 
     # Total days is regular years + leap years
     return (365 * years_before) + leap_years

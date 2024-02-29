@@ -1,5 +1,6 @@
 from ._generic_list import list
 from .._utils import custom_debug_assert
+from .string import rjust
 
 
 fn get_mapping_byte_to_value() -> list[String]:
@@ -339,8 +340,8 @@ struct bytes(Stringable, Sized, CollectionElement):
         if other <= 0:
             self._vector.clear()
             return
-        let starting_lenght = self.__len__()
-        let iterations = other - 1
+        var starting_lenght = self.__len__()
+        var iterations = other - 1
         for _ in range(iterations):
             for j in range(starting_lenght):
                 self._vector.push_back(self[j])
@@ -359,7 +360,8 @@ struct bytes(Stringable, Sized, CollectionElement):
     fn hex(self) -> String:
         var result: String = ""
         for i in range(self.__len__()):
-            result += hex(self.__getitem__(i))[2:]
+            var as_hex = hex(self.__getitem__(i))[2:]
+            result += rjust(as_hex, 2, "0")
         return result
 
     fn __hash__(self) -> Int:
@@ -370,19 +372,19 @@ struct bytes(Stringable, Sized, CollectionElement):
     fn fromhex(string: String) -> bytes:
         # TODO: remove whitespaces on the input string
         var vector_of_bytes = DynamicVector[UInt8](capacity=len(string) // 2)
-        let string_length = len(string)
+        var string_length = len(string)
         for i in range(0, string_length, 2):
-            let first_char = string[i]
-            let second_char = string[i + 1]
-            let first_value = _ascii_char_to_int(first_char)
-            let second_value = _ascii_char_to_int(second_char)
-            let final_value = (first_value << 4) + second_value
+            var first_char = string[i]
+            var second_char = string[i + 1]
+            var first_value = _ascii_char_to_int(first_char)
+            var second_value = _ascii_char_to_int(second_char)
+            var final_value = (first_value << 4) + second_value
             vector_of_bytes.push_back(UInt8(final_value))
         return bytes(vector_of_bytes)
 
 
 fn _ascii_char_to_int(char: String) -> Int:
-    let ord_value: Int = ord(char)
+    var ord_value: Int = ord(char)
     if 48 <= ord_value <= 57:
         return ord_value - 48
     elif 65 <= ord_value <= 70:

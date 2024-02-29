@@ -35,7 +35,7 @@ struct Path:
         return self.__truediv__(String(suffix))
 
     fn __truediv__(self: Self, suffix: String) -> Self:
-        let ends_with_slash: Bool
+        var ends_with_slash: Bool
         ends_with_slash = endswith(self.__fspath__(), "/")
         if ends_with_slash:
             return Path(self.__fspath__() + suffix)
