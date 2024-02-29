@@ -417,24 +417,6 @@ struct datetime(CollectionElement):
     #
     #        return s
     #
-    #    def __repr__(self):
-    #        """Convert to formal string, for repr()."""
-    #        L = [self._year, self._month, self._day,  # These are never zero
-    #             self._hour, self._minute, self._second, self._microsecond]
-    #        if L[-1] == 0:
-    #            del L[-1]
-    #        if L[-1] == 0:
-    #            del L[-1]
-    #        s = "%s.%s(%s)" % (_get_class_module(self),
-    #                           self.__class__.__qualname__,
-    #                           ", ".join(map(str, L)))
-    #        if self._tzinfo is not None:
-    #            assert s[-1:] == ")"
-    #            s = s[:-1] + ", tzinfo=%r" % self._tzinfo + ")"
-    #        if self._fold:
-    #            assert s[-1:] == ")"
-    #            s = s[:-1] + ", fold=1)"
-    #        return s
     fn __repr__(self) -> String:
         """Convert to formal string, for repr()."""
         var result: String = "datetime.datetime("
