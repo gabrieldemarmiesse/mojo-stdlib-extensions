@@ -6,6 +6,7 @@ from ..._utils import custom_debug_assert
 from ._utils import _check_utc_offset, _check_time_fields, _build_struct_time
 from ...time import struct_time
 from utils.variant import Variant
+from python import Python
 
 # TODO: time methods must be transferred to datetime
 
@@ -116,14 +117,35 @@ struct datetime(CollectionElement):
     #        A timezone info object may be passed in as well.
     #        """
     #        return cls._fromtimestamp(timestamp, tz is not None, tz)
-    #
-    #
-    #    @classmethod
-    #    def now(cls, tz=None):
-    #        "Construct a datetime from time.time() and optional time zone info."
-    #        t = _time.time()
-    #        return cls.fromtimestamp(t, tz)
-    #
+
+    @staticmethod
+    fn now() -> datetime:
+        var ctime_spec = clock_gettime()
+        return datetime(1970, 1, 1) + timedelta(
+            seconds=ctime_spec.tv_sec.to_int(),
+            microseconds=(ctime_spec.tv_nsec // 1_000).to_int(),
+        )
+
+    fn to_python(self) raises -> PythonObject:
+        var python_datetime_module = Python.import_module("datetime")
+        # timezone not suppoted yet
+        custom_debug_assert(
+            self.tzinfo is None,
+            "converting to python is not yet support if tzinfo is not None",
+        )
+        custom_debug_assert(
+            self.fold == 0, "converting to python is not yet support if fold is not 0"
+        )
+        return python_datetime_module.datetime(
+            self.year,
+            self.month,
+            self.day,
+            self.hour,
+            self.minute,
+            self.second,
+            self.microsecond,
+        )
+
     @staticmethod
     fn combine(date: date, time: time) -> datetime:
         "Construct a datetime from a given date and a given time."
