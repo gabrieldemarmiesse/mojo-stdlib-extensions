@@ -33,7 +33,7 @@ fn _resolution() -> timedelta:
 
 @value
 struct timedelta(HashableCollectionElement):
-    # replace by let when it's available because this struct is immutable
+    # replace by var when it's available because this struct is immutable
     var _microseconds: Int64
 
     fn __init__(
@@ -94,9 +94,9 @@ struct timedelta(HashableCollectionElement):
         if self._microseconds == 0:
             return "datetime.timedelta(0)"
 
-        let days = self.days()
-        let seconds = self.seconds()
-        let microseconds = self.microseconds()
+        var days = self.days()
+        var seconds = self.seconds()
+        var microseconds = self.microseconds()
 
         var arguments = list[String]()
 
@@ -121,7 +121,7 @@ struct timedelta(HashableCollectionElement):
 fn _get_numbers_of_days_since_the_start_of_calendar(
     year: Int, month: Int, day: Int
 ) -> Int:
-    let zero_based_year: Int = year - 1
+    var zero_based_year: Int = year - 1
     var days: Int = zero_based_year * 365 + zero_based_year // 4 - zero_based_year // 100 + zero_based_year // 400
 
     alias months_to_days_vector = get_months_to_days_vector()
@@ -158,11 +158,11 @@ fn _get_hour(microseconds_since_start: Int64) -> Int:
 
 
 fn _get_month_and_day(days_since_calendar_start: Int) -> Tuple[Int, Int]:
-    let year = compute_years_from_days(days_since_calendar_start)
+    var year = compute_years_from_days(days_since_calendar_start)
     var days_left = days_since_calendar_start - get_number_of_days_since_start_of_calendar(
         year
     ) + 1
-    let months_to_days_vector = get_months_to_days_vector(is_leap_year(year))
+    var months_to_days_vector = get_months_to_days_vector(is_leap_year(year))
     var days_this_month: Int = 0
     for month_to_try in range(1, 13):
         days_this_month = months_to_days_vector[month_to_try - 1]
@@ -280,8 +280,8 @@ struct datetime(HashableCollectionElement, Stringable):
         ) + ", " + String(self.day()) + ", " + String(self.hour()) + ", " + String(
             self.minute()
         )
-        let second = self.second()
-        let microsecond = self.microsecond()
+        var second = self.second()
+        var microsecond = self.microsecond()
 
         if second or microsecond:
             result += ", " + String(second)
@@ -293,7 +293,7 @@ struct datetime(HashableCollectionElement, Stringable):
 
     @staticmethod
     fn now() -> datetime:
-        let ctime_spec = clock_gettime()
+        var ctime_spec = clock_gettime()
         return datetime(1970, 1, 1) + timedelta(
             seconds=ctime_spec.tv_sec.to_int(),
             microseconds=(ctime_spec.tv_nsec // 1_000).to_int(),
@@ -453,8 +453,8 @@ struct time:
         var result = "datetime.time(" + String(self.hour()) + ", " + String(
             self.minute()
         )
-        let second = self.second()
-        let microsecond = self.microsecond()
+        var second = self.second()
+        var microsecond = self.microsecond()
 
         if second or microsecond:
             result += ", " + String(second)

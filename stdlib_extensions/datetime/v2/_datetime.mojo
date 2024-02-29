@@ -649,7 +649,7 @@ struct TzinfoReplacement:
         self._value = Optional[timezone](value)
 
     fn get_tzinfo(self) -> Optional[timezone]:
-        return self._value.get[Optional[timezone]]()
+        return self._value.get[Optional[timezone]]()[]
 
     fn is_bool(self) -> Bool:
         return self._value.isa[Bool]()

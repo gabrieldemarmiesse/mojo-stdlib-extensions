@@ -122,7 +122,7 @@ struct UUID(Stringable):
         return True
 
     fn __str__(self) -> String:
-        let hex = self.bytes().hex()
+        var hex = self.bytes().hex()
         return (
             hex[:8]
             + "-"

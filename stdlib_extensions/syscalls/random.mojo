@@ -4,10 +4,10 @@ from .._utils import custom_debug_assert
 
 
 fn getrandom(size: c.size_t) -> bytes:
-    # it's just let here to please the compiler
+    # it's just var here to please the compiler
     # because it can't track writing directly to memory with pointers
-    let result = bytes(size.to_int())
-    let nb_bytes_written = external_call[
+    var result = bytes(size.to_int())
+    var nb_bytes_written = external_call[
         "getrandom", c.ssize_t, AnyPointer[UInt8], c.size_t, c.uint
     ](result._vector.data, size, c.GRND_NONBLOCK.cast[DType.uint32]())
     if nb_bytes_written < 0:
