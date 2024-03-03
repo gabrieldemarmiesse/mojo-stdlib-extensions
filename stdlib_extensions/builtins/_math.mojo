@@ -19,24 +19,3 @@ fn round(number: Float64) -> Int:
             return int(floor)
         else:
             return int(floor + 1)
-
-
-fn abs(number: Float64) -> Float64:
-    if number < 0:
-        return -number
-    else:
-        return number
-
-
-fn abs(number: Float32) -> Float32:
-    if number < 0:
-        return -number
-    else:
-        return number
-
-
-fn abs(number: Int) -> Int:
-    if number < 0:
-        return -number
-    else:
-        return number

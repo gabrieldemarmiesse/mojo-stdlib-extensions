@@ -1,9 +1,9 @@
-from ..builtins import divmod, round, abs, list
+from ..builtins import divmod, round, list
 from ..builtins.string import rjust, join
 from ..builtins._generic_list import _cmp_list
 from ..builtins import custom_hash
 from utils.variant import Variant
-
+from math import abs
 
 # TODO: use this in the timedelta constructor
 alias IntOrFloat = Variant[Int, Float64]
