@@ -2,16 +2,6 @@ from sys.info import sizeof
 from ._generic_list import list
 
 
-trait Equalable:
-    fn __eq__(self: Self, other: Self) -> Bool:
-        ...
-
-
-trait Hashable(Equalable):
-    fn __hash__(self) -> Int:
-        ...
-
-
 fn custom_hash[T: Hashable](x: T) -> Int:
     return x.__hash__()
 
@@ -43,7 +33,3 @@ fn custom_hash(x: list[Int]) -> Int:
     for i in range(len(x)):
         hash_value = prime * hash_value + x[i]
     return hash_value
-
-
-trait HashableCollectionElement(CollectionElement, Hashable):
-    pass
