@@ -151,22 +151,13 @@ fn rstrip(input_string: String, chars: String = _ALL_WHITESPACES) -> String:
 
 fn _lstrip_index(input_string: String, chars: String) -> Int:
     for i in range(len(input_string)):
-        if not (__str_contains__(input_string[i], chars)):
+        if input_string[i] not in chars:
             return i
     return len(input_string)
 
 
 fn _rstrip_index(input_string: String, chars: String) -> Int:
     for i in range(len(input_string) - 1, -1, -1):
-        if not (__str_contains__(input_string[i], chars)):
+        if input_string[i] not in chars:
             return i + 1
     return 0
-
-
-fn __str_contains__(smaller_string: String, bigger_string: String) -> Bool:
-    if len(smaller_string) > len(bigger_string):
-        return False
-    for i in range(len(bigger_string) - len(smaller_string) + 1):
-        if smaller_string == bigger_string[i : i + len(smaller_string)]:
-            return True
-    return False
