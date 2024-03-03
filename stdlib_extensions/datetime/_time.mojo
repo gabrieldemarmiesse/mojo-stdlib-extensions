@@ -2,7 +2,7 @@ from ..builtins import Optional, ___eq__, list
 from .. import datetime as dt
 from utils.variant import Variant
 from ..builtins._generic_list import _cmp_list
-from ..builtins._hash import hash as custom_hash
+from ..builtins import custom_hash
 from ..builtins import divmod, bool_to_int
 from ..builtins.string import rjust, removeprefix
 from ._utils import _check_utc_offset, _check_time_fields

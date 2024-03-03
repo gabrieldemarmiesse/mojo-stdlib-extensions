@@ -1,7 +1,7 @@
 from ._generic_list import list, list_to_str
 from ._bytes import bytes, to_bytes
 from ..syscalls.filesystem import read_from_stdin
-from ._hash import hash, Hashable, HashableCollectionElement, Equalable
+from ._hash import custom_hash, Hashable, HashableCollectionElement, Equalable
 from ._dict import dict, HashableInt, HashableStr
 from ._types import Optional
 from ._math import divmod, round, abs
