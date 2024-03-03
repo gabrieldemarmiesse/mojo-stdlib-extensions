@@ -12,22 +12,22 @@ trait Hashable(Equalable):
         ...
 
 
-fn hash[T: Hashable](x: T) -> Int:
+fn custom_hash[T: Hashable](x: T) -> Int:
     return x.__hash__()
 
 
-fn hash(x: Int) -> Int:
+fn custom_hash(x: Int) -> Int:
     return x
 
 
-fn hash(x: Int64) -> Int:
+fn custom_hash(x: Int64) -> Int:
     """We assume 64 bits here, which is a big assumption.
     TODO: Make it work for 32 bits.
     """
     return hash(x.to_int())
 
 
-fn hash(x: String) -> Int:
+fn custom_hash(x: String) -> Int:
     """Very simple hash function."""
     var prime = 31
     var hash_value = 0
@@ -36,7 +36,7 @@ fn hash(x: String) -> Int:
     return hash_value
 
 
-fn hash(x: list[Int]) -> Int:
+fn custom_hash(x: list[Int]) -> Int:
     """Very simple hash function."""
     var prime = 31
     var hash_value = 0

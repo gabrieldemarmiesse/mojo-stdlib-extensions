@@ -7,15 +7,13 @@ from ._utils import (
     _check_utc_offset,
     _check_time_fields,
     _build_struct_time,
-    get_days_short_names,
-    get_days_short_names,
 )
 from ..time import struct_time
 from ..builtins.string import join
 from utils.variant import Variant
 from python import Python
 from ..syscalls.clocks import clock_gettime
-from ..builtins._hash import hash as custom_hash
+from ..builtins import custom_hash
 
 
 # TODO: time methods must be transferred to datetime
