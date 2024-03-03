@@ -17,6 +17,7 @@ from ..builtins._generic_list import _cmp_list
 from ..builtins import custom_hash
 from ..builtins import bool_to_int
 from .._utils import custom_debug_assert
+from utils.static_tuple import StaticTuple
 
 
 def _cmp(x, y):
@@ -39,7 +40,7 @@ alias MAXORDINAL = 3652059  # date.max.toordinal()
 # -1 is a placeholder for indexing purposes.
 
 
-alias DAYS_IN_MONTH = list[Int].from_values(
+alias DAYS_IN_MONTH = StaticTuple[13](
     -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 )
 
@@ -178,7 +179,7 @@ fn ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
 
 
 # Month and day names.  For localized versions, see the calendar module.
-alias MONTHS_SHORT_NAMES = list[String].from_values(
+alias MONTHS_SHORT_NAMES = StaticTuple[13](
     "",
     "Jan",
     "Feb",
@@ -194,7 +195,7 @@ alias MONTHS_SHORT_NAMES = list[String].from_values(
     "Dec",
 )
 
-alias MONTHS_NAMES = list[String].from_values(
+alias MONTHS_NAMES = StaticTuple[13](
     "",
     "January",
     "February",
@@ -211,7 +212,7 @@ alias MONTHS_NAMES = list[String].from_values(
 )
 
 
-alias DAYS_SHORT_NAMES = list[String].from_values(
+alias DAYS_SHORT_NAMES = StaticTuple[8](
     "",
     "Mon",
     "Tue",
@@ -222,7 +223,7 @@ alias DAYS_SHORT_NAMES = list[String].from_values(
     "Sun",
 )
 
-alias DAYS_NAMES = list[String].from_values(
+alias DAYS_NAMES = StaticTuple[8](
     "",
     "Monday",
     "Tuesday",
