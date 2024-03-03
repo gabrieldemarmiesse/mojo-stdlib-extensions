@@ -3,7 +3,7 @@ from ._bytes import bytes, to_bytes
 from ..syscalls.filesystem import read_from_stdin
 from ._hash import custom_hash
 from ._types import Optional
-from ._math import divmod, round, abs
+from ._math import divmod, round
 from ._custom_equality import ___eq__
 
 
