@@ -1,9 +1,9 @@
-from ..builtins import divmod, round, list
+from ..builtins import divmod, list
 from ..builtins.string import rjust, join
 from ..builtins._generic_list import _cmp_list
 from ..builtins import custom_hash
 from utils.variant import Variant
-from math import abs
+from math import abs, round
 
 # TODO: use this in the timedelta constructor
 alias IntOrFloat = Variant[Int, Float64]
@@ -131,7 +131,7 @@ struct timedelta(CollectionElement, Stringable, Hashable):
         days, seconds = divmod(seconds, 24 * 3600)
         d += days
         s += seconds
-        microseconds = round(microseconds + usdouble)
+        microseconds = round(Float64(microseconds) + usdouble).to_int()
         # TODO: Manage floats
         # assert isinstance(s, int)
         # assert isinstance(microseconds, int)
