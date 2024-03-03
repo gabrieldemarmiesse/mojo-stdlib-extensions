@@ -7,10 +7,10 @@ from ._utils import (
     ymd2ord,
     _isoweek_to_gregorian,
     _build_struct_time,
-    get_days_names,
-    get_days_short_names,
-    get_months_names,
-    get_months_short_names,
+    DAYS_NAMES,
+    DAYS_SHORT_NAMES,
+    MONTHS_SHORT_NAMES,
+    MONTHS_NAMES,
     _parse_isoformat_date,
     MAXORDINAL,
     _check_date_fields,
@@ -158,8 +158,8 @@ struct date(CollectionElement, Stringable, Hashable):
     fn ctime(self) -> String:
         "Return ctime() style string."
         var weekday = self.toordinal() % 7 or 7
-        var standard_week_day = str(get_days_short_names()[weekday])
-        var standard_month_day = str(get_months_short_names()[self.month])
+        var standard_week_day = str(DAYS_SHORT_NAMES[weekday])
+        var standard_month_day = str(MONTHS_SHORT_NAMES[self.month])
         var space_padded_day = rjust(str(self.day), 2, " ")
         return self.strftime(
             standard_week_day
@@ -199,17 +199,17 @@ struct date(CollectionElement, Stringable, Hashable):
         if letter == "%":
             return "%"
         elif letter == "a":
-            return get_days_short_names()[self.isoweekday()]
+            return DAYS_SHORT_NAMES[self.isoweekday()]
         elif letter == "A":
-            return get_days_names()[self.isoweekday()]
+            return DAYS_NAMES[self.isoweekday()]
         elif letter == "w":
             return str((self.weekday() + 1) % 7)
         elif letter == "d":
             return rjust(str(self.day), 2, "0")
         elif letter == "b":
-            return get_months_short_names()[self.month]
+            return MONTHS_SHORT_NAMES[self.month]
         elif letter == "B":
-            return get_months_names()[self.month]
+            return MONTHS_NAMES[self.month]
         elif letter == "m":
             return rjust(str(self.month), 2, "0")
         elif letter == "y":

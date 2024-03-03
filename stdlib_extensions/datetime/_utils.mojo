@@ -39,29 +39,23 @@ alias MAXORDINAL = 3652059  # date.max.toordinal()
 # -1 is a placeholder for indexing purposes.
 
 
-fn _get_days_in_month() -> list[Int]:
-    return list[Int].from_values(-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-
-
-# TODO: use the alias instead of the function call when
-# https://github.com/modularml/mojo/issues/1730 is fixed
-alias _DAYS_IN_MONTH = _get_days_in_month()
+alias DAYS_IN_MONTH = list[Int].from_values(
+    -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+)
 
 
 fn _get_days_before_month() -> list[Int]:
     var result = list[Int]()
     result.append(-1)  # -1 is a placeholder for indexing purposes.
     var dbm = 0
-    # TODO: use the alias instead of the function call when
-    # https://github.com/modularml/mojo/issues/1730 is fixed
-    for i in range(1, len(_get_days_in_month())):
-        var dim = _get_days_in_month()[i]
+    for i in range(1, len(DAYS_IN_MONTH)):
+        var dim = DAYS_IN_MONTH[i]
         result.append(dbm)
         dbm += dim
     return result
 
 
-alias _DAYS_BEFORE_MONTH = _get_days_before_month()
+alias DAYS_BEFORE_MONTH = _get_days_before_month()
 
 
 fn _is_leap(year: Int) -> Bool:
@@ -80,9 +74,7 @@ fn _days_in_month(year: Int, month: Int) -> Int:
     # assert 1 <= month <= 12, month
     if month == 2 and _is_leap(year):
         return 29
-    # TODO: use the alias _DAYS_IN_MONTH when
-    # https://github.com/modularml/mojo/issues/1730 is fixed
-    return _get_days_in_month()[month]
+    return DAYS_IN_MONTH[month]
 
 
 fn _bool_to_int(x: Bool) -> Int:
@@ -96,9 +88,7 @@ fn _bool_to_int(x: Bool) -> Int:
 fn _days_before_month(year: Int, month: Int) -> Int:
     "year, month -> number of days in year preceding first day of month."
     # assert 1 <= month <= 12, 'month must be in 1..12'
-    # TODO: use the alias _DAYS_BEFORE_MONTH
-    # when https://github.com/modularml/mojo/issues/1730 is fixed
-    return _get_days_before_month()[month] + _bool_to_int(month > 2 and _is_leap(year))
+    return DAYS_BEFORE_MONTH[month] + _bool_to_int(month > 2 and _is_leap(year))
 
 
 fn ymd2ord(year: Int, month: Int, day: Int) -> Int:
@@ -176,16 +166,10 @@ fn ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
     var leapyear = n1 == 3 and (n4 != 24 or n100 == 3)
     # assert leapyear == _is_leap(year)
     var month = (n + 50) >> 5
-    # TODO: use alias when
-    # https://github.com/modularml/mojo/issues/1730 is fixed
-    var preceding = _get_days_before_month()[month] + _bool_to_int(
-        month > 2 and leapyear
-    )
+    var preceding = DAYS_BEFORE_MONTH[month] + _bool_to_int(month > 2 and leapyear)
     if preceding > n:  # estimate is too large
         month -= 1
-        # TODO: use alias when
-        # https://github.com/modularml/mojo/issues/1730 is fixed
-        preceding -= _get_days_in_month()[month] + _bool_to_int(month == 2 and leapyear)
+        preceding -= DAYS_IN_MONTH[month] + _bool_to_int(month == 2 and leapyear)
     n -= preceding
     # assert 0 <= n < _days_in_month(year, month)
     # Now the year and month are correct, and n is the offset from the
@@ -194,79 +178,60 @@ fn ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
 
 
 # Month and day names.  For localized versions, see the calendar module.
-# TODO: use alias when https://github.com/modularml/mojo/issues/1730 is fixed
-fn get_months_short_names() -> list[String]:
-    return list[String].from_values(
-        "",
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    )
+alias MONTHS_SHORT_NAMES = list[String].from_values(
+    "",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+)
+
+alias MONTHS_NAMES = list[String].from_values(
+    "",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+)
 
 
-alias MONTHS_SHORT_NAMES = get_months_short_names()
+alias DAYS_SHORT_NAMES = list[String].from_values(
+    "",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun",
+)
 
-
-fn get_months_names() -> list[String]:
-    return list[String].from_values(
-        "",
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-    )
-
-
-alias MONTHS_NAMES = get_months_names()
-
-
-fn get_days_short_names() -> list[String]:
-    return list[String].from_values(
-        "",
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-        "Sun",
-    )
-
-
-alias DAYS_SHORT_NAMES = get_days_short_names()
-
-
-fn get_days_names() -> list[String]:
-    return list[String].from_values(
-        "",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-    )
-
-
-alias DAYS_NAMES = get_days_names()
+alias DAYS_NAMES = list[String].from_values(
+    "",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+)
 
 
 fn _build_struct_time(
