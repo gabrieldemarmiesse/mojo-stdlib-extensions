@@ -7,7 +7,7 @@ This file is taken from https://github.com/python/cpython/blob/main/Lib/_pydatet
 It's just been converted to Mojo manually.
 """
 
-from ..builtins import list, divmod, round, abs
+from ..builtins import list, divmod
 from ..builtins.string import join
 from ..time import struct_time
 import math as _math
