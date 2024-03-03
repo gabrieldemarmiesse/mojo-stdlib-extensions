@@ -18,7 +18,7 @@ from ._utils import (
 from ._iso_calendar_date import IsoCalendarDate
 
 from ..builtins._generic_list import _cmp_list
-from ..builtins._hash import hash as custom_hash
+from ..builtins import custom_hash
 from ..time import time, time_ns, struct_time
 from ..builtins import list
 from ..builtins.string import ljust, rjust, join
@@ -347,7 +347,7 @@ struct date(CollectionElement, Stringable, Hashable):
         return _cmp_list(list_1, list_2)
 
     fn __hash__(self) -> Int:
-        return custom_hash(str(self.year) + str(self.month) + str(self.day))
+        return custom_hash(list[Int].from_values(self.year, self.month, self.day))
 
     # Computations
     fn __add__(self, other: dt.timedelta) -> date:
