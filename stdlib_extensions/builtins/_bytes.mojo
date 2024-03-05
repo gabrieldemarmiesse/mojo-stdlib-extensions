@@ -332,7 +332,7 @@ struct bytes(Stringable, Sized, CollectionElement):
             new_bytes += self
         return new_bytes
 
-    def __imul__(inout self: Self, other: Int):
+    fn __imul__(inout self: Self, other: Int):
         if other <= 0:
             self._vector.clear()
             return
