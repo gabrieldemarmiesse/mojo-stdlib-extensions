@@ -287,13 +287,13 @@ struct bytes(Stringable, Sized, CollectionElement):
     fn __init__(inout self, size: Int):
         self._vector = List[UInt8](capacity=size)
         for i in range(size):
-            self._vector.push_back(0)
+            self._vector.append(0)
 
     @staticmethod
     fn from_values(*values: UInt8) -> bytes:
         var vector = List[UInt8](capacity=len(values))
         for value in values:
-            vector.push_back(value)
+            vector.append(value)
         return bytes(vector)
 
     fn __len__(self) -> Int:
@@ -309,9 +309,9 @@ struct bytes(Stringable, Sized, CollectionElement):
         self._vector[index] = value[0]
 
     fn __eq__(self, other: bytes) -> Bool:
-        if self.__len__() != other.__len__():
+        if len(self) != len(other):
             return False
-        for i in range(self.__len__()):
+        for i in range(len(self)):
             if self[i] != other[i]:
                 return False
         return True
@@ -320,16 +320,16 @@ struct bytes(Stringable, Sized, CollectionElement):
         return not self.__eq__(other)
 
     fn __add__(self, other: bytes) -> bytes:
-        var new_vector = List[UInt8](capacity=self.__len__() + other.__len__())
-        for i in range(self.__len__()):
-            new_vector.push_back(self[i])
-        for i in range(other.__len__()):
-            new_vector.push_back(other[i])
-        return bytes(new_vector)
+        var new_vector = List[UInt8](capacity=len(self) + len(other))
+        for i in range(len(self)):
+            new_vector.append(self[i])
+        for i in range(len(other)):
+            new_vector.append(other[i])
+        return bytes(new_vector ^)
 
     fn __iadd__(inout self: Self, other: bytes):
-        for i in range(other.__len__()):
-            self._vector.push_back(other[i])
+        for i in range(len(other)):
+            self._vector.append(other[i])
 
     fn __mul__(self, other: Int) -> bytes:
         var new_bytes = bytes()
@@ -341,16 +341,16 @@ struct bytes(Stringable, Sized, CollectionElement):
         if other <= 0:
             self._vector.clear()
             return
-        var starting_lenght = self.__len__()
+        var starting_lenght = len(self)
         var iterations = other - 1
         for _ in range(iterations):
             for j in range(starting_lenght):
-                self._vector.push_back(self[j])
+                self._vector.append(self[j])
 
     fn __str__(self) -> String:
         alias mapping = get_mapping_byte_to_value()
         var result_string: String = "b'"
-        for i in range(self.__len__()):
+        for i in range(len(self)):
             result_string += mapping[self._vector[i].to_int()]
         result_string += "'"
         return result_string
@@ -360,7 +360,7 @@ struct bytes(Stringable, Sized, CollectionElement):
 
     fn hex(self) -> String:
         var result: String = ""
-        for i in range(self.__len__()):
+        for i in range(len(self)):
             var as_hex = hex(self.__getitem__(i))[2:]
             result += rjust(as_hex, 2, "0")
         return result
@@ -409,6 +409,6 @@ fn to_bytes(n: Int, length: Int = 1, byteorder: String = "big") -> bytes:
     var result_vector = List[UInt8](capacity=length)
 
     for i in order:
-        result_vector.push_back((n >> i * 8) & 0xFF)
+        result_vector.append((n >> i * 8) & 0xFF)
 
     return bytes(result_vector)
