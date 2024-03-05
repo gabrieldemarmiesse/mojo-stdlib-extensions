@@ -12,17 +12,11 @@ struct list[T: CollectionElement]:
             result._internal_vector.append(value[])
         return result
 
-    fn pop(inout self) -> T:
-        return self._internal_vector.pop_back()
 
-
-fn dodo() -> String:
+fn dodo():
     var components = list[String].from_values("a", "b")
-    for _ in range(2):
-        if True:
-            components.pop()
-    return "dodo"
+    components._internal_vector.pop_back()
 
 
 def main():
-    print(dodo())
+    dodo()
