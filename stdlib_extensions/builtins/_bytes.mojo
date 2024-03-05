@@ -336,7 +336,7 @@ struct bytes(Stringable, Sized, CollectionElement):
         if other <= 0:
             self._vector.clear()
             return
-        starting_lenght = len(self)
+        var starting_lenght = len(self)
         var iterations = other - 1
         for _ in range(iterations):
             for j in range(starting_lenght):
