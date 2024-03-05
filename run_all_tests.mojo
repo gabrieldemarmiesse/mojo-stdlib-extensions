@@ -5,16 +5,10 @@ struct list[T: CollectionElement]:
     fn __init__(inout self):
         self._internal_vector = DynamicVector[T]()
 
-    @staticmethod
-    fn from_values(*values: T) -> list[T]:
-        var result = list[T]()
-        for value in values:
-            result._internal_vector.append(value[])
-        return result
-
 
 fn dodo():
-    var components = list[String].from_values("a", "b")
+    var components = list[String]()
+    components._internal_vector.append("a")
     components._internal_vector.pop_back()
 
 
