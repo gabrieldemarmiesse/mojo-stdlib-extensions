@@ -317,19 +317,14 @@ struct bytes(Stringable, Sized, CollectionElement):
         return True
 
     fn __ne__(self, other: bytes) -> Bool:
-        return not self.__eq__(other)
+        return not (self == other)
 
-    fn __add__(self, other: bytes) -> bytes:
-        var new_vector = List[UInt8](capacity=len(self) + len(other))
-        for i in range(len(self)):
-            new_vector.append(self[i])
-        for i in range(len(other)):
-            new_vector.append(other[i])
-        return bytes(new_vector ^)
+    fn __add__(owned self, other: bytes) -> bytes:
+        self._vector.extend(other._vector)
+        return self
 
     fn __iadd__(inout self: Self, other: bytes):
-        for i in range(len(other)):
-            self._vector.append(other[i])
+        self._vector.extend(other._vector)
 
     fn __mul__(self, other: Int) -> bytes:
         var new_bytes = bytes()
@@ -337,7 +332,7 @@ struct bytes(Stringable, Sized, CollectionElement):
             new_bytes += self
         return new_bytes
 
-    def __imul__(inout self: Self, other: Int):
+    fn __imul__(inout self: Self, other: Int):
         if other <= 0:
             self._vector.clear()
             return
@@ -361,7 +356,7 @@ struct bytes(Stringable, Sized, CollectionElement):
     fn hex(self) -> String:
         var result: String = ""
         for i in range(len(self)):
-            var as_hex = hex(self.__getitem__(i))[2:]
+            var as_hex = hex(self[i])[2:]
             result += rjust(as_hex, 2, "0")
         return result
 
