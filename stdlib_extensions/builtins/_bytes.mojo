@@ -1,6 +1,7 @@
 from ._generic_list import list
 from .._utils import custom_debug_assert
 from .string import rjust
+from ._dynamic_vector_list import List
 
 
 fn get_mapping_byte_to_value() -> list[String]:
@@ -275,22 +276,22 @@ struct bytes(Stringable, Sized, CollectionElement):
     even some_bytes[7] = some_other_byte (the latter must be only one byte long).
     """
 
-    var _vector: DynamicVector[UInt8]
+    var _vector: List[UInt8]
 
     fn __init__(inout self):
-        self._vector = DynamicVector[UInt8]()
+        self._vector = List[UInt8]()
 
-    fn __init__(inout self, vector: DynamicVector[UInt8]):
-        self._vector = vector
+    fn __init__(inout self, owned vector: List[UInt8]):
+        self._vector = vector ^
 
     fn __init__(inout self, size: Int):
-        self._vector = DynamicVector[UInt8](capacity=size)
+        self._vector = List[UInt8](capacity=size)
         for i in range(size):
             self._vector.push_back(0)
 
     @staticmethod
     fn from_values(*values: UInt8) -> bytes:
-        var vector = DynamicVector[UInt8](capacity=len(values))
+        var vector = List[UInt8](capacity=len(values))
         for value in values:
             vector.push_back(value)
         return bytes(vector)
@@ -319,7 +320,7 @@ struct bytes(Stringable, Sized, CollectionElement):
         return not self.__eq__(other)
 
     fn __add__(self, other: bytes) -> bytes:
-        var new_vector = DynamicVector[UInt8](capacity=self.__len__() + other.__len__())
+        var new_vector = List[UInt8](capacity=self.__len__() + other.__len__())
         for i in range(self.__len__()):
             new_vector.push_back(self[i])
         for i in range(other.__len__()):
@@ -371,7 +372,7 @@ struct bytes(Stringable, Sized, CollectionElement):
     @staticmethod
     fn fromhex(string: String) -> bytes:
         # TODO: remove whitespaces on the input string
-        var vector_of_bytes = DynamicVector[UInt8](capacity=len(string) // 2)
+        var vector_of_bytes = List[UInt8](capacity=len(string) // 2)
         var string_length = len(string)
         for i in range(0, string_length, 2):
             var first_char = string[i]
@@ -379,7 +380,7 @@ struct bytes(Stringable, Sized, CollectionElement):
             var first_value = _ascii_char_to_int(first_char)
             var second_value = _ascii_char_to_int(second_char)
             var final_value = (first_value << 4) + second_value
-            vector_of_bytes.push_back(UInt8(final_value))
+            vector_of_bytes.append(UInt8(final_value))
         return bytes(vector_of_bytes)
 
 
@@ -405,7 +406,7 @@ fn to_bytes(n: Int, length: Int = 1, byteorder: String = "big") -> bytes:
     else:
         custom_debug_assert(False, "byteorder must be either 'little' or 'big'")
 
-    var result_vector = DynamicVector[UInt8](capacity=length)
+    var result_vector = List[UInt8](capacity=length)
 
     for i in order:
         result_vector.push_back((n >> i * 8) & 0xFF)
