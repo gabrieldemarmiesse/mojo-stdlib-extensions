@@ -6,66 +6,7 @@ from utils.variant import Variant
 from math import abs, round
 from .._utils import custom_debug_assert
 
-# TODO: use this in the timedelta constructor
-alias IntOrFloatVariant = Variant[Int, Float64]
 
-
-struct IntOrFloat:
-    """We define this to be able to do operation without worrying too much about type conversions.
-    """
-
-    var value: IntOrFloatVariant
-
-    fn __init__(inout self, value: IntOrFloatVariant):
-        self.value = value
-
-    fn __init__(inout self, value: Int):
-        self.value = value
-
-    fn __init__(inout self, value: Float64):
-        self.value = value
-
-    fn __init__(inout self, value: Float32):
-        self.value = IntOrFloatVariant(value.cast[DType.float64]())
-
-    fn to_float(self) -> Float64:
-        if self.value.isa[Int]():
-            return Float64(self.value.get[Int]()[])
-        else:
-            return self.value.get[Float64]()[]
-
-    fn to_int(self) -> Int:
-        custom_debug_assert(self.value.isa[Int](), "We should have an int here")
-        return self.value.get[Int]()[]
-
-    fn isfloat(self) -> Bool:
-        return self.value.isa[Float64]()
-
-    fn isint(self) -> Bool:
-        return self.value.isa[Int]()
-
-    fn __mul__(self, other: Int) -> IntOrFloat:
-        if self.value.isa[Int]():
-            return IntOrFloat(self.value.get[Int]()[] * other)
-        else:
-            return IntOrFloat(self.value.get[Float64]()[] * Float64(other))
-
-    fn __iadd__(inout self, other: IntOrFloat):
-        if self.value.isa[Int]() and other.value.isa[Int]():
-            self.value.set[Int](self.value.get[Int]()[] + other.value.get[Int]()[])
-        else:
-            # we upgrade to float
-            self.value.set[Float64](self.to_float() + other.to_float())
-
-    fn __add__(self, other: IntOrFloat) -> IntOrFloat:
-        if self.value.isa[Int]() and other.value.isa[Int]():
-            return IntOrFloat(self.value.get[Int]()[] + other.value.get[Int]()[])
-        else:
-            # we upgrade to float
-            return IntOrFloat(self.to_float() + other.to_float())
-
-
-@value
 struct timedelta(CollectionElement, Stringable, Hashable):
     """Represent the difference between two datetime objects.
 
@@ -90,7 +31,6 @@ struct timedelta(CollectionElement, Stringable, Hashable):
     var days: Int
     var seconds: Int
     var microseconds: Int
-    var _dummy: Int  # remove when https://github.com/modularml/mojo/issues/1705 is fixed
 
     alias min = timedelta(-999999999)
     alias max = timedelta(
@@ -100,123 +40,127 @@ struct timedelta(CollectionElement, Stringable, Hashable):
 
     fn __init__(
         inout self,
-        owned days: IntOrFloat = 0,
-        owned seconds: IntOrFloat = 0,
-        owned microseconds: IntOrFloat = 0,
-        milliseconds: IntOrFloat = 0,
-        minutes: IntOrFloat = 0,
-        hours: IntOrFloat = 0,
-        weeks: IntOrFloat = 0,
+        owned days: Float64 = 0,
+        owned seconds: Float64 = 0,
+        owned microseconds: Float64 = 0,
+        owned milliseconds: Float64 = 0,
+        owned minutes: Float64 = 0,
+        owned hours: Float64 = 0,
+        owned weeks: Float64 = 0,
+        *,
+        use_floats: Bool,
     ):
-        # Doing this efficiently and accurately in C is going to be difficult
-        # and error-prone, due to ubiquitous overflow possibilities, and that
-        # C double doesn't have enough bits of precision to represent
-        # microseconds over 10K years faithfully.  The code here tries to make
-        # explicit where go-fast assumptions can be relied on, in order to
-        # guide the C implementation; it's way more convoluted than speed-
-        # ignoring auto-overflow-to-long idiomatic Python could be.
+        """This is the datetime constructor which can be used to create it from floating point values.
 
-        # XXX Check that all inputs are ints or floats.
+        Since Mojo can't decide which constructor to take when there are unspecified arguments, we have
+        to use the keyword arguments `use_floats=True` here to differentiate the two constructors.
+        """
+        # make sure weeks is a round number:
+        var weeks_remainder: Float64
+        weeks_remainder, weeks = modf(weeks)
+        days += weeks_remainder * 7
 
-        # Final values, all integer.
-        # s and us fit in 32-bit signed ints; d isn't bounded.
-        var d: Int = 0
-        var s: Int = 0
-        var us: Int = 0
+        # make sure days is a round number:
+        var days_remainder: Float64
+        days_remainder, days = modf(days)
+        hours += days_remainder * 24
 
-        # Normalize everything to days, seconds, microseconds.
-        days += weeks * 7
-        seconds += minutes * 60 + hours * 3600
+        # make sure hours is a round number:
+        var hours_remainder: Float64
+        hours_remainder, hours = modf(hours)
+        minutes += hours_remainder * 60
+
+        # make sure minutes is a round number:
+        var minutes_remainder: Float64
+        minutes_remainder, minutes = modf(minutes)
+        seconds += minutes_remainder * 60
+
+        # make sure seconds is a round number:
+        var seconds_remainder: Float64
+        seconds_remainder, seconds = modf(seconds)
+        milliseconds += seconds_remainder * 1000
+
+        # make sure milliseconds is a round number:
+        var milliseconds_remainder: Float64
+        milliseconds_remainder, milliseconds = modf(milliseconds)
+        microseconds += milliseconds_remainder * 1000
+
+        # make sure microseconds is a round number:
+        microseconds = round(microseconds)
+
+        self.__init__(
+            weeks=weeks.to_int(),
+            days=days.to_int(),
+            hours=hours.to_int(),
+            minutes=minutes.to_int(),
+            seconds=seconds.to_int(),
+            milliseconds=milliseconds.to_int(),
+            microseconds=microseconds.to_int(),
+        )
+
+    fn __init__(
+        inout self,
+        owned days: Int = 0,
+        owned seconds: Int = 0,
+        owned microseconds: Int = 0,
+        milliseconds: Int = 0,
+        minutes: Int = 0,
+        hours: Int = 0,
+        weeks: Int = 0,
+    ):
+        # We keep only days, seconds, microseconds
         microseconds += milliseconds * 1000
+        seconds += minutes * 60 + hours * 3600
+        days += weeks * 7
+        self.__init__(days, seconds, microseconds, is_normalized=False)
 
-        # Get rid of all fractions, and normalize s and us.
-        # Take a deep breath <wink>.
-        var daysecondsfrac: Float64
-        if days.isfloat():
-            var dayfrac: Float64
-            var days_as_int_still_float: Float64
-            dayfrac, days_as_int_still_float = modf(days.to_float())
-            var daysecondswhole: Float64
-            daysecondsfrac, daysecondswhole = modf(dayfrac * (24.0 * 3600.0))
-            s = int(daysecondswhole)
-            d = int(days_as_int_still_float)
-        else:
-            daysecondsfrac = 0.0
-            d = days.to_int()
+    fn __init__(
+        inout self,
+        owned days: Int,
+        owned seconds: Int,
+        owned microseconds: Int,
+        *,
+        is_normalized: Bool,
+    ):
+        """Call this with is_normalized=True if you know the values are already in the correct range.
+        """
 
-        custom_debug_assert(abs(daysecondsfrac) <= 1.0)
-        custom_debug_assert(abs(s) <= 24 * 3600)
-        # days isn't referenced again before redefinition
-        var secondsfrac: Float64
+        if not is_normalized:
+            var extra_seconds: Int
+            extra_seconds, microseconds = divmod(microseconds, 1000000)
+            seconds += extra_seconds
 
-        if seconds.isfloat():
-            var seconds_as_int_still_float: Float64
-            secondsfrac, seconds_as_int_still_float = modf(seconds.to_float())
-            seconds = int(seconds_as_int_still_float)
-            secondsfrac += daysecondsfrac
-            custom_debug_assert(abs(secondsfrac) <= 2.0)
-        else:
-            secondsfrac = daysecondsfrac
-
-        # daysecondsfrac isn't referenced again
-        custom_debug_assert(abs(secondsfrac) <= 2.0)
-
-        custom_debug_assert(seconds.isint())
-        var additional_days: Int
-        var additional_seconds: Int
-        additional_days, additional_seconds = divmod(seconds.to_int(), 24 * 3600)
-        d += additional_days
-        s += additional_seconds  # can't overflow
-        custom_debug_assert(abs(s) <= 2 * 24 * 3600)
-        # seconds isn't referenced again before redefinition
-
-        var usdouble = secondsfrac * 1e6
-        custom_debug_assert(abs(usdouble) < 2.1e6)  # exact value not critical
-        # secondsfrac isn't referenced again
-        var additional_microseconds: Int
-        if microseconds.isfloat():
-            var microseconds_as_int = int(round(microseconds.to_float() + usdouble))
-            var additional_seconds: Int
-            var additional_days: Int
-            additional_seconds, additional_microseconds = divmod(
-                microseconds_as_int, 1000000
-            )
-            additional_days, additional_seconds = divmod(additional_seconds, 24 * 3600)
-            d += additional_days
-            s += additional_seconds
-        else:
-            var additional_seconds: Int
-            var additional_days: Int
-            additional_microseconds = microseconds.to_int()
-            additional_seconds, additional_microseconds = divmod(
-                additional_microseconds, 1000000
-            )
-            additional_days, additional_seconds = divmod(additional_seconds, 24 * 3600)
-            d += additional_days
-            s += additional_seconds
-            additional_microseconds = round(additional_microseconds + usdouble).to_int()
-        # TODO: Manage floats
-        custom_debug_assert(abs(s) <= 3 * 24 * 3600)
-        custom_debug_assert(abs(additional_microseconds) < 3100000)
-
-        # Just a little bit of carrying possible for microseconds and seconds.
-        var additional_seconds2: Int
-        additional_seconds2, us = divmod(additional_microseconds, 1000000)
-        s += additional_seconds2
-        var additional_days2: Int
-        additional_days2, s = divmod(s, 24 * 3600)
-        d += additional_days2
-
-        custom_debug_assert(0 <= s < 24 * 3600)
-        custom_debug_assert(0 <= us < 1000000)
+            var extra_days: Int
+            extra_days, seconds = divmod(seconds, 24 * 60 * 60)
+            days += extra_days
 
         custom_debug_assert(
-            abs(d) < 999999999, "timedelta # of days is too large: " + str(d)
+            0 <= microseconds < 1000000,
+            "microseconds should be in the range [0, 1000000[",
         )
-        self.days = d
-        self.seconds = s
-        self.microseconds = us
-        self._dummy = -1
+        custom_debug_assert(
+            0 <= seconds < 24 * 60 * 60,
+            "seconds should be in the range [0, 24 * 60 * 60[",
+        )
+        custom_debug_assert(
+            -99999999 <= days <= 999999999,
+            "days should be in the range -999999999 to 999999999",
+        )
+
+        self.days = days
+        self.seconds = seconds
+        self.microseconds = microseconds
+
+    # use @value when https://github.com/modularml/mojo/issues/1705 is fixed
+    fn __copyinit__(inout self, existing: Self):
+        self.days = existing.days
+        self.seconds = existing.seconds
+        self.microseconds = existing.microseconds
+
+    fn __moveinit__(inout self, owned existing: Self):
+        self.days = existing.days
+        self.seconds = existing.seconds
+        self.microseconds = existing.microseconds
 
     fn __repr__(self) -> String:
         var args = list[String]()
