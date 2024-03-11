@@ -1,15 +1,12 @@
-from ..builtins import divmod, list
+from ..builtins import divmod, list, modf
 from ..builtins.string import rjust, join
 from ..builtins._generic_list import _cmp_list
 from ..builtins import custom_hash
 from utils.variant import Variant
 from math import abs, round
-
-# TODO: use this in the timedelta constructor
-alias IntOrFloat = Variant[Int, Float64]
+from .._utils import custom_debug_assert
 
 
-@value
 struct timedelta(CollectionElement, Stringable, Hashable):
     """Represent the difference between two datetime objects.
 
@@ -34,13 +31,72 @@ struct timedelta(CollectionElement, Stringable, Hashable):
     var days: Int
     var seconds: Int
     var microseconds: Int
-    var _dummy: Int  # remove when https://github.com/modularml/mojo/issues/1705 is fixed
 
     alias min = timedelta(-999999999)
     alias max = timedelta(
         days=999999999, hours=23, minutes=59, seconds=59, microseconds=999999
     )
     alias resolution = timedelta(microseconds=1)
+
+    fn __init__(
+        inout self,
+        owned days: Float64 = 0,
+        owned seconds: Float64 = 0,
+        owned microseconds: Float64 = 0,
+        owned milliseconds: Float64 = 0,
+        owned minutes: Float64 = 0,
+        owned hours: Float64 = 0,
+        owned weeks: Float64 = 0,
+        *,
+        use_floats: Bool,
+    ):
+        """This is the datetime constructor which can be used to create it from floating point values.
+
+        Since Mojo can't decide which constructor to take when there are unspecified arguments, we have
+        to use the keyword arguments `use_floats=True` here to differentiate the two constructors.
+        """
+        # make sure weeks is a round number:
+        var weeks_remainder: Float64
+        weeks_remainder, weeks = modf(weeks)
+        days += weeks_remainder * 7
+
+        # make sure days is a round number:
+        var days_remainder: Float64
+        days_remainder, days = modf(days)
+        hours += days_remainder * 24
+
+        # make sure hours is a round number:
+        var hours_remainder: Float64
+        hours_remainder, hours = modf(hours)
+        minutes += hours_remainder * 60
+
+        # make sure minutes is a round number:
+        var minutes_remainder: Float64
+        minutes_remainder, minutes = modf(minutes)
+        seconds += minutes_remainder * 60
+
+        # make sure seconds is a round number:
+        var seconds_remainder: Float64
+        seconds_remainder, seconds = modf(seconds)
+        milliseconds += seconds_remainder * 1000
+
+        # make sure milliseconds is a round number:
+        var milliseconds_remainder: Float64
+        milliseconds_remainder, milliseconds = modf(milliseconds)
+        microseconds += milliseconds_remainder * 1000
+
+        # make sure microseconds is a round number:
+        microseconds = round(microseconds)
+
+        self.__init__(
+            weeks=weeks.to_int(),
+            days=days.to_int(),
+            hours=hours.to_int(),
+            minutes=minutes.to_int(),
+            seconds=seconds.to_int(),
+            milliseconds=milliseconds.to_int(),
+            microseconds=microseconds.to_int(),
+        )
 
     fn __init__(
         inout self,
@@ -52,110 +108,59 @@ struct timedelta(CollectionElement, Stringable, Hashable):
         hours: Int = 0,
         weeks: Int = 0,
     ):
-        # Doing this efficiently and accurately in C is going to be difficult
-        # and error-prone, due to ubiquitous overflow possibilities, and that
-        # C double doesn't have enough bits of precision to represent
-        # microseconds over 10K years faithfully.  The code here tries to make
-        # explicit where go-fast assumptions can be relied on, in order to
-        # guide the C implementation; it's way more convoluted than speed-
-        # ignoring auto-overflow-to-long idiomatic Python could be.
-
-        # XXX Check that all inputs are ints or floats.
-
-        # Final values, all integer.
-        # s and us fit in 32-bit signed ints; d isn't bounded.
-        var d = 0
-        var s = 0
-        var us = 0
-
-        # Normalize everything to days, seconds, microseconds.
-        days += weeks * 7
-        seconds += minutes * 60 + hours * 3600
+        # We keep only days, seconds, microseconds
         microseconds += milliseconds * 1000
+        seconds += minutes * 60 + hours * 3600
+        days += weeks * 7
+        self.__init__(days, seconds, microseconds, is_normalized=False)
 
-        # Get rid of all fractions, and normalize s and us.
-        # Take a deep breath <wink>.
-        # if isinstance(days, float):
-        #    dayfrac, days = _math.modf(days)
-        #    daysecondsfrac, daysecondswhole = _math.modf(dayfrac * (24.*3600.))
-        #    assert daysecondswhole == int(daysecondswhole)  # can't overflow
-        #    s = int(daysecondswhole)
-        #    assert days == int(days)
-        #    d = int(days)
-        # else:
-        var daysecondsfrac = 0.0
-        d = days
-        # TODO: manage floats
+    fn __init__(
+        inout self,
+        owned days: Int,
+        owned seconds: Int,
+        owned microseconds: Int,
+        *,
+        is_normalized: Bool,
+    ):
+        """Call this with is_normalized=True if you know the values are already in the correct range.
+        """
 
-        # assert isinstance(daysecondsfrac, float)
-        # assert abs(daysecondsfrac) <= 1.0
-        # assert isinstance(d, int)
-        # assert abs(s) <= 24 * 3600
-        # days isn't referenced again before redefinition
+        if not is_normalized:
+            var extra_seconds: Int
+            extra_seconds, microseconds = divmod(microseconds, 1000000)
+            seconds += extra_seconds
 
-        # if isinstance(seconds, float):
-        #    secondsfrac, seconds = _math.modf(seconds)
-        #    assert seconds == int(seconds)
-        #    seconds = int(seconds)
-        #    secondsfrac += daysecondsfrac
-        #    assert abs(secondsfrac) <= 2.0
-        # else:
-        var secondsfrac = daysecondsfrac
-        # TODO: Manage floats
+            var extra_days: Int
+            extra_days, seconds = divmod(seconds, 24 * 60 * 60)
+            days += extra_days
 
-        # daysecondsfrac isn't referenced again
-        # assert isinstance(secondsfrac, float)
-        # assert abs(secondsfrac) <= 2.0
+        custom_debug_assert(
+            0 <= microseconds < 1000000,
+            "microseconds should be in the range [0, 1000000[",
+        )
+        custom_debug_assert(
+            0 <= seconds < 24 * 60 * 60,
+            "seconds should be in the range [0, 24 * 60 * 60[",
+        )
+        custom_debug_assert(
+            -99999999 <= days <= 999999999,
+            "days should be in the range -999999999 to 999999999",
+        )
 
-        # assert isinstance(seconds, int)
-        days, seconds = divmod(seconds, 24 * 3600)
-        d += days
-        s += int(seconds)  # can't overflow
-        # assert isinstance(s, int)
-        # assert abs(s) <= 2 * 24 * 3600
-        # seconds isn't referenced again before redefinition
+        self.days = days
+        self.seconds = seconds
+        self.microseconds = microseconds
 
-        var usdouble = secondsfrac * 1e6
-        # assert abs(usdouble) < 2.1e6    # exact value not critical
-        # secondsfrac isn't referenced again
+    # use @value when https://github.com/modularml/mojo/issues/1705 is fixed
+    fn __copyinit__(inout self, existing: Self):
+        self.days = existing.days
+        self.seconds = existing.seconds
+        self.microseconds = existing.microseconds
 
-        # if isinstance(microseconds, float):
-        #    microseconds = round(microseconds + usdouble)
-        #    seconds, microseconds = divmod(microseconds, 1000000)
-        #    days, seconds = divmod(seconds, 24*3600)
-        #    d += days
-        #    s += seconds
-        # else:
-        microseconds = int(microseconds)
-        seconds, microseconds = divmod(microseconds, 1000000)
-        days, seconds = divmod(seconds, 24 * 3600)
-        d += days
-        s += seconds
-        microseconds = round(Float64(microseconds) + usdouble).to_int()
-        # TODO: Manage floats
-        # assert isinstance(s, int)
-        # assert isinstance(microseconds, int)
-        # assert abs(s) <= 3 * 24 * 3600
-        # assert abs(microseconds) < 3.1e6
-
-        # Just a little bit of carrying possible for microseconds and seconds.
-        seconds, us = divmod(microseconds, 1000000)
-        s += seconds
-        days, s = divmod(s, 24 * 3600)
-        d += days
-
-        # assert isinstance(d, int)
-        # assert isinstance(s, int) and 0 <= s < 24 * 3600
-        # assert isinstance(us, int) and 0 <= us < 1000000
-
-        if abs(d) > 999999999:
-            pass
-            # raise OverflowError("timedelta # of days is too large: %d" % d)
-
-        self.days = d
-        self.seconds = s
-        self.microseconds = us
-        self._dummy = -1
+    fn __moveinit__(inout self, owned existing: Self):
+        self.days = existing.days
+        self.seconds = existing.seconds
+        self.microseconds = existing.microseconds
 
     fn __repr__(self) -> String:
         var args = list[String]()
