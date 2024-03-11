@@ -9,6 +9,28 @@ def test_timedelta():
     assert_equal(String(divided), "3600.0")
 
 
+def test_timedelta_constructor():
+    one_min = timedelta(minutes=1)
+    assert_equal(one_min.seconds, 60)
+    assert_equal(one_min.days, 0)
+    assert_equal(one_min.microseconds, 0)
+
+    half_a_min = timedelta(minutes=0.5, use_floats=True)
+    assert_equal(half_a_min.seconds, 30)
+    assert_equal(half_a_min.days, 0)
+    assert_equal(half_a_min.microseconds, 0)
+
+    one_day_and_a_half = timedelta(days=1.5, use_floats=True)
+    assert_equal(one_day_and_a_half.days, 1)
+    assert_equal(one_day_and_a_half.seconds, 43200)
+    assert_equal(one_day_and_a_half.microseconds, 0)
+
+    two_weeks = timedelta(weeks=2)
+    assert_equal(two_weeks.days, 14)
+    assert_equal(two_weeks.seconds, 0)
+    assert_equal(two_weeks.microseconds, 0)
+
+
 def test_timedelta_repr():
     assert_equal(timedelta().__repr__(), "datetime.timedelta(0)")
     assert_equal(timedelta(days=1).__repr__(), "datetime.timedelta(days=1)")
@@ -48,3 +70,4 @@ def test_timedelta_repr():
 def run_tests():
     test_timedelta()
     test_timedelta_repr()
+    test_timedelta_constructor()
