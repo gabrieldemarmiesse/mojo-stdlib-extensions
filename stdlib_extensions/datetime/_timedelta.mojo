@@ -108,6 +108,20 @@ struct timedelta(CollectionElement, Stringable, Hashable):
         hours: Int = 0,
         weeks: Int = 0,
     ):
+        """Creates a datetime struct from integer values.
+
+        Each of the values provided can be positive or negative.
+
+        Args:
+            days: The number of days.
+            seconds: The number of seconds.
+            microseconds: The number of microseconds.
+            milliseconds: The number of milliseconds.
+            minutes: The number of minutes.
+            hours: The number of hours.
+            weeks: The number of weeks.
+
+        """
         # We keep only days, seconds, microseconds
         microseconds += milliseconds * 1000
         seconds += minutes * 60 + hours * 3600
