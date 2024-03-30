@@ -1,6 +1,8 @@
 # mojo-stdlib-extensions
 A replica of python's stdlib in mojo 🔥
 
+**Note**: I am currently working on porting all this code to Mojo's stdlib, thus, this 
+repository will soon be obsolete.
 
 ```python
 from stdlib_extensions.datetime import datetime, timedelta
