@@ -28,7 +28,7 @@ jobs:
 
     - name: Install mojo CLI
       run: |
-        modular install mojo
+        modular install nightly/mojo
 
     - name: Run tests
       run: |
