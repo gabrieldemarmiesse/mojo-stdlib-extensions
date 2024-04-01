@@ -1,4 +1,4 @@
-from ..builtins import Optional, ___eq__, list
+from ..builtins import Optional, ___eq__
 from .. import datetime as dt
 from utils.variant import Variant
 from ..builtins._generic_list import _cmp_list
@@ -111,12 +111,8 @@ struct time(CollectionElement, Hashable, Stringable):
 
         if base_compare:
             return _cmp_list(
-                list[Int].from_values(
-                    self.hour, self.minute, self.second, self.microsecond
-                ),
-                list[Int].from_values(
-                    other.hour, other.minute, other.second, other.microsecond
-                ),
+                List[Int](self.hour, self.minute, self.second, self.microsecond),
+                List[Int](other.hour, other.minute, other.second, other.microsecond),
             )
         if myoff is None or otoff is None:
             if allow_mixed:
@@ -133,8 +129,8 @@ struct time(CollectionElement, Hashable, Stringable):
             minutes=1
         )
         return _cmp_list(
-            list[Int].from_values(myhhmm.to_int(), self.second, self.microsecond),
-            list[Int].from_values(othhmm.to_int(), other.second, other.microsecond),
+            List[Int](myhhmm.to_int(), self.second, self.microsecond),
+            List[Int](othhmm.to_int(), other.second, other.microsecond),
         )
 
     fn __hash__(self) -> Int:
@@ -146,9 +142,7 @@ struct time(CollectionElement, Hashable, Stringable):
             t = self
         var tzoff = t.utcoffset()
         if tzoff is None or tzoff.value() == timedelta(0):
-            return custom_hash(
-                list[Int].from_values(t.hour, t.minute, t.second, t.microsecond)
-            )
+            return custom_hash(List[Int](t.hour, t.minute, t.second, t.microsecond))
         else:
             var utctime = timedelta(
                 hours=self.hour, minutes=self.minute
@@ -159,7 +153,7 @@ struct time(CollectionElement, Hashable, Stringable):
             var minutes_int = (m // timedelta(minutes=1)).to_int()
             var h_int = h.to_int()
             return custom_hash(
-                list[Int].from_values(h_int, minutes_int, self.second, self.microsecond)
+                List[Int](h_int, minutes_int, self.second, self.microsecond)
             )
 
     # Conversion to string
@@ -533,9 +527,9 @@ fn get_slice_checked(string: String, owned start: Int) -> String:
     return string[start:]
 
 
-fn _parse_hh_mm_ss_ff(tstr: String) raises -> list[Int]:
+fn _parse_hh_mm_ss_ff(tstr: String) raises -> List[Int]:
     # Parses things of the form HH[:?MM[:?SS[{.,}fff[fff]]]]
-    var time_comps = list[Int].from_values(0, 0, 0, 0)
+    var time_comps = List[Int](0, 0, 0, 0)
     var pos = 0
     var has_sep: Bool = False
     var next_char: String
@@ -574,9 +568,7 @@ fn _parse_hh_mm_ss_ff(tstr: String) raises -> list[Int]:
 
             time_comps[3] = atol(tstr[pos : (pos + to_parse)])
             if to_parse < 6:
-                time_comps[3] *= list[Int].from_values(100000, 10000, 1000, 100, 10)[
-                    to_parse - 1
-                ]
+                time_comps[3] *= List[Int](100000, 10000, 1000, 100, 10)[to_parse - 1]
             if len_remainder > to_parse and not all(
                 map_input_str(_is_ascii_digit, tstr[(pos + to_parse) :])
             ):
@@ -585,15 +577,15 @@ fn _parse_hh_mm_ss_ff(tstr: String) raises -> list[Int]:
     return time_comps
 
 
-fn all(iterable: list[Bool]) -> Bool:
+fn all(iterable: List[Bool]) -> Bool:
     for element in iterable:
-        if not element:
+        if not element[]:
             return False
     return True
 
 
-fn map_input_str(funct: fn (String) -> Bool, s: String) -> list[Bool]:
-    var result = list[Bool]()
+fn map_input_str(funct: fn (String) -> Bool, s: String) -> List[Bool]:
+    var result = List[Bool]()
     for i in range(len(s)):
         result.append(funct(s[i]))
     return result
@@ -607,7 +599,7 @@ fn _is_ascii_digit(c: String) -> Bool:
     return False
 
 
-fn is_all_zeros(input_list: list[Int]) -> Bool:
+fn is_all_zeros(input_list: List[Int]) -> Bool:
     for i in range(len(input_list)):
         if input_list[i] != 0:
             return False

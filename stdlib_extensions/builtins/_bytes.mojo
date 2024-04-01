@@ -1,10 +1,9 @@
-from ._generic_list import list
 from .._utils import custom_debug_assert
 from .string import rjust
 
 
-fn get_mapping_byte_to_value() -> list[String]:
-    var bytes_display = list[String]()
+fn get_mapping_byte_to_value() -> List[String]:
+    var bytes_display = List[String]()
     bytes_display.append("\\x00")
     bytes_display.append("\\x01")
     bytes_display.append("\\x02")

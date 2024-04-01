@@ -1,6 +1,6 @@
 from .. import datetime as dt
 from ._utils import ymd2ord, MAXORDINAL, _check_date_fields, _check_time_fields
-from ..builtins import divmod, list
+from ..builtins import divmod
 from ..builtins._types import Optional
 from .._utils import custom_debug_assert
 from ._utils import (
@@ -413,7 +413,7 @@ struct datetime(CollectionElement, Stringable, Hashable):
     fn __repr__(self) -> String:
         """Convert to formal string, for repr()."""
         var result: String = "datetime.datetime("
-        var components = list[String].from_values(
+        var components = List[String](
             str(self.year),
             str(self.month),
             str(self.day),
@@ -424,7 +424,7 @@ struct datetime(CollectionElement, Stringable, Hashable):
         )
         for _ in range(2):
             if components[-1] == "0":
-                components.pop()
+                components.pop_back()
         result += join(", ", components)
         if self.tzinfo is not None:
             result += ", tzinfo=" + self.tzinfo.value().__repr__()
@@ -621,7 +621,7 @@ struct datetime(CollectionElement, Stringable, Hashable):
         var tzoff = t.utcoffset()
         if tzoff is None:
             return custom_hash(
-                list[Int].from_values(
+                List[Int](
                     t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
                 )
             )

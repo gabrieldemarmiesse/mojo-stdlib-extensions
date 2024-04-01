@@ -1,4 +1,3 @@
-from ..builtins._generic_list import list
 from .._utils import custom_debug_assert
 
 alias _ALL_WHITESPACES = " \t\n\r\x0b\f"
@@ -58,11 +57,18 @@ fn startswith(
     return input_string[start : start + len(prefix)] == prefix
 
 
+fn string_to_list(input_string: String) -> List[String]:
+    var result = List[String]()
+    for i in range(len(input_string)):
+        result.append(input_string[i])
+    return result
+
+
 fn split(
     input_string: String, sep: String = " ", owned maxsplit: Int = -1
-) -> list[String]:
+) -> List[String]:
     """The separator can be multiple characters long."""
-    var result = list[String]()
+    var result = List[String]()
     if maxsplit == 0:
         result.append(input_string)
         return result
@@ -70,9 +76,9 @@ fn split(
         maxsplit = len(input_string)
 
     if not sep:
-        return list[String].from_string(input_string)[0:maxsplit]
+        return string_to_list(input_string)[0:maxsplit]
 
-    var output = list[String]()
+    var output = List[String]()
     var start = 0
     var split_count = 0
 
@@ -89,7 +95,7 @@ fn split(
     return output
 
 
-fn join(separator: String, iterable: list[String]) -> String:
+fn join(separator: String, iterable: List[String]) -> String:
     var result: String = ""
     for i in range(iterable.__len__()):
         result += iterable[i]

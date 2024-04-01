@@ -7,7 +7,7 @@ This file is taken from https://github.com/python/cpython/blob/main/Lib/_pydatet
 It's just been converted to Mojo manually.
 """
 
-from ..builtins import list, divmod
+from ..builtins import divmod
 from ..builtins.string import join
 from ..time import struct_time
 import math as _math
@@ -45,8 +45,8 @@ alias DAYS_IN_MONTH = StaticTuple[Int, 13](
 )
 
 
-fn _get_days_before_month() -> list[Int]:
-    var result = list[Int]()
+fn _get_days_before_month() -> List[Int]:
+    var result = List[Int]()
     result.append(-1)  # -1 is a placeholder for indexing purposes.
     var dbm = 0
     for i in range(1, len(DAYS_IN_MONTH)):

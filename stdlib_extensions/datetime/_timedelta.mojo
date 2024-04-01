@@ -1,4 +1,4 @@
-from ..builtins import divmod, list, modf
+from ..builtins import divmod, modf
 from ..builtins.string import rjust, join
 from ..builtins._generic_list import _cmp_list
 from ..builtins import custom_hash
@@ -177,7 +177,7 @@ struct timedelta(CollectionElement, Stringable, Hashable):
         self.microseconds = existing.microseconds
 
     fn __repr__(self) -> String:
-        var args = list[String]()
+        var args = List[String]()
         if self.days:
             args.append("days=" + str(self.days))
         if self.seconds:
@@ -318,5 +318,5 @@ struct timedelta(CollectionElement, Stringable, Hashable):
         return self.days != 0 or self.seconds != 0 or self.microseconds != 0
 
     @always_inline
-    fn _getstate(self) -> list[Int]:
-        return list[Int].from_values(self.days, self.seconds, self.microseconds)
+    fn _getstate(self) -> List[Int]:
+        return List[Int](self.days, self.seconds, self.microseconds)

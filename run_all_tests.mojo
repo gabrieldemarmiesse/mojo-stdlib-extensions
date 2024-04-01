@@ -1,6 +1,5 @@
 from stdlib_extensions.stdlib_tests.builtins import (
     test_string,
-    test_list,
     test_bytes,
     test_hex,
     test_math,
@@ -23,8 +22,6 @@ from stdlib_extensions.stdlib_tests.uuid import test_uuid_class
 def run_each_module():
     print("running tests for string")
     test_string.run_tests()
-    print("running tests for list")
-    test_list.run_tests()
     print("running tests for bytes")
     test_bytes.run_tests()
     print("running tests for hex")

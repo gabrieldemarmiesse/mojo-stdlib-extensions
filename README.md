@@ -7,7 +7,7 @@ repository will soon be obsolete.
 ```python
 from stdlib_extensions.datetime import datetime, timedelta
 from stdlib_extensions.builtins.string import rjust
-from stdlib_extensions.builtins import list, list_to_str
+from stdlib_extensions.builtins import list_to_str
 
 def main():
     now = datetime.now()
@@ -23,7 +23,7 @@ def main():
 
     print(rjust("hello world", 20, "*"))
     
-    my_list = list[String]()
+    my_list = List[String]()
     my_list.append("hello")
     my_list.append("world")
     print(list_to_str(my_list))
@@ -62,8 +62,6 @@ stdlib_extensions.builtins.string.strip
 stdlib_extensions.builtins.hex
 stdlib_extensions.builtins.to_bytes
 stdlib_extensions.builtins.input
-stdlib_extensions.builtins.list
--> append, clear, copy, extend, pop, reverse, insert, __len__, __getitem__, __setitem__
 stdlib_extensions.builtins.list_to_str
 -> for Int and Strings, because Mojo doesn't support multiple traits for the same type yet
 

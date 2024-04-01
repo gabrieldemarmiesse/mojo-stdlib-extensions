@@ -15,7 +15,7 @@ from ...builtins.string import (
     strip,
     _ALL_WHITESPACES,
 )
-from ...builtins import list, list_to_str
+from ...builtins import list_to_str
 
 
 def test_ljust():
@@ -94,7 +94,7 @@ def test_split():
 
 
 def test_join_simple():
-    input_list = list[String]()
+    input_list = List[String]()
     input_list.append("hello")
     input_list.append("Mojo 🔥")
     input_list.append("world")
@@ -106,7 +106,7 @@ def test_join_simple():
 
 
 def test_join_edge_case():
-    input_list = list[String]()
+    input_list = List[String]()
 
     assert_equal(join(" ", input_list), "")
     assert_equal(join(", ", input_list), "")

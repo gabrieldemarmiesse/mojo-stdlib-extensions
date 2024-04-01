@@ -20,7 +20,6 @@ from ._iso_calendar_date import IsoCalendarDate
 from ..builtins._generic_list import _cmp_list
 from ..builtins import custom_hash
 from ..time import time, time_ns, struct_time
-from ..builtins import list
 from ..builtins.string import ljust, rjust, join
 from .._utils import custom_debug_assert
 
@@ -342,12 +341,12 @@ struct date(CollectionElement, Stringable, Hashable):
         return self._cmp(other) > 0
 
     fn _cmp(self, other: date) -> Int:
-        var list_1 = list[Int].from_values(self.year, self.month, self.day)
-        var list_2 = list[Int].from_values(other.year, other.month, other.day)
+        var list_1 = List[Int](self.year, self.month, self.day)
+        var list_2 = List[Int](other.year, other.month, other.day)
         return _cmp_list(list_1, list_2)
 
     fn __hash__(self) -> Int:
-        return custom_hash(list[Int].from_values(self.year, self.month, self.day))
+        return custom_hash(List[Int](self.year, self.month, self.day))
 
     # Computations
     fn __add__(self, other: dt.timedelta) -> date:

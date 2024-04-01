@@ -1,4 +1,4 @@
-from ._generic_list import list, list_to_str
+from ._generic_list import list_to_str
 from ._bytes import bytes, to_bytes
 from ..syscalls.filesystem import read_from_stdin
 from ._hash import custom_hash
@@ -8,7 +8,7 @@ from ._custom_equality import ___eq__
 
 
 fn input(prompt: String) -> String:
-    print_no_newline(prompt)
+    print(prompt, end="")
     return input()
 
 
