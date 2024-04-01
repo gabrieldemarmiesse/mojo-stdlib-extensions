@@ -1,5 +1,3 @@
-from collections.vector import DynamicVector
-
 # Types aliases
 alias void = UInt8
 alias char = UInt8
@@ -73,16 +71,16 @@ alias char_pointer = AnyPointer[char]
 
 @value
 struct Str:
-    var vector: DynamicVector[char]
+    var vector: List[char]
 
     fn __init__(inout self, string: String):
-        self.vector = DynamicVector[char](capacity=len(string) + 1)
+        self.vector = List[char](capacity=len(string) + 1)
         for i in range(len(string)):
-            self.vector.push_back(ord(string[i]))
-        self.vector.push_back(0)
+            self.vector.append(ord(string[i]))
+        self.vector.append(0)
 
     fn __init__(inout self, size: Int):
-        self.vector = DynamicVector[char]()
+        self.vector = List[char]()
         self.vector.resize(size + 1, 0)
 
     fn __len__(self) -> Int:
@@ -98,4 +96,4 @@ struct Str:
         return result
 
     fn __enter__(owned self: Self) -> Self:
-        return self ^
+        return self^

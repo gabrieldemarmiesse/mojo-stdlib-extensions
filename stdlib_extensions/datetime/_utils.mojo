@@ -40,7 +40,7 @@ alias MAXORDINAL = 3652059  # date.max.toordinal()
 # -1 is a placeholder for indexing purposes.
 
 
-alias DAYS_IN_MONTH = StaticTuple[13](
+alias DAYS_IN_MONTH = StaticTuple[Int, 13](
     -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 )
 
@@ -179,7 +179,7 @@ fn ord2ymd(owned n: Int) -> Tuple[Int, Int, Int]:
 
 
 # Month and day names.  For localized versions, see the calendar module.
-alias MONTHS_SHORT_NAMES = StaticTuple[13](
+alias MONTHS_SHORT_NAMES = StaticTuple[StringLiteral, 13](
     "",
     "Jan",
     "Feb",
@@ -195,7 +195,7 @@ alias MONTHS_SHORT_NAMES = StaticTuple[13](
     "Dec",
 )
 
-alias MONTHS_NAMES = StaticTuple[13](
+alias MONTHS_NAMES = StaticTuple[StringLiteral, 13](
     "",
     "January",
     "February",
@@ -212,7 +212,7 @@ alias MONTHS_NAMES = StaticTuple[13](
 )
 
 
-alias DAYS_SHORT_NAMES = StaticTuple[8](
+alias DAYS_SHORT_NAMES = StaticTuple[StringLiteral, 8](
     "",
     "Mon",
     "Tue",
@@ -223,7 +223,7 @@ alias DAYS_SHORT_NAMES = StaticTuple[8](
     "Sun",
 )
 
-alias DAYS_NAMES = StaticTuple[8](
+alias DAYS_NAMES = StaticTuple[StringLiteral, 8](
     "",
     "Monday",
     "Tuesday",

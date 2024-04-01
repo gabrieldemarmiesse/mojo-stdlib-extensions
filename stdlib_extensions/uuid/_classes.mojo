@@ -147,23 +147,23 @@ struct UUID(Stringable):
         return output
 
     fn time_low(self) -> Int:
-        return uint8_simd_to_int(self.__bytes.slice[4](0))
+        return uint8_simd_to_int(self.__bytes.slice[4, offset=0]())
 
     fn time_mid(self) -> Int:
-        return uint8_simd_to_int(self.__bytes.slice[2](4))
+        return uint8_simd_to_int(self.__bytes.slice[2, offset=4]())
 
     fn time_hi_version(self) -> Int:
-        return uint8_simd_to_int(self.__bytes.slice[2](6))
+        return uint8_simd_to_int(self.__bytes.slice[2, offset=6]())
 
     fn clock_seq_hi_variant(self) -> Int:
-        return uint8_simd_to_int(self.__bytes.slice[1](8))
+        return uint8_simd_to_int(self.__bytes.slice[1, offset=8]())
 
     fn clock_seq_low(self) -> Int:
-        return uint8_simd_to_int(self.__bytes.slice[1](9))
+        return uint8_simd_to_int(self.__bytes.slice[1, offset=9]())
 
     fn node(self) -> Int:
         # trick because simd size can only be a power of 2
-        var node_bytes = self.__bytes.slice[8](8)
+        var node_bytes = self.__bytes.slice[8, offset=8]()
         node_bytes[0] = 0
         node_bytes[1] = 0
         return uint8_simd_to_int(node_bytes)

@@ -1,7 +1,6 @@
 from ._generic_list import list
 from .._utils import custom_debug_assert
 from .string import rjust
-from ._dynamic_vector_list import List
 
 
 fn get_mapping_byte_to_value() -> list[String]:
@@ -282,7 +281,7 @@ struct bytes(Stringable, Sized, CollectionElement):
         self._vector = List[UInt8]()
 
     fn __init__(inout self, owned vector: List[UInt8]):
-        self._vector = vector ^
+        self._vector = vector^
 
     fn __init__(inout self, size: Int):
         self._vector = List[UInt8](capacity=size)

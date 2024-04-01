@@ -1,4 +1,3 @@
-from collections.vector import DynamicVector
 from .._utils import custom_debug_assert
 
 
@@ -20,12 +19,12 @@ struct ListIter[T: CollectionElement]:
 
 @value
 struct list[T: CollectionElement](Sized, Movable):
-    var _internal_vector: DynamicVector[T]
+    var _internal_vector: List[T]
 
     fn __init__(inout self):
-        self._internal_vector = DynamicVector[T]()
+        self._internal_vector = List[T]()
 
-    fn __init__(inout self, owned value: DynamicVector[T]):
+    fn __init__(inout self, owned value: List[T]):
         self._internal_vector = value
 
     @staticmethod
@@ -43,7 +42,7 @@ struct list[T: CollectionElement](Sized, Movable):
             return index
 
     fn append(inout self, value: T):
-        self._internal_vector.push_back(value)
+        self._internal_vector.append(value)
 
     fn clear(inout self):
         self._internal_vector.clear()

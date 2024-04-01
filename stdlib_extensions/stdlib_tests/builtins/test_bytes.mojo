@@ -1,6 +1,5 @@
 from ...builtins import bytes, to_bytes
 from ..utils import assert_equal
-from collections.vector import DynamicVector
 
 
 def test_bytes_operations_indexing_and_add():
@@ -13,10 +12,7 @@ def test_bytes_operations_indexing_and_add():
 
     assert_equal(some_bytes[5], 5)
 
-    new_vector = DynamicVector[UInt8]()
-    new_vector.push_back(100)
-    new_vector.push_back(101)
-    new_vector.push_back(102)
+    new_vector = List[UInt8](100, 101, 102)
 
     new_bytes = bytes(new_vector)
     assert_equal(new_bytes[2], 102)
