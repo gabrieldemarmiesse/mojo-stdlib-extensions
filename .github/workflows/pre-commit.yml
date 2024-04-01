@@ -38,5 +38,5 @@ jobs:
     - name: Run pre-commit checks
       run: |
         export MODULAR_HOME="/home/runner/.modular"
-        export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
+        export PATH="/home/runner/.modular/pkg/packages.modular.com_nightly_mojo/bin:$PATH"
         pre-commit run --all-files

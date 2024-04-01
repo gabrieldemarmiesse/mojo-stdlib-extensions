@@ -26,12 +26,12 @@ jobs:
           modular auth "$MODULAR_AUTH"
       - name: Install mojo CLI
         run: |
-          modular install mojo
+          modular install nightly/mojo
     
       - name: Generate package
         run: | 
           export MODULAR_HOME="/home/runner/.modular"
-          export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
+          export PATH="/home/runner/.modular/pkg/packages.modular.com_nightly_mojo/bin:$PATH"
           bash ./dist/make_release.sh
       
       - name: Release

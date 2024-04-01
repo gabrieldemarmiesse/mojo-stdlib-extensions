@@ -33,6 +33,6 @@ jobs:
     - name: Run tests
       run: |
         export MODULAR_HOME="/home/runner/.modular"
-        export PATH="/home/runner/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
+        export PATH="/home/runner/.modular/pkg/packages.modular.com_nightly_mojo/bin:$PATH"
         mojo -D MOJO_ENABLE_ASSERTIONS run_all_tests.mojo
         mojo -D MOJO_ENABLE_ASSERTIONS run_all_tests.mojo
